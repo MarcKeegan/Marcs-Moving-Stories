@@ -339,7 +339,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
           ) : (
             <>
               <Sparkles size={20} className="animate-subtle-pulse" />
-              Generate your story
+              Create your story
             </>
           )}
         </button>
