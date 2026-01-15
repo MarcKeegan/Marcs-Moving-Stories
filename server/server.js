@@ -21,8 +21,8 @@ const externalWsBaseUrl = 'wss://generativelanguage.googleapis.com';
 // Support either API key env-var variant
 const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
 
-const staticPath = path.join(__dirname,'dist');
-const publicPath = path.join(__dirname,'public');
+const staticPath = path.join(__dirname, 'dist');
+const publicPath = path.join(__dirname, 'public');
 
 
 if (!apiKey) {
@@ -30,12 +30,12 @@ if (!apiKey) {
     console.error("Warning: GEMINI_API_KEY or API_KEY environment variable is not set! Proxy functionality will be disabled.");
 }
 else {
-  console.log("API KEY FOUND (proxy will use this)")
+    console.log("API KEY FOUND (proxy will use this)")
 }
 
 // Limit body size to 50mb
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({extended: true, limit: '50mb'}));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.set('trust proxy', 1 /* number of proxies between user and server */)
 
 // Rate limiter for the proxy
@@ -212,8 +212,8 @@ app.get('/', (req, res) => {
 
         // If API key is not set, serve original HTML without injection
         if (!apiKey) {
-          console.log("LOG: API key not set. Serving original index.html without script injections.");
-          return res.sendFile(indexPath);
+            console.log("LOG: API key not set. Serving original index.html without script injections.");
+            return res.sendFile(indexPath);
         }
 
         // index.html found and apiKey set, inject scripts
@@ -221,23 +221,27 @@ app.get('/', (req, res) => {
         let injectedHtml = indexHtmlData;
 
 
+        const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY || "";
+        const geminiApiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
+        const envScript = `<script>window.__ENV__ = { GOOGLE_MAPS_API_KEY: "${mapsApiKey}", API_KEY: "${geminiApiKey}" };</script>`;
+
         if (injectedHtml.includes('<head>')) {
             // Inject WebSocket interceptor first, then service worker script
             injectedHtml = injectedHtml.replace(
                 '<head>',
-                `<head>${webSocketInterceptorScriptTag}${serviceWorkerRegistrationScript}`
+                `<head>${envScript}${webSocketInterceptorScriptTag}${serviceWorkerRegistrationScript}`
             );
             console.log("LOG: Scripts injected into <head>.");
         } else {
             console.warn("WARNING: <head> tag not found in index.html. Prepending scripts to the beginning of the file as a fallback.");
-            injectedHtml = `${webSocketInterceptorScriptTag}${serviceWorkerRegistrationScript}${indexHtmlData}`;
+            injectedHtml = `${envScript}${webSocketInterceptorScriptTag}${serviceWorkerRegistrationScript}${indexHtmlData}`;
         }
         res.send(injectedHtml);
     });
 });
 
 app.get('/service-worker.js', (req, res) => {
-   return res.sendFile(path.join(publicPath, 'service-worker.js'));
+    return res.sendFile(path.join(publicPath, 'service-worker.js'));
 });
 
 app.use('/public', express.static(publicPath));
