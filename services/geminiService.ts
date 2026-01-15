@@ -41,6 +41,8 @@ const getStyleInstruction = (style: StoryStyle): string => {
   switch (style) {
     case 'NOIR':
       return "Style: Noir Thriller. Gritty, cynical, atmospheric. Use inner monologue. The traveler is a detective or someone with a troubled past. The city is a character itself—dark, rainy, hiding secrets. Use metaphors of shadows, smoke, and cold neon.";
+    case 'TOURGUIDE':
+      return "Style: Friendly Tourguide. Informative, engaging, and helpful. The traveler wants detailed information as they travel, must be hisotrically accurate.";
     case 'CHILDREN':
       return "Style: Children's Story. Whimsical, magical, full of wonder and gentle humor. The world is bright and alive; maybe inanimate objects (like traffic lights or trees) have slight personalities. Simple but evocative language. A sense of delightful discovery.";
     case 'HISTORICAL':
