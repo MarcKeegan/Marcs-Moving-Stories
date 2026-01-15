@@ -38,76 +38,80 @@ self.addEventListener('fetch', (event) => {
     if (requestUrl.startsWith(TARGET_URL_PREFIX)) {
       console.log(`Service Worker: Intercepting request to ${requestUrl}`);
 
-      const remainingPathAndQuery = requestUrl.substring(TARGET_URL_PREFIX.length);
-      const proxyUrl = `${self.location.origin}/api-proxy${remainingPathAndQuery}`;
+      const promise = (async () => {
+        const remainingPathAndQuery = requestUrl.substring(TARGET_URL_PREFIX.length);
+        const proxyUrl = `${self.location.origin}/api-proxy${remainingPathAndQuery}`;
 
-      console.log(`Service Worker: Proxying to ${proxyUrl}`);
+        console.log(`Service Worker: Proxying to ${proxyUrl}`);
 
-      // Construct headers for the request to the proxy
-      const newHeaders = new Headers();
-      // Copy essential headers from the original request
-      // For OPTIONS (preflight) requests, Access-Control-Request-*  are critical.
-      // For actual requests (POST, GET), Content-Type, Accept etc.
-      const headersToCopy = [
-        'Content-Type',
-        'Accept',
-        'Access-Control-Request-Method',
-        'Access-Control-Request-Headers',
-      ];
+        // Construct headers for the request to the proxy
+        const newHeaders = new Headers();
+        const headersToCopy = [
+          'Content-Type',
+          'Accept',
+          'Access-Control-Request-Method',
+          'Access-Control-Request-Headers',
+          'Authorization' // Sometimes needed if authenticating via headers
+        ];
 
-      for (const headerName of headersToCopy) {
-        if (event.request.headers.has(headerName)) {
-          newHeaders.set(headerName, event.request.headers.get(headerName));
+        for (const headerName of headersToCopy) {
+          if (event.request.headers.has(headerName)) {
+            newHeaders.set(headerName, event.request.headers.get(headerName));
+          }
         }
-      }
 
-      if (event.request.method === 'POST') {
-
-        // Ensure Content-Type is set for POST requests to the proxy, defaulting to application/json
-        if (!newHeaders.has('Content-Type')) {
-          console.warn("Service Worker: POST request to proxy was missing Content-Type in newHeaders. Defaulting to application/json.");
-          newHeaders.set('Content-Type', 'application/json');
-        } else {
-          console.log(`Service Worker: POST request to proxy has Content-Type: ${newHeaders.get('Content-Type')}`);
+        let body = undefined;
+        if (event.request.method !== 'GET' && event.request.method !== 'HEAD') {
+          // CRITICAL FIX: Safari/Firefox do not support ReadableStream uploads in fetch (yet).
+          // We must consume the body stream and convert it to a Blob or ArrayBuffer.
+          // Since Gemini payloads are typically small JSONs (prompts), this is safe.
+          try {
+            body = await event.request.blob();
+          } catch (err) {
+            console.warn("Service Worker: Failed to consume request body as blob", err);
+          }
         }
-      }
 
-      const requestOptions = {
-        method: event.request.method,
-        headers: newHeaders, // Use simplified headers
-        body: event.request.body, // Still use the original body stream
-        mode: event.request.mode,
-        credentials: event.request.credentials,
-        cache: event.request.cache,
-        redirect: event.request.redirect,
-        referrer: event.request.referrer,
-        integrity: event.request.integrity,
-      };
+        if (event.request.method === 'POST') {
+          if (!newHeaders.has('Content-Type')) {
+            console.warn("Service Worker: POST request to proxy was missing Content-Type. Defaulting to application/json.");
+            newHeaders.set('Content-Type', 'application/json');
+          }
+        }
 
-      // Only set duplex if there's a body and it's a relevant method
-      if (event.request.method !== 'GET' && event.request.method !== 'HEAD' && event.request.body ) {
-        requestOptions.duplex = 'half';
-      }
+        const requestOptions = {
+          method: event.request.method,
+          headers: newHeaders,
+          body: body,
+          mode: event.request.mode,
+          credentials: event.request.credentials,
+          cache: event.request.cache,
+          redirect: event.request.redirect,
+          referrer: event.request.referrer,
+          integrity: event.request.integrity,
+        };
 
-      const promise = fetch(new Request(proxyUrl, requestOptions))
-        .then((response) => {
-          console.log(`Service Worker: Successfully proxied request to ${proxyUrl}, Status: ${response.status}`);
-          return response;
-        })
-        .catch((error) => {
-          // Log more error details
-          console.error(`Service Worker: Error proxying request to ${proxyUrl}. Message: ${error.message}, Name: ${error.name}, Stack: ${error.stack}`);
-          return new Response(
-            JSON.stringify({ error: 'Proxying failed', details: error.message, name: error.name, proxiedUrl: proxyUrl }),
-            {
-              status: 502, // Bad Gateway is appropriate for proxy errors
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        });
+        // No need for 'duplex' when using query/blob bodies
+
+        return fetch(new Request(proxyUrl, requestOptions))
+          .then((response) => {
+            console.log(`Service Worker: Successfully proxied request to ${proxyUrl}, Status: ${response.status}`);
+            return response;
+          })
+          .catch((error) => {
+            console.error(`Service Worker: Error proxying request to ${proxyUrl}.`, error);
+            return new Response(
+              JSON.stringify({ error: 'Proxying failed', details: error.message, name: error.name, proxiedUrl: proxyUrl }),
+              {
+                status: 502,
+                headers: { 'Content-Type': 'application/json' }
+              }
+            );
+          });
+      })();
 
       event.respondWith(promise);
-
+      return; // Exit function, promise handled above
     } else {
       // If the request URL doesn't match our target, let it proceed as normal.
       event.respondWith(fetch(event.request));
