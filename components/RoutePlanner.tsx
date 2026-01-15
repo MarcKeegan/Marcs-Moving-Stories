@@ -6,7 +6,7 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Navigation, Loader2, Footprints, Car, CloudRain, Sparkles, ScrollText, Sword } from 'lucide-react';
+import { MapPin, Navigation, Loader2, Footprints, Car, CloudRain, Sparkles, ScrollText, Sword, Locate } from 'lucide-react';
 import { RouteDetails, AppState, StoryStyle } from '../types';
 
 declare global {
@@ -24,11 +24,11 @@ interface Props {
 type TravelMode = 'WALKING' | 'DRIVING';
 
 const STYLES: { id: StoryStyle; label: string; icon: React.ElementType; desc: string }[] = [
-    { id: 'NOIR', label: 'Noir Thriller', icon: CloudRain, desc: 'Gritty, mysterious, rain-slicked streets.' },
-    { id: 'CHILDREN', label: 'Children\'s Story', icon: Sparkles, desc: 'Whimsical, magical, and full of wonder.' },
-    { id: 'HISTORICAL', label: 'Historical Epic', icon: ScrollText, desc: 'Grand, dramatic, echoing the past.' },
-    { id: 'FANTASY', label: 'Fantasy Adventure', icon: Sword, desc: 'An epic quest through a magical realm.' },
-    { id: 'TOURGUIDE', label: 'Tour Guide', icon: Sword, desc: 'Detailed Tour Guide.' },
+  { id: 'NOIR', label: 'Noir Thriller', icon: CloudRain, desc: 'Gritty, mysterious, rain-slicked streets.' },
+  { id: 'CHILDREN', label: 'Children\'s Story', icon: Sparkles, desc: 'Whimsical, magical, and full of wonder.' },
+  { id: 'HISTORICAL', label: 'Historical Epic', icon: ScrollText, desc: 'Grand, dramatic, echoing the past.' },
+  { id: 'FANTASY', label: 'Fantasy Adventure', icon: Sword, desc: 'An epic quest through a magical realm.' },
+  { id: 'TOURGUIDE', label: 'Tour Guide', icon: Sword, desc: 'Detailed Tour Guide.' },
 ];
 
 const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }) => {
@@ -38,6 +38,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
   const [selectedStyle, setSelectedStyle] = useState<StoryStyle>('NOIR');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
 
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +46,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
   // Sync external errors (like timeouts from App.tsx) into local UI
   useEffect(() => {
     if (externalError) {
-        setError(externalError);
+      setError(externalError);
     }
   }, [externalError]);
 
@@ -54,67 +55,67 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
     let isMounted = true;
 
     const initAutocomplete = async () => {
-        if (!window.google?.maps?.places) return;
-        
-        try {
-             const setupAutocomplete = (
-                 inputElement: HTMLInputElement | null,
-                 setAddress: (addr: string) => void
-             ) => {
-                 if (!inputElement) return;
+      if (!window.google?.maps?.places) return;
 
-                 const autocomplete = new window.google.maps.places.Autocomplete(inputElement, {
-                     fields: ['formatted_address', 'geometry', 'name'],
-                     types: ['geocode', 'establishment']
-                 });
+      try {
+        const setupAutocomplete = (
+          inputElement: HTMLInputElement | null,
+          setAddress: (addr: string) => void
+        ) => {
+          if (!inputElement) return;
 
-                 autocomplete.addListener('place_changed', () => {
-                     if (!isMounted) return;
-                     const place = autocomplete.getPlace();
-                     
-                     if (!place.geometry || !place.geometry.location) {
-                         if (inputElement.value && window.google.maps.Geocoder) {
-                             const geocoder = new window.google.maps.Geocoder();
-                             geocoder.geocode({ address: inputElement.value }, (results: any, status: any) => {
-                                 if (status === 'OK' && results[0]) {
-                                     setAddress(results[0].formatted_address);
-                                     inputElement.value = results[0].formatted_address;
-                                 }
-                             });
-                         }
-                         return;
-                     }
+          const autocomplete = new window.google.maps.places.Autocomplete(inputElement, {
+            fields: ['formatted_address', 'geometry', 'name'],
+            types: ['geocode', 'establishment']
+          });
 
-                     const address = place.formatted_address || place.name;
-                     setAddress(address);
-                     inputElement.value = address;
-                 });
-             };
+          autocomplete.addListener('place_changed', () => {
+            if (!isMounted) return;
+            const place = autocomplete.getPlace();
 
-             setupAutocomplete(startInputRef.current, setStartAddress);
-             setupAutocomplete(endInputRef.current, setEndAddress);
+            if (!place.geometry || !place.geometry.location) {
+              if (inputElement.value && window.google.maps.Geocoder) {
+                const geocoder = new window.google.maps.Geocoder();
+                geocoder.geocode({ address: inputElement.value }, (results: any, status: any) => {
+                  if (status === 'OK' && results[0]) {
+                    setAddress(results[0].formatted_address);
+                    inputElement.value = results[0].formatted_address;
+                  }
+                });
+              }
+              return;
+            }
 
-        } catch (e) {
-            console.error("Failed to initialize Places Autocomplete:", e);
-            if (isMounted) setError("Location search failed to initialize. Please refresh.");
-        }
+            const address = place.formatted_address || place.name;
+            setAddress(address);
+            inputElement.value = address;
+          });
+        };
+
+        setupAutocomplete(startInputRef.current, setStartAddress);
+        setupAutocomplete(endInputRef.current, setEndAddress);
+
+      } catch (e) {
+        console.error("Failed to initialize Places Autocomplete:", e);
+        if (isMounted) setError("Location search failed to initialize. Please refresh.");
+      }
     };
 
     if (window.google?.maps?.places) {
-        initAutocomplete();
+      initAutocomplete();
     } else {
-        const interval = setInterval(() => {
-            if (window.google?.maps?.places) {
-                clearInterval(interval);
-                initAutocomplete();
-            }
-        }, 300);
-        return () => {
-            isMounted = false;
-            clearInterval(interval);
-        };
+      const interval = setInterval(() => {
+        if (window.google?.maps?.places) {
+          clearInterval(interval);
+          initAutocomplete();
+        }
+      }, 300);
+      return () => {
+        isMounted = false;
+        clearInterval(interval);
+      };
     }
-    
+
     return () => { isMounted = false; };
   }, []);
 
@@ -128,8 +129,8 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
     }
 
     if (!window.google?.maps) {
-         setError("Google Maps API is not loaded yet. Please refresh.");
-         return;
+      setError("Google Maps API is not loaded yet. Please refresh.");
+      return;
     }
 
     setError(null);
@@ -166,12 +167,51 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
         } else {
           console.error("Directions error:", status, result);
           if (status === 'ZERO_RESULTS') {
-              const mode = travelMode.toLowerCase();
-              setError(`Sorry, we could not calculate ${mode} directions from "${finalStart}" to "${finalEnd}"`);
+            const mode = travelMode.toLowerCase();
+            setError(`Sorry, we could not calculate ${mode} directions from "${finalStart}" to "${finalEnd}"`);
           } else {
-              setError("Could not calculate route. Please check the locations and try again.");
+            setError("Could not calculate route. Please check the locations and try again.");
           }
         }
+      }
+    );
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLocating(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        if (window.google?.maps?.Geocoder) {
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
+            if (status === 'OK' && results && results[0]) {
+              const address = results[0].formatted_address;
+              setStartAddress(address);
+              if (startInputRef.current) {
+                startInputRef.current.value = address;
+              }
+            } else {
+              setError("Could not find address for your location");
+            }
+            setIsLocating(false);
+          });
+        } else {
+          setError("Google Maps API not loaded");
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        setError("Unable to retrieve your location. Please check permissions.");
+        setIsLocating(false);
       }
     );
   };
@@ -182,95 +222,105 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
     <div className={`transition-all duration-700 ${isLocked ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
       <div className="space-y-8 bg-white/80 backdrop-blur-lg p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-stone-200/50 border border-white/50">
         <div className="space-y-1">
-            <h2 className="text-2xl font-serif text-editorial-900">Plan Your Journey</h2>
-            <p className="text-stone-500">Search locations and customize your experience.</p>
+          <h2 className="text-2xl font-serif text-editorial-900">Plan Your Journey</h2>
+          <p className="text-stone-500">Search locations and customize your experience.</p>
         </div>
 
         <div className="space-y-4">
           <div className="relative group z-20 h-14 bg-stone-50/50 border-2 border-stone-100 focus-within:border-editorial-900 focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:shadow-md overflow-hidden">
             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-editorial-900 transition-colors pointer-events-none z-10" size={20} />
             <input
-                ref={startInputRef}
-                type="text"
-                placeholder="Starting Point"
-                className="w-full h-full bg-transparent p-0 pl-12 pr-4 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
-                onChange={(e) => setStartAddress(e.target.value)}
-                disabled={isLocked}
+              ref={startInputRef}
+              type="text"
+              placeholder="Starting Point"
+              className="w-full h-full bg-transparent p-0 pl-12 pr-12 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
+              onChange={(e) => setStartAddress(e.target.value)}
+              disabled={isLocked}
             />
+            <button
+              onClick={handleUseCurrentLocation}
+              disabled={isLocked || isLocating}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-stone-400 hover:text-editorial-900 hover:bg-stone-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-20"
+              title="Use current location"
+            >
+              {isLocating ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Locate size={18} />
+              )}
+            </button>
           </div>
 
           <div className="relative group z-10 h-14 bg-stone-50/50 border-2 border-stone-100 focus-within:border-editorial-900 focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:shadow-md overflow-hidden">
             <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-editorial-900 transition-colors pointer-events-none z-10" size={20} />
             <input
-                ref={endInputRef}
-                type="text"
-                placeholder="Destination"
-                className="w-full h-full bg-transparent p-0 pl-12 pr-4 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
-                onChange={(e) => setEndAddress(e.target.value)}
-                disabled={isLocked}
+              ref={endInputRef}
+              type="text"
+              placeholder="Destination"
+              className="w-full h-full bg-transparent p-0 pl-12 pr-4 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
+              onChange={(e) => setEndAddress(e.target.value)}
+              disabled={isLocked}
             />
           </div>
         </div>
 
         {/* Settings Grid */}
         <div className="grid grid-cols-1 gap-6">
-            {/* Travel Mode */}
-            <div className="space-y-3">
-                <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Travel Mode</label>
-                <div className="flex gap-2 bg-stone-100/50 p-1.5 rounded-xl border border-stone-100">
-                    {(['WALKING', 'DRIVING'] as TravelMode[]).map((mode) => (
-                        <button
-                            key={mode}
-                            onClick={() => setTravelMode(mode)}
-                            disabled={isLocked}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm transition-all ${
-                                travelMode === mode 
-                                    ? 'bg-white text-editorial-900 shadow-md' 
-                                    : 'text-stone-500 hover:bg-stone-200/50 hover:text-stone-700'
-                            }`}
-                        >
-                            {mode === 'WALKING' && <Footprints size={18} />}
-                            {mode === 'DRIVING' && <Car size={18} />}
-                            <span className="hidden lg:inline">
-                                {mode === 'WALKING' ? 'Walk' : 'Drive'}
-                            </span>
-                        </button>
-                    ))}
-                </div>
+          {/* Travel Mode */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Travel Mode</label>
+            <div className="flex gap-2 bg-stone-100/50 p-1.5 rounded-xl border border-stone-100">
+              {(['WALKING', 'DRIVING'] as TravelMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setTravelMode(mode)}
+                  disabled={isLocked}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm transition-all ${travelMode === mode
+                    ? 'bg-white text-editorial-900 shadow-md'
+                    : 'text-stone-500 hover:bg-stone-200/50 hover:text-stone-700'
+                    }`}
+                >
+                  {mode === 'WALKING' && <Footprints size={18} />}
+                  {mode === 'DRIVING' && <Car size={18} />}
+                  <span className="hidden lg:inline">
+                    {mode === 'WALKING' ? 'Walk' : 'Drive'}
+                  </span>
+                </button>
+              ))}
             </div>
+          </div>
         </div>
 
         {/* Story Style Selector */}
         <div className="space-y-3">
-            <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Story Style</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {STYLES.map((style) => {
-                    const Icon = style.icon;
-                    const isSelected = selectedStyle === style.id;
-                    return (
-                        <button
-                            key={style.id}
-                            onClick={() => setSelectedStyle(style.id)}
-                            disabled={isLocked}
-                            className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                                isSelected
-                                    ? 'border-editorial-900 bg-editorial-900 text-white shadow-md'
-                                    : 'border-stone-100 bg-stone-50/50 text-stone-600 hover:border-stone-300 hover:bg-stone-100'
-                            }`}
-                        >
-                            <Icon size={24} className={`shrink-0 ${isSelected ? 'text-white' : 'text-stone-400'}`} />
-                            <div>
-                                <div className={`font-bold ${isSelected ? 'text-white' : 'text-editorial-900'}`}>
-                                    {style.label}
-                                </div>
-                                <div className={`text-xs mt-1 leading-tight ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                                    {style.desc}
-                                </div>
-                            </div>
-                        </button>
-                    );
-                })}
-            </div>
+          <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Story Style</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {STYLES.map((style) => {
+              const Icon = style.icon;
+              const isSelected = selectedStyle === style.id;
+              return (
+                <button
+                  key={style.id}
+                  onClick={() => setSelectedStyle(style.id)}
+                  disabled={isLocked}
+                  className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${isSelected
+                    ? 'border-editorial-900 bg-editorial-900 text-white shadow-md'
+                    : 'border-stone-100 bg-stone-50/50 text-stone-600 hover:border-stone-300 hover:bg-stone-100'
+                    }`}
+                >
+                  <Icon size={24} className={`shrink-0 ${isSelected ? 'text-white' : 'text-stone-400'}`} />
+                  <div>
+                    <div className={`font-bold ${isSelected ? 'text-white' : 'text-editorial-900'}`}>
+                      {style.label}
+                    </div>
+                    <div className={`text-xs mt-1 leading-tight ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                      {style.desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {error && (
@@ -288,8 +338,8 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
             </>
           ) : (
             <>
-               <Sparkles size={20} className="animate-subtle-pulse" />
-               Generate your story
+              <Sparkles size={20} className="animate-subtle-pulse" />
+              Generate your story
             </>
           )}
         </button>
