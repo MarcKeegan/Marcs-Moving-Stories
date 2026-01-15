@@ -237,7 +237,7 @@ function App() {
             <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32">
                 {/* Hero Section */}
                 <div className={`transition-all duration-700 origin-top ease-in-out max-w-4xl mx-auto ${isHeroVisible ? 'opacity-100 translate-y-0 mb-16' : 'opacity-0 -translate-y-10 h-0 overflow-hidden mb-0'}`}>
-                    <h1 className="text-5xl md:text-7xl font-serif leading-[1.05] tracking-tight mb-8">
+                    <h1 className="text-4xl md:text-6xl font-serif leading-[1.05] tracking-tight mb-8">
                         Your Journey. Your Soundtrack.<br /> <span className="italic text-stone-500">Your Story.</span>
                     </h1>
                     <p className="text-xl text-stone-600 max-w-xl leading-relaxed font-light">
