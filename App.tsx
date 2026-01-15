@@ -122,14 +122,11 @@ function App() {
             );
 
             // 2. Generate Audio (increased to 100s timeout as TTS can be slow under load)
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            const tempCtx = new AudioContextClass();
-            const audioBuffer = await withTimeout(
-                generateSegmentAudio(segmentData.text, tempCtx),
+            const audioUrl = await withTimeout(
+                generateSegmentAudio(segmentData.text),
                 100000,
                 `Audio generation timed out for segment ${index}`
             );
-            await tempCtx.close();
 
             // 3. Append to stream
             setStory(prev => {
@@ -138,7 +135,7 @@ function App() {
                 if (prev.segments.some(s => s.index === index)) return prev;
                 return {
                     ...prev,
-                    segments: [...prev.segments, { ...segmentData, audioBuffer }].sort((a, b) => a.index - b.index)
+                    segments: [...prev.segments, { ...segmentData, audioUrl }].sort((a, b) => a.index - b.index)
                 };
             });
             console.log(`[Buffering] Segment ${index} ready.`);
@@ -182,18 +179,15 @@ function App() {
             );
 
             setLoadingMessage("Preparing audio stream...30 seconds");
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            const tempCtx = new AudioContextClass();
-            const seg1Audio = await withTimeout(
-                generateSegmentAudio(seg1Data.text, tempCtx),
+            const seg1AudioUrl = await withTimeout(
+                generateSegmentAudio(seg1Data.text),
                 100000, "Initial audio generation timed out"
             );
-            await tempCtx.close();
 
             setStory({
                 totalSegmentsEstimate,
                 outline,
-                segments: [{ ...seg1Data, audioBuffer: seg1Audio }]
+                segments: [{ ...seg1Data, audioUrl: seg1AudioUrl }]
             });
 
             setAppState(AppState.READY_TO_PLAY);

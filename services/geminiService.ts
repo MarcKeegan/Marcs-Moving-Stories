@@ -41,8 +41,7 @@ const getStyleInstruction = (style: StoryStyle): string => {
   switch (style) {
     case 'NOIR':
       return "Style: Noir Thriller. Gritty, cynical, atmospheric. Use inner monologue. The traveler is a detective or someone with a troubled past. The city is a character itself—dark, rainy, hiding secrets. Use metaphors of shadows, smoke, and cold neon.";
-    case 'TOURGUIDE':
-      return "Style: Friendly Tourguide. Informative, engaging, and helpful. The traveler wants detailed information as they travel, must be hisotrically accurate.";
+
     case 'CHILDREN':
       return "Style: Children's Story. Whimsical, magical, full of wonder and gentle humor. The world is bright and alive; maybe inanimate objects (like traffic lights or trees) have slight personalities. Simple but evocative language. A sense of delightful discovery.";
     case 'HISTORICAL':
@@ -154,7 +153,8 @@ export const generateSegment = async (
     return {
       index: segmentIndex,
       text: text,
-      audioBuffer: null // Audio generated separately
+      audioUrl: null, // Audio generated separately
+      audioBuffer: null // Deprecated
     };
 
   } catch (error) {
@@ -163,7 +163,8 @@ export const generateSegment = async (
   }
 };
 
-export const generateSegmentAudio = async (text: string, audioContext: AudioContext, voiceName: string = 'Kore'): Promise<AudioBuffer> => {
+// MODIFIED: Returns Blob URL instead of AudioBuffer
+export const generateSegmentAudio = async (text: string, voiceName: string = 'Kore'): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
@@ -184,8 +185,11 @@ export const generateSegmentAudio = async (text: string, audioContext: AudioCont
     const match = mimeType.match(/rate=(\d+)/);
     const sampleRate = match ? parseInt(match[1], 10) : 24000;
 
-    const wavArrayBuffer = await pcmToWav(base64ToArrayBuffer(audioData), sampleRate).arrayBuffer();
-    return await audioContext.decodeAudioData(wavArrayBuffer);
+    // Convert to WAV Blob
+    const wavBlob = pcmToWav(base64ToArrayBuffer(audioData), sampleRate);
+
+    // Create and return Blob URL
+    return URL.createObjectURL(wavBlob);
 
   } catch (error) {
     console.error("Audio Generation Error:", error);

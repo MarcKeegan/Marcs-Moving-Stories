@@ -21,7 +21,8 @@ export interface RouteDetails {
 export interface StorySegment {
     index: number; // 1-based index
     text: string;
-    audioBuffer: AudioBuffer | null;
+    audioUrl: string | null; // Blob URL for <audio> tag
+    audioBuffer?: AudioBuffer | null; // Deprecated: keeping for compatibility during refactor if needed
 }
 
 export interface AudioStory {
