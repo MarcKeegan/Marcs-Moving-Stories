@@ -451,7 +451,7 @@ function App() {
             <MapBackground route={route} />
 
             <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32">
-                <div className="absolute top-4 left-0 flex justify-start">
+                <header className="max-w-4xl mx-auto flex items-center justify-between mb-12">
                     <img
                         src={LOGO_URL}
                         alt="StoryMaps"
@@ -459,21 +459,19 @@ function App() {
                         loading="eager"
                         decoding="async"
                     />
-                </div>
-                <div className="absolute top-4 right-0 flex justify-end">
                     <button
                         onClick={logout}
                         className="text-xs text-stone-500 hover:text-editorial-900 underline"
                     >
                         Sign out
                     </button>
-                </div>
+                </header>
                 {/* Hero Section */}
                 <div className={`transition-all duration-700 origin-top ease-in-out max-w-4xl mx-auto ${isHeroVisible ? 'opacity-100 translate-y-0 mb-16' : 'opacity-0 -translate-y-10 h-0 overflow-hidden mb-0'}`}>
-                    <h1 className="text-4xl md:text-6xl font-display leading-[1.05] tracking-tight mb-8">
+                    <h1 className="text-[2rem] font-display leading-[1.05] tracking-tight mb-8">
                         Your Journey. Your Soundtrack.<br /> <span className="italic text-stone-500">Your Story.</span>
                     </h1>
-                    <p className="text-xl text-stone-600 max-w-xl leading-relaxed font-light">
+                    <p className="text-[1.1rem] text-stone-600 max-w-xl leading-relaxed font-light">
                         Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply drop a pin for your start and finish, pick a genre, and let us create a unique audio companion for the road ahead.
                     </p>
                 </div>
