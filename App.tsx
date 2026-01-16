@@ -278,7 +278,7 @@ function App() {
             <div className="min-h-screen bg-editorial-100 flex items-center justify-center px-6">
                 <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl max-w-md w-full space-y-6 border border-stone-100">
                     <h1 className="text-3xl font-serif text-editorial-900 text-center">
-                        Welcome to StoryMaps
+                        Welcome to StoryMaps.
                     </h1>
                     <p className="text-stone-500 text-center">
                         Sign in to create and listen to personalized journey stories.
