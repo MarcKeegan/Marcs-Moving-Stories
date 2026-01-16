@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-stone-50">
+<html lang="en" class="bg-stone-50 font-sans">
 
 <head>
     <!-- Google Tag Manager -->
@@ -30,15 +30,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        'sans': ['Inter', 'sans-serif'],
-                        'serif': ['"DM Serif Display"', 'serif'],
+                        'sans': ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        'serif': ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
                     },
                     colors: {
                         editorial: {
@@ -72,13 +72,13 @@
             margin-top: 8px;
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             border: none;
-            font-family: 'Inter', sans-serif;
+            font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
         }
 
         .pac-item {
             padding: 8px 12px;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
         }
 
         .pac-item:hover {
