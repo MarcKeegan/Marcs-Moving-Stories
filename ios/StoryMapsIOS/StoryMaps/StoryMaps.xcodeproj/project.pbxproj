@@ -7,32 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		81A401EC2F19D98C00A30EE5 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */; };
-		81A401ED2F19D98C00A30EE5 /* RouteDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D92F19D98B00A30EE5 /* RouteDetails.swift */; };
-		81A401EE2F19D98C00A30EE5 /* GeminiProxyClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */; };
-		81A401EF2F19D98C00A30EE5 /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */; };
-		81A401F02F19D98C00A30EE5 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CC2F19D98B00A30EE5 /* AuthView.swift */; };
-		81A401F12F19D98C00A30EE5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CF2F19D98B00A30EE5 /* ContentView.swift */; };
-		81A401F22F19D98C00A30EE5 /* StoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E42F19D98B00A30EE5 /* StoryService.swift */; };
-		81A401F32F19D98C00A30EE5 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CA2F19D98B00A30EE5 /* AppConfig.swift */; };
-		81A401F42F19D98C00A30EE5 /* WavEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */; };
-		81A401F52F19D98C00A30EE5 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D72F19D98B00A30EE5 /* AppState.swift */; };
-		81A401F62F19D98C00A30EE5 /* AudioPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */; };
-		81A401F72F19D98C00A30EE5 /* StoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */; };
-		81A401F82F19D98C00A30EE5 /* StoryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DA2F19D98B00A30EE5 /* StoryModels.swift */; };
-		81A401F92F19D98C00A30EE5 /* StoryMapsMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */; };
-		81A401FA2F19D98C00A30EE5 /* DirectionsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */; };
-		81A401FB2F19D98C00A30EE5 /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D22F19D98B00A30EE5 /* Place.swift */; };
-		81A401FC2F19D98C00A30EE5 /* PlaceAutocompletePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */; };
-		81A401FD2F19D98C00A30EE5 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E92F19D98B00A30EE5 /* HTTPClient.swift */; };
-		81A401FE2F19D98C00A30EE5 /* StoryPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */; };
-		81A401FF2F19D98C00A30EE5 /* RoutePlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */; };
-		81A402002F19D98C00A30EE5 /* AuthUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CB2F19D98B00A30EE5 /* AuthUser.swift */; };
-		81A402012F19D98C00A30EE5 /* Coordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D82F19D98B00A30EE5 /* Coordinate.swift */; };
-		81A402022F19D98C00A30EE5 /* RoutePlannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */; };
-		81A402032F19D98C00A30EE5 /* StoryMapsIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */; };
-		81A402042F19D98C00A30EE5 /* GoogleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */; };
-		81A402062F19D98C00A30EE5 /* GoogleService-Info.plist.example in Resources */ = {isa = PBXBuildFile; fileRef = 81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */; };
 		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
 		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
 		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
@@ -40,9 +14,6 @@
 		81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402122F19DB0700A30EE5 /* GoogleSignInSwift */; };
 		81A402162F19DBFA00A30EE5 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402152F19DBFA00A30EE5 /* GooglePlaces */; };
 		81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */; };
-		81A4021C2F19DDA100A30EE5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */; };
-		81A4021E2F19E2C800A30EE5 /* Secrets.plist.example in Resources */ = {isa = PBXBuildFile; fileRef = 81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */; };
-		81DC29612F19F02D0077923F /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81DC29602F19F02D0077923F /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,51 +37,25 @@
 		81A401942F19D83A00A30EE5 /* StoryMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StoryMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A401A12F19D83C00A30EE5 /* StoryMapsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StoryMapsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A401AB2F19D83C00A30EE5 /* StoryMapsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StoryMapsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		81A401CA2F19D98B00A30EE5 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
-		81A401CB2F19D98B00A30EE5 /* AuthUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUser.swift; sourceTree = "<group>"; };
-		81A401CC2F19D98B00A30EE5 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
-		81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		81A401CF2F19D98B00A30EE5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsClient.swift; sourceTree = "<group>"; };
-		81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapView.swift; sourceTree = "<group>"; };
-		81A401D22F19D98B00A30EE5 /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
-		81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAutocompletePicker.swift; sourceTree = "<group>"; };
-		81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePlannerView.swift; sourceTree = "<group>"; };
-		81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePlannerViewModel.swift; sourceTree = "<group>"; };
-		81A401D72F19D98B00A30EE5 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		81A401D82F19D98B00A30EE5 /* Coordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinate.swift; sourceTree = "<group>"; };
-		81A401D92F19D98B00A30EE5 /* RouteDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteDetails.swift; sourceTree = "<group>"; };
-		81A401DA2F19D98B00A30EE5 /* StoryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryModels.swift; sourceTree = "<group>"; };
-		81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryStyle.swift; sourceTree = "<group>"; };
-		81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerViewModel.swift; sourceTree = "<group>"; };
-		81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryPlayerView.swift; sourceTree = "<group>"; };
-		81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "GoogleService-Info.plist.example"; sourceTree = "<group>"; };
-		81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiProxyClient.swift; sourceTree = "<group>"; };
-		81A401E42F19D98B00A30EE5 /* StoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryService.swift; sourceTree = "<group>"; };
-		81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
-		81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryMapsIOSApp.swift; sourceTree = "<group>"; };
-		81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryMapsMainView.swift; sourceTree = "<group>"; };
-		81A401E92F19D98B00A30EE5 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
-		81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WavEncoder.swift; sourceTree = "<group>"; };
-		81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Secrets.plist.example; sourceTree = "<group>"; };
-		81DC29602F19F02D0077923F /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		718CB9862F1A5B6300CC2B0D /* Exceptions for "StoryMaps" folder in "StoryMaps" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 81A401932F19D83A00A30EE5 /* StoryMaps */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		81A401962F19D83A00A30EE5 /* StoryMaps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				718CB9862F1A5B6300CC2B0D /* Exceptions for "StoryMaps" folder in "StoryMaps" target */,
+			);
 			path = StoryMaps;
-			sourceTree = "<group>";
-		};
-		81A401A42F19D83C00A30EE5 /* StoryMapsTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StoryMapsTests;
-			sourceTree = "<group>";
-		};
-		81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StoryMapsUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -150,20 +95,7 @@
 		81A4018B2F19D83A00A30EE5 = {
 			isa = PBXGroup;
 			children = (
-				81A401CA2F19D98B00A30EE5 /* AppConfig.swift */,
-				81A401CE2F19D98B00A30EE5 /* Auth */,
-				81A401CF2F19D98B00A30EE5 /* ContentView.swift */,
-				81A401D62F19D98B00A30EE5 /* Maps */,
-				81A401DC2F19D98B00A30EE5 /* Models */,
-				81A401DF2F19D98B00A30EE5 /* Player */,
-				81A401E22F19D98B00A30EE5 /* Resources */,
-				81A401E62F19D98B00A30EE5 /* Story */,
-				81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */,
-				81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */,
-				81A401EB2F19D98B00A30EE5 /* Utils */,
 				81A401962F19D83A00A30EE5 /* StoryMaps */,
-				81A401A42F19D83C00A30EE5 /* StoryMapsTests */,
-				81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */,
 				81A401952F19D83A00A30EE5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -176,80 +108,6 @@
 				81A401AB2F19D83C00A30EE5 /* StoryMapsUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		81A401CE2F19D98B00A30EE5 /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				81A401CB2F19D98B00A30EE5 /* AuthUser.swift */,
-				81A401CC2F19D98B00A30EE5 /* AuthView.swift */,
-				81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */,
-			);
-			path = Auth;
-			sourceTree = "<group>";
-		};
-		81A401D62F19D98B00A30EE5 /* Maps */ = {
-			isa = PBXGroup;
-			children = (
-				81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */,
-				81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */,
-				81A401D22F19D98B00A30EE5 /* Place.swift */,
-				81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */,
-				81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */,
-				81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */,
-			);
-			path = Maps;
-			sourceTree = "<group>";
-		};
-		81A401DC2F19D98B00A30EE5 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				81A401D72F19D98B00A30EE5 /* AppState.swift */,
-				81A401D82F19D98B00A30EE5 /* Coordinate.swift */,
-				81A401D92F19D98B00A30EE5 /* RouteDetails.swift */,
-				81A401DA2F19D98B00A30EE5 /* StoryModels.swift */,
-				81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		81A401DF2F19D98B00A30EE5 /* Player */ = {
-			isa = PBXGroup;
-			children = (
-				81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */,
-				81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */,
-			);
-			path = Player;
-			sourceTree = "<group>";
-		};
-		81A401E22F19D98B00A30EE5 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				81DC29602F19F02D0077923F /* Secrets.plist */,
-				81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */,
-				81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */,
-				81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		81A401E62F19D98B00A30EE5 /* Story */ = {
-			isa = PBXGroup;
-			children = (
-				81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */,
-				81A401E42F19D98B00A30EE5 /* StoryService.swift */,
-				81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */,
-			);
-			path = Story;
-			sourceTree = "<group>";
-		};
-		81A401EB2F19D98B00A30EE5 /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				81A401E92F19D98B00A30EE5 /* HTTPClient.swift */,
-				81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */,
-			);
-			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -297,9 +155,6 @@
 			dependencies = (
 				81A401A32F19D83C00A30EE5 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				81A401A42F19D83C00A30EE5 /* StoryMapsTests */,
-			);
 			name = StoryMapsTests;
 			packageProductDependencies = (
 			);
@@ -319,9 +174,6 @@
 			);
 			dependencies = (
 				81A401AD2F19D83C00A30EE5 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */,
 			);
 			name = StoryMapsUITests;
 			packageProductDependencies = (
@@ -385,10 +237,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81A4021E2F19E2C800A30EE5 /* Secrets.plist.example in Resources */,
-				81DC29612F19F02D0077923F /* Secrets.plist in Resources */,
-				81A4021C2F19DDA100A30EE5 /* GoogleService-Info.plist in Resources */,
-				81A402062F19D98C00A30EE5 /* GoogleService-Info.plist.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,31 +261,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81A401EC2F19D98C00A30EE5 /* AuthViewModel.swift in Sources */,
-				81A401ED2F19D98C00A30EE5 /* RouteDetails.swift in Sources */,
-				81A401EE2F19D98C00A30EE5 /* GeminiProxyClient.swift in Sources */,
-				81A401EF2F19D98C00A30EE5 /* StoryViewModel.swift in Sources */,
-				81A401F02F19D98C00A30EE5 /* AuthView.swift in Sources */,
-				81A401F12F19D98C00A30EE5 /* ContentView.swift in Sources */,
-				81A401F22F19D98C00A30EE5 /* StoryService.swift in Sources */,
-				81A401F32F19D98C00A30EE5 /* AppConfig.swift in Sources */,
-				81A401F42F19D98C00A30EE5 /* WavEncoder.swift in Sources */,
-				81A401F52F19D98C00A30EE5 /* AppState.swift in Sources */,
-				81A401F62F19D98C00A30EE5 /* AudioPlayerViewModel.swift in Sources */,
-				81A401F72F19D98C00A30EE5 /* StoryStyle.swift in Sources */,
-				81A401F82F19D98C00A30EE5 /* StoryModels.swift in Sources */,
-				81A401F92F19D98C00A30EE5 /* StoryMapsMainView.swift in Sources */,
-				81A401FA2F19D98C00A30EE5 /* DirectionsClient.swift in Sources */,
-				81A401FB2F19D98C00A30EE5 /* Place.swift in Sources */,
-				81A401FC2F19D98C00A30EE5 /* PlaceAutocompletePicker.swift in Sources */,
-				81A401FD2F19D98C00A30EE5 /* HTTPClient.swift in Sources */,
-				81A401FE2F19D98C00A30EE5 /* StoryPlayerView.swift in Sources */,
-				81A401FF2F19D98C00A30EE5 /* RoutePlannerView.swift in Sources */,
-				81A402002F19D98C00A30EE5 /* AuthUser.swift in Sources */,
-				81A402012F19D98C00A30EE5 /* Coordinate.swift in Sources */,
-				81A402022F19D98C00A30EE5 /* RoutePlannerViewModel.swift in Sources */,
-				81A402032F19D98C00A30EE5 /* StoryMapsIOSApp.swift in Sources */,
-				81A402042F19D98C00A30EE5 /* GoogleMapView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,7 +426,11 @@
 				DEVELOPMENT_TEAM = 6438NR7F82;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StoryMaps/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -618,12 +445,16 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -638,7 +469,11 @@
 				DEVELOPMENT_TEAM = 6438NR7F82;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StoryMaps/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -653,12 +488,16 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -25,6 +25,9 @@ const apiKey =
     process.env.GEMINI_API_KEY ||
     process.env.API_KEY;
 
+// Google Directions API Key (used server-side to avoid iOS restrictions)
+const googleDirectionsApiKey = process.env.GOOGLE_DIRECTIONS_API_KEY;
+
 const staticPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
 
@@ -58,8 +61,76 @@ const proxyLimiter = rateLimit({
 // Apply the rate limiter to the /api-proxy route before the main proxy logic
 app.use('/api-proxy', proxyLimiter);
 
+// Basic authentication middleware for proxy endpoints
+// For production, this should validate Firebase ID tokens
+const authenticateProxyRequest = (req, res, next) => {
+    // Skip auth check for OPTIONS (CORS preflight)
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+
+    // Check for Authorization header (Firebase ID token)
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+        console.warn(`❌ Unauthorized access attempt to ${req.path} from IP: ${req.ip}. No/invalid Authorization header.`);
+        return res.status(401).json({ error: 'Unauthorized', message: 'Authentication required.' });
+    }
+
+    // TODO: In production, verify the Firebase ID token here
+    // For now, just check that a token exists
+    console.log('✅ Auth token present for proxy request');
+    next();
+};
+
+// Google Directions API proxy endpoint (server-side API key)
+app.get('/api/directions', authenticateProxyRequest, async (req, res) => {
+    try {
+        if (!googleDirectionsApiKey) {
+            console.error('❌ GOOGLE_DIRECTIONS_API_KEY not configured on server');
+            return res.status(500).json({ 
+                error: 'Server configuration error', 
+                message: 'Directions API key not configured' 
+            });
+        }
+
+        const { origin, destination, mode } = req.query;
+
+        if (!origin || !destination) {
+            return res.status(400).json({ 
+                error: 'Missing parameters', 
+                message: 'origin and destination are required' 
+            });
+        }
+
+        const travelMode = mode || 'driving';
+        const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=${encodeURIComponent(travelMode)}&key=${googleDirectionsApiKey}`;
+
+        console.log(`🗺️  Directions API request: ${origin} → ${destination} (${travelMode})`);
+
+        const response = await axios.get(directionsUrl);
+
+        if (response.data.status !== 'OK') {
+            console.error(`❌ Directions API error: ${response.data.status}`);
+            return res.status(400).json({
+                error: 'Directions API error',
+                status: response.data.status,
+                message: response.data.error_message || 'Failed to get directions'
+            });
+        }
+
+        console.log('✅ Directions API success');
+        res.json(response.data);
+
+    } catch (error) {
+        console.error('❌ Directions proxy error:', error.message);
+        res.status(500).json({ 
+            error: 'Proxy error', 
+            message: error.message 
+        });
+    }
+});
+
 // Proxy route for Gemini API calls (HTTP)
-app.use('/api-proxy', async (req, res, next) => {
+app.use('/api-proxy', authenticateProxyRequest, async (req, res, next) => {
     console.log(req.ip);
     // If the request is an upgrade request, it's for WebSockets, so pass to next middleware/handler
     if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
@@ -75,14 +146,17 @@ app.use('/api-proxy', async (req, res, next) => {
         return res.sendStatus(200);
     }
 
-    if (req.body) { // Only log body if it exists
-        console.log("  Request Body (from frontend):", req.body);
+    // SECURITY: Don't log request bodies in production (may contain sensitive data)
+    if (process.env.NODE_ENV === 'development' && req.body) {
+        console.log("  Request Body (sanitized):", JSON.stringify(req.body).substring(0, 200) + '...');
     }
     try {
         // Construct the target URL by taking the part of the path after /api-proxy/
         const targetPath = req.url.startsWith('/') ? req.url.substring(1) : req.url;
         const apiUrl = `${externalApiBaseUrl}/${targetPath}`;
-        console.log(`HTTP Proxy: Forwarding request to ${apiUrl}`);
+        
+        // SECURITY: Only log path, not full URL (URL may contain query params)
+        console.log(`HTTP Proxy: Forwarding ${req.method} to path: ${targetPath.split('?')[0]}`);
 
         // Prepare headers for the outgoing request
         const outgoingHeaders = {};
