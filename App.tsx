@@ -12,6 +12,7 @@ import StoryPlayer from './components/StoryPlayer';
 import MapBackground from './components/MapBackground';
 import { AppState, RouteDetails, AudioStory } from './types';
 import { generateSegment, generateSegmentAudio, calculateTotalSegments, generateStoryOutline } from './services/geminiService';
+import { useAuth } from './AuthContext';
 
 declare global {
     interface Window {
@@ -32,6 +33,24 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number, errorMsg: string): Pro
 };
 
 function App() {
+    const {
+        user,
+        loading,
+        error: authError,
+        loginWithGoogle,
+        loginWithEmail,
+        registerWithEmail,
+        resetPassword,
+        logout,
+    } = useAuth();
+
+    const [authMode, setAuthMode] = useState<'login' | 'signup' | 'reset'>('login');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [localAuthError, setLocalAuthError] = useState<string | null>(null);
+    const [resetMessage, setResetMessage] = useState<string | null>(null);
+
     const [appState, setAppState] = useState<AppState>(AppState.PLANNING);
     const [route, setRoute] = useState<RouteDetails | null>(null);
     const [story, setStory] = useState<AudioStory | null>(null);
@@ -84,6 +103,33 @@ function App() {
         window.gm_authFailure = () => setScriptError("Google Maps authentication failed. Please check your API key.");
         document.head.appendChild(script);
     }, []);
+
+    const handleEmailSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLocalAuthError(null);
+        setResetMessage(null);
+
+        if (authMode === 'signup') {
+            if (password !== confirmPassword) {
+                setLocalAuthError("Passwords don't match");
+                return;
+            }
+            if (password.length < 6) {
+                setLocalAuthError('Password should be at least 6 characters');
+                return;
+            }
+            await registerWithEmail(email, password);
+        } else if (authMode === 'login') {
+            await loginWithEmail(email, password);
+        } else if (authMode === 'reset') {
+            if (!email) {
+                setLocalAuthError('Enter your email to reset your password');
+                return;
+            }
+            await resetPassword(email);
+            setResetMessage('If an account exists for that email, a reset link has been sent.');
+        }
+    };
 
     // --- Continuous Buffering Engine ---
     // Keeps 2 segments ahead of the current playback position
@@ -219,6 +265,147 @@ function App() {
     // --- Render Helpers ---
     const isHeroVisible = appState < AppState.READY_TO_PLAY;
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-editorial-100 flex items-center justify-center">
+                <p className="text-stone-600">Checking your session...</p>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-editorial-100 flex items-center justify-center px-6">
+                <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl max-w-md w-full space-y-6 border border-stone-100">
+                    <h1 className="text-3xl font-serif text-editorial-900 text-center">
+                        Welcome to StoryMaps
+                    </h1>
+                    <p className="text-stone-500 text-center">
+                        Sign in to create and listen to personalized journey stories.
+                    </p>
+
+                    <div className="flex rounded-full bg-stone-100 p-1 text-sm font-medium">
+                        <button
+                            type="button"
+                            onClick={() => setAuthMode('login')}
+                            className={`flex-1 py-2 rounded-full transition-all ${authMode === 'login'
+                                ? 'bg-white text-editorial-900 shadow-sm'
+                                : 'text-stone-500'
+                                }`}
+                        >
+                            Sign in
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAuthMode('signup')}
+                            className={`flex-1 py-2 rounded-full transition-all ${authMode === 'signup'
+                                ? 'bg-white text-editorial-900 shadow-sm'
+                                : 'text-stone-500'
+                                }`}
+                        >
+                            Sign up
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleEmailSubmit} className="space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium text-stone-600">Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-editorial-900/40"
+                                required
+                            />
+                        </div>
+
+                        {authMode !== 'reset' && (
+                            <>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-stone-600">Password</label>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-editorial-900/40"
+                                        required
+                                    />
+                                </div>
+                                {authMode === 'signup' && (
+                                    <div className="space-y-1">
+                                        <label className="text-sm font-medium text-stone-600">Confirm password</label>
+                                        <input
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-editorial-900/40"
+                                            required
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {(localAuthError || authError) && (
+                            <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+                                {localAuthError || authError}
+                            </p>
+                        )}
+
+                        {resetMessage && (
+                            <p className="text-xs text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                                {resetMessage}
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="w-full bg-editorial-900 text-white py-3 rounded-full font-semibold text-sm hover:bg-stone-800 transition-all"
+                        >
+                            {authMode === 'signup'
+                                ? 'Create account'
+                                : authMode === 'reset'
+                                    ? 'Send reset link'
+                                    : 'Sign in with email'}
+                        </button>
+
+                        {authMode === 'login' && (
+                            <button
+                                type="button"
+                                onClick={() => setAuthMode('reset')}
+                                className="block w-full text-xs text-center text-stone-500 hover:text-editorial-900 mt-1 underline"
+                            >
+                                Forgot password?
+                            </button>
+                        )}
+                        {authMode === 'reset' && (
+                            <button
+                                type="button"
+                                onClick={() => setAuthMode('login')}
+                                className="block w-full text-xs text-center text-stone-500 hover:text-editorial-900 mt-1 underline"
+                            >
+                                Back to sign in
+                            </button>
+                        )}
+                    </form>
+
+                    <div className="flex items-center gap-3">
+                        <div className="h-px bg-stone-200 flex-1" />
+                        <span className="text-xs text-stone-400 uppercase tracking-widest">or</span>
+                        <div className="h-px bg-stone-200 flex-1" />
+                    </div>
+
+                    <button
+                        onClick={loginWithGoogle}
+                        className="w-full border border-stone-200 bg-white text-editorial-900 py-3 rounded-full font-semibold text-sm hover:bg-stone-50 transition-all"
+                    >
+                        Continue with Google
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (scriptError) {
         return (
             <div className="min-h-screen bg-editorial-100 flex items-center justify-center p-6">
@@ -235,6 +422,14 @@ function App() {
             <MapBackground route={route} />
 
             <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32">
+                <div className="absolute top-4 right-0 flex justify-end">
+                    <button
+                        onClick={logout}
+                        className="text-xs text-stone-500 hover:text-editorial-900 underline"
+                    >
+                        Sign out
+                    </button>
+                </div>
                 {/* Hero Section */}
                 <div className={`transition-all duration-700 origin-top ease-in-out max-w-4xl mx-auto ${isHeroVisible ? 'opacity-100 translate-y-0 mb-16' : 'opacity-0 -translate-y-10 h-0 overflow-hidden mb-0'}`}>
                     <h1 className="text-4xl md:text-6xl font-serif leading-[1.05] tracking-tight mb-8">
