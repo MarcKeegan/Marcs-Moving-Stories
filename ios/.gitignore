@@ -1,0 +1,17 @@
+# Xcode / iOS
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+*.swp
+*.orig
+
+# User secrets (keep examples in repo)
+Secrets.plist
+GoogleService-Info.plist
+
+# If secrets were accidentally placed in nested Resources folders, ignore those too
+**/Resources/Secrets.plist
+

@@ -12,12 +12,23 @@ import { base64ToArrayBuffer, pcmToWav } from "./audioUtils";
 // Sanitize the key to ensure no extra quotes or whitespace
 const getApiKey = () => {
   const runtimeEnv = (window as any).__ENV__;
-  if (runtimeEnv && runtimeEnv.API_KEY) {
-    return runtimeEnv.API_KEY;
+  const runtimeKey = runtimeEnv?.API_KEY;
+  if (runtimeKey && runtimeKey !== "undefined") {
+    return String(runtimeKey).replace(/["']/g, "").trim();
   }
-  const key = process.env.API_KEY;
-  if (!key || key === 'undefined') return "";
-  return key.replace(/["']/g, "").trim();
+
+  // When deployed behind our server, we proxy all Gemini calls via /api-proxy.
+  // In that mode, the browser does NOT need the real API key; the server injects it upstream.
+  if (runtimeEnv?.GEMINI_USE_PROXY) {
+    return "proxy";
+  }
+
+  // Local dev (vite preview/dev without the proxy server): fall back to Vite env.
+  // Prefer VITE_GEMINI_API_KEY, but keep legacy VITE_API_KEY support.
+  const viteEnv = (import.meta as any)?.env;
+  const key = viteEnv?.VITE_GEMINI_API_KEY || viteEnv?.VITE_API_KEY || "";
+  if (!key || key === "undefined") return "";
+  return String(key).replace(/["']/g, "").trim();
 }
 
 const API_KEY = getApiKey();

@@ -18,8 +18,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 const externalApiBaseUrl = 'https://generativelanguage.googleapis.com';
 const externalWsBaseUrl = 'wss://generativelanguage.googleapis.com';
-// Support either API key env-var variant
-const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+// Prefer a dedicated server-side Gemini key to avoid client-type restrictions collisions (iOS/web).
+// Fallback to legacy env var names for backwards compatibility.
+const apiKey =
+    process.env.GEMINI_SERVER_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.API_KEY;
 
 const staticPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
@@ -222,7 +226,9 @@ app.get('/', (req, res) => {
 
 
         const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY || "";
-        const geminiApiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
+        // Do NOT expose the server-side Gemini API key to the browser.
+        // The web app talks to Gemini via /api-proxy (service worker + ws interceptor).
+        const geminiApiKey = "";
 
         const firebaseApiKey = process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || "";
         const firebaseAuthDomain = process.env.FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || "";
@@ -232,6 +238,7 @@ app.get('/', (req, res) => {
         const envScript = `<script>window.__ENV__ = {
   GOOGLE_MAPS_API_KEY: "${mapsApiKey}",
   API_KEY: "${geminiApiKey}",
+  GEMINI_USE_PROXY: true,
   FIREBASE_API_KEY: "${firebaseApiKey}",
   FIREBASE_AUTH_DOMAIN: "${firebaseAuthDomain}",
   FIREBASE_PROJECT_ID: "${firebaseProjectId}",
