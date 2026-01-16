@@ -1,0 +1,864 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		81A401EC2F19D98C00A30EE5 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */; };
+		81A401ED2F19D98C00A30EE5 /* RouteDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D92F19D98B00A30EE5 /* RouteDetails.swift */; };
+		81A401EE2F19D98C00A30EE5 /* GeminiProxyClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */; };
+		81A401EF2F19D98C00A30EE5 /* StoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */; };
+		81A401F02F19D98C00A30EE5 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CC2F19D98B00A30EE5 /* AuthView.swift */; };
+		81A401F12F19D98C00A30EE5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CF2F19D98B00A30EE5 /* ContentView.swift */; };
+		81A401F22F19D98C00A30EE5 /* StoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E42F19D98B00A30EE5 /* StoryService.swift */; };
+		81A401F32F19D98C00A30EE5 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CA2F19D98B00A30EE5 /* AppConfig.swift */; };
+		81A401F42F19D98C00A30EE5 /* WavEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */; };
+		81A401F52F19D98C00A30EE5 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D72F19D98B00A30EE5 /* AppState.swift */; };
+		81A401F62F19D98C00A30EE5 /* AudioPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */; };
+		81A401F72F19D98C00A30EE5 /* StoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */; };
+		81A401F82F19D98C00A30EE5 /* StoryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DA2F19D98B00A30EE5 /* StoryModels.swift */; };
+		81A401F92F19D98C00A30EE5 /* StoryMapsMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */; };
+		81A401FA2F19D98C00A30EE5 /* DirectionsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */; };
+		81A401FB2F19D98C00A30EE5 /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D22F19D98B00A30EE5 /* Place.swift */; };
+		81A401FC2F19D98C00A30EE5 /* PlaceAutocompletePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */; };
+		81A401FD2F19D98C00A30EE5 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E92F19D98B00A30EE5 /* HTTPClient.swift */; };
+		81A401FE2F19D98C00A30EE5 /* StoryPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */; };
+		81A401FF2F19D98C00A30EE5 /* RoutePlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */; };
+		81A402002F19D98C00A30EE5 /* AuthUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401CB2F19D98B00A30EE5 /* AuthUser.swift */; };
+		81A402012F19D98C00A30EE5 /* Coordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D82F19D98B00A30EE5 /* Coordinate.swift */; };
+		81A402022F19D98C00A30EE5 /* RoutePlannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */; };
+		81A402032F19D98C00A30EE5 /* StoryMapsIOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */; };
+		81A402042F19D98C00A30EE5 /* GoogleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */; };
+		81A402062F19D98C00A30EE5 /* GoogleService-Info.plist.example in Resources */ = {isa = PBXBuildFile; fileRef = 81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */; };
+		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
+		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
+		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
+		81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402102F19DB0700A30EE5 /* GoogleSignIn */; };
+		81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402122F19DB0700A30EE5 /* GoogleSignInSwift */; };
+		81A402162F19DBFA00A30EE5 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402152F19DBFA00A30EE5 /* GooglePlaces */; };
+		81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */; };
+		81A4021C2F19DDA100A30EE5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */; };
+		81A4021E2F19E2C800A30EE5 /* Secrets.plist.example in Resources */ = {isa = PBXBuildFile; fileRef = 81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */; };
+		81DC29612F19F02D0077923F /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81DC29602F19F02D0077923F /* Secrets.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		81A401A22F19D83C00A30EE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81A4018C2F19D83A00A30EE5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 81A401932F19D83A00A30EE5;
+			remoteInfo = StoryMaps;
+		};
+		81A401AC2F19D83C00A30EE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81A4018C2F19D83A00A30EE5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 81A401932F19D83A00A30EE5;
+			remoteInfo = StoryMaps;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		81A401942F19D83A00A30EE5 /* StoryMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StoryMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		81A401A12F19D83C00A30EE5 /* StoryMapsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StoryMapsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		81A401AB2F19D83C00A30EE5 /* StoryMapsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StoryMapsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		81A401CA2F19D98B00A30EE5 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		81A401CB2F19D98B00A30EE5 /* AuthUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUser.swift; sourceTree = "<group>"; };
+		81A401CC2F19D98B00A30EE5 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		81A401CF2F19D98B00A30EE5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsClient.swift; sourceTree = "<group>"; };
+		81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapView.swift; sourceTree = "<group>"; };
+		81A401D22F19D98B00A30EE5 /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
+		81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAutocompletePicker.swift; sourceTree = "<group>"; };
+		81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePlannerView.swift; sourceTree = "<group>"; };
+		81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePlannerViewModel.swift; sourceTree = "<group>"; };
+		81A401D72F19D98B00A30EE5 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		81A401D82F19D98B00A30EE5 /* Coordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinate.swift; sourceTree = "<group>"; };
+		81A401D92F19D98B00A30EE5 /* RouteDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteDetails.swift; sourceTree = "<group>"; };
+		81A401DA2F19D98B00A30EE5 /* StoryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryModels.swift; sourceTree = "<group>"; };
+		81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryStyle.swift; sourceTree = "<group>"; };
+		81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerViewModel.swift; sourceTree = "<group>"; };
+		81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryPlayerView.swift; sourceTree = "<group>"; };
+		81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "GoogleService-Info.plist.example"; sourceTree = "<group>"; };
+		81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiProxyClient.swift; sourceTree = "<group>"; };
+		81A401E42F19D98B00A30EE5 /* StoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryService.swift; sourceTree = "<group>"; };
+		81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModel.swift; sourceTree = "<group>"; };
+		81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryMapsIOSApp.swift; sourceTree = "<group>"; };
+		81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryMapsMainView.swift; sourceTree = "<group>"; };
+		81A401E92F19D98B00A30EE5 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WavEncoder.swift; sourceTree = "<group>"; };
+		81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Secrets.plist.example; sourceTree = "<group>"; };
+		81DC29602F19F02D0077923F /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		81A401962F19D83A00A30EE5 /* StoryMaps */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = StoryMaps;
+			sourceTree = "<group>";
+		};
+		81A401A42F19D83C00A30EE5 /* StoryMapsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = StoryMapsTests;
+			sourceTree = "<group>";
+		};
+		81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = StoryMapsUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		81A401912F19D83A00A30EE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */,
+				81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */,
+				81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */,
+				81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */,
+				81A402162F19DBFA00A30EE5 /* GooglePlaces in Frameworks */,
+				81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */,
+				81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A4019E2F19D83C00A30EE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A401A82F19D83C00A30EE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		81A4018B2F19D83A00A30EE5 = {
+			isa = PBXGroup;
+			children = (
+				81A401CA2F19D98B00A30EE5 /* AppConfig.swift */,
+				81A401CE2F19D98B00A30EE5 /* Auth */,
+				81A401CF2F19D98B00A30EE5 /* ContentView.swift */,
+				81A401D62F19D98B00A30EE5 /* Maps */,
+				81A401DC2F19D98B00A30EE5 /* Models */,
+				81A401DF2F19D98B00A30EE5 /* Player */,
+				81A401E22F19D98B00A30EE5 /* Resources */,
+				81A401E62F19D98B00A30EE5 /* Story */,
+				81A401E72F19D98B00A30EE5 /* StoryMapsIOSApp.swift */,
+				81A401E82F19D98B00A30EE5 /* StoryMapsMainView.swift */,
+				81A401EB2F19D98B00A30EE5 /* Utils */,
+				81A401962F19D83A00A30EE5 /* StoryMaps */,
+				81A401A42F19D83C00A30EE5 /* StoryMapsTests */,
+				81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */,
+				81A401952F19D83A00A30EE5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		81A401952F19D83A00A30EE5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				81A401942F19D83A00A30EE5 /* StoryMaps.app */,
+				81A401A12F19D83C00A30EE5 /* StoryMapsTests.xctest */,
+				81A401AB2F19D83C00A30EE5 /* StoryMapsUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		81A401CE2F19D98B00A30EE5 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				81A401CB2F19D98B00A30EE5 /* AuthUser.swift */,
+				81A401CC2F19D98B00A30EE5 /* AuthView.swift */,
+				81A401CD2F19D98B00A30EE5 /* AuthViewModel.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		81A401D62F19D98B00A30EE5 /* Maps */ = {
+			isa = PBXGroup;
+			children = (
+				81A401D02F19D98B00A30EE5 /* DirectionsClient.swift */,
+				81A401D12F19D98B00A30EE5 /* GoogleMapView.swift */,
+				81A401D22F19D98B00A30EE5 /* Place.swift */,
+				81A401D32F19D98B00A30EE5 /* PlaceAutocompletePicker.swift */,
+				81A401D42F19D98B00A30EE5 /* RoutePlannerView.swift */,
+				81A401D52F19D98B00A30EE5 /* RoutePlannerViewModel.swift */,
+			);
+			path = Maps;
+			sourceTree = "<group>";
+		};
+		81A401DC2F19D98B00A30EE5 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				81A401D72F19D98B00A30EE5 /* AppState.swift */,
+				81A401D82F19D98B00A30EE5 /* Coordinate.swift */,
+				81A401D92F19D98B00A30EE5 /* RouteDetails.swift */,
+				81A401DA2F19D98B00A30EE5 /* StoryModels.swift */,
+				81A401DB2F19D98B00A30EE5 /* StoryStyle.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		81A401DF2F19D98B00A30EE5 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				81A401DD2F19D98B00A30EE5 /* AudioPlayerViewModel.swift */,
+				81A401DE2F19D98B00A30EE5 /* StoryPlayerView.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		81A401E22F19D98B00A30EE5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				81DC29602F19F02D0077923F /* Secrets.plist */,
+				81A4021D2F19E2C800A30EE5 /* Secrets.plist.example */,
+				81A401E02F19D98B00A30EE5 /* GoogleService-Info.plist.example */,
+				81A4021B2F19DDA100A30EE5 /* GoogleService-Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		81A401E62F19D98B00A30EE5 /* Story */ = {
+			isa = PBXGroup;
+			children = (
+				81A401E32F19D98B00A30EE5 /* GeminiProxyClient.swift */,
+				81A401E42F19D98B00A30EE5 /* StoryService.swift */,
+				81A401E52F19D98B00A30EE5 /* StoryViewModel.swift */,
+			);
+			path = Story;
+			sourceTree = "<group>";
+		};
+		81A401EB2F19D98B00A30EE5 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				81A401E92F19D98B00A30EE5 /* HTTPClient.swift */,
+				81A401EA2F19D98B00A30EE5 /* WavEncoder.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		81A401932F19D83A00A30EE5 /* StoryMaps */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81A401B52F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMaps" */;
+			buildPhases = (
+				81A401902F19D83A00A30EE5 /* Sources */,
+				81A401912F19D83A00A30EE5 /* Frameworks */,
+				81A401922F19D83A00A30EE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				81A401962F19D83A00A30EE5 /* StoryMaps */,
+			);
+			name = StoryMaps;
+			packageProductDependencies = (
+				81A402082F19DA5600A30EE5 /* FirebaseAuth */,
+				81A4020A2F19DA5600A30EE5 /* FirebaseCore */,
+				81A4020D2F19DAB500A30EE5 /* GoogleMaps */,
+				81A402102F19DB0700A30EE5 /* GoogleSignIn */,
+				81A402122F19DB0700A30EE5 /* GoogleSignInSwift */,
+				81A402152F19DBFA00A30EE5 /* GooglePlaces */,
+				81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */,
+			);
+			productName = StoryMaps;
+			productReference = 81A401942F19D83A00A30EE5 /* StoryMaps.app */;
+			productType = "com.apple.product-type.application";
+		};
+		81A401A02F19D83C00A30EE5 /* StoryMapsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81A401B82F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMapsTests" */;
+			buildPhases = (
+				81A4019D2F19D83C00A30EE5 /* Sources */,
+				81A4019E2F19D83C00A30EE5 /* Frameworks */,
+				81A4019F2F19D83C00A30EE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				81A401A32F19D83C00A30EE5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				81A401A42F19D83C00A30EE5 /* StoryMapsTests */,
+			);
+			name = StoryMapsTests;
+			packageProductDependencies = (
+			);
+			productName = StoryMapsTests;
+			productReference = 81A401A12F19D83C00A30EE5 /* StoryMapsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		81A401AA2F19D83C00A30EE5 /* StoryMapsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81A401BB2F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMapsUITests" */;
+			buildPhases = (
+				81A401A72F19D83C00A30EE5 /* Sources */,
+				81A401A82F19D83C00A30EE5 /* Frameworks */,
+				81A401A92F19D83C00A30EE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				81A401AD2F19D83C00A30EE5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				81A401AE2F19D83C00A30EE5 /* StoryMapsUITests */,
+			);
+			name = StoryMapsUITests;
+			packageProductDependencies = (
+			);
+			productName = StoryMapsUITests;
+			productReference = 81A401AB2F19D83C00A30EE5 /* StoryMapsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		81A4018C2F19D83A00A30EE5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					81A401932F19D83A00A30EE5 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					81A401A02F19D83C00A30EE5 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 81A401932F19D83A00A30EE5;
+					};
+					81A401AA2F19D83C00A30EE5 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 81A401932F19D83A00A30EE5;
+					};
+				};
+			};
+			buildConfigurationList = 81A4018F2F19D83A00A30EE5 /* Build configuration list for PBXProject "StoryMaps" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 81A4018B2F19D83A00A30EE5;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				81A4020C2F19DAB500A30EE5 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 81A401952F19D83A00A30EE5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				81A401932F19D83A00A30EE5 /* StoryMaps */,
+				81A401A02F19D83C00A30EE5 /* StoryMapsTests */,
+				81A401AA2F19D83C00A30EE5 /* StoryMapsUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		81A401922F19D83A00A30EE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81A4021E2F19E2C800A30EE5 /* Secrets.plist.example in Resources */,
+				81DC29612F19F02D0077923F /* Secrets.plist in Resources */,
+				81A4021C2F19DDA100A30EE5 /* GoogleService-Info.plist in Resources */,
+				81A402062F19D98C00A30EE5 /* GoogleService-Info.plist.example in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A4019F2F19D83C00A30EE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A401A92F19D83C00A30EE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		81A401902F19D83A00A30EE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81A401EC2F19D98C00A30EE5 /* AuthViewModel.swift in Sources */,
+				81A401ED2F19D98C00A30EE5 /* RouteDetails.swift in Sources */,
+				81A401EE2F19D98C00A30EE5 /* GeminiProxyClient.swift in Sources */,
+				81A401EF2F19D98C00A30EE5 /* StoryViewModel.swift in Sources */,
+				81A401F02F19D98C00A30EE5 /* AuthView.swift in Sources */,
+				81A401F12F19D98C00A30EE5 /* ContentView.swift in Sources */,
+				81A401F22F19D98C00A30EE5 /* StoryService.swift in Sources */,
+				81A401F32F19D98C00A30EE5 /* AppConfig.swift in Sources */,
+				81A401F42F19D98C00A30EE5 /* WavEncoder.swift in Sources */,
+				81A401F52F19D98C00A30EE5 /* AppState.swift in Sources */,
+				81A401F62F19D98C00A30EE5 /* AudioPlayerViewModel.swift in Sources */,
+				81A401F72F19D98C00A30EE5 /* StoryStyle.swift in Sources */,
+				81A401F82F19D98C00A30EE5 /* StoryModels.swift in Sources */,
+				81A401F92F19D98C00A30EE5 /* StoryMapsMainView.swift in Sources */,
+				81A401FA2F19D98C00A30EE5 /* DirectionsClient.swift in Sources */,
+				81A401FB2F19D98C00A30EE5 /* Place.swift in Sources */,
+				81A401FC2F19D98C00A30EE5 /* PlaceAutocompletePicker.swift in Sources */,
+				81A401FD2F19D98C00A30EE5 /* HTTPClient.swift in Sources */,
+				81A401FE2F19D98C00A30EE5 /* StoryPlayerView.swift in Sources */,
+				81A401FF2F19D98C00A30EE5 /* RoutePlannerView.swift in Sources */,
+				81A402002F19D98C00A30EE5 /* AuthUser.swift in Sources */,
+				81A402012F19D98C00A30EE5 /* Coordinate.swift in Sources */,
+				81A402022F19D98C00A30EE5 /* RoutePlannerViewModel.swift in Sources */,
+				81A402032F19D98C00A30EE5 /* StoryMapsIOSApp.swift in Sources */,
+				81A402042F19D98C00A30EE5 /* GoogleMapView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A4019D2F19D83C00A30EE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81A401A72F19D83C00A30EE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		81A401A32F19D83C00A30EE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 81A401932F19D83A00A30EE5 /* StoryMaps */;
+			targetProxy = 81A401A22F19D83C00A30EE5 /* PBXContainerItemProxy */;
+		};
+		81A401AD2F19D83C00A30EE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 81A401932F19D83A00A30EE5 /* StoryMaps */;
+			targetProxy = 81A401AC2F19D83C00A30EE5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		81A401B32F19D83C00A30EE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		81A401B42F19D83C00A30EE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		81A401B62F19D83C00A30EE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMaps;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		81A401B72F19D83C00A30EE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMaps;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		81A401B92F19D83C00A30EE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMapsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StoryMaps.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StoryMaps";
+			};
+			name = Debug;
+		};
+		81A401BA2F19D83C00A30EE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMapsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StoryMaps.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/StoryMaps";
+			};
+			name = Release;
+		};
+		81A401BC2F19D83C00A30EE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMapsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = StoryMaps;
+			};
+			name = Debug;
+		};
+		81A401BD2F19D83C00A30EE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6438NR7F82;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marckeegan.StoryMapsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = StoryMaps;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		81A4018F2F19D83A00A30EE5 /* Build configuration list for PBXProject "StoryMaps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81A401B32F19D83C00A30EE5 /* Debug */,
+				81A401B42F19D83C00A30EE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		81A401B52F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMaps" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81A401B62F19D83C00A30EE5 /* Debug */,
+				81A401B72F19D83C00A30EE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		81A401B82F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMapsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81A401B92F19D83C00A30EE5 /* Debug */,
+				81A401BA2F19D83C00A30EE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		81A401BB2F19D83C00A30EE5 /* Build configuration list for PBXNativeTarget "StoryMapsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81A401BC2F19D83C00A30EE5 /* Debug */,
+				81A401BD2F19D83C00A30EE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
+		81A4020C2F19DAB500A30EE5 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.7.0;
+			};
+		};
+		81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
+		81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-places-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		81A402082F19DA5600A30EE5 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		81A4020A2F19DA5600A30EE5 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		81A4020D2F19DAB500A30EE5 /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A4020C2F19DAB500A30EE5 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+		81A402102F19DB0700A30EE5 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		81A402122F19DB0700A30EE5 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		81A402152F19DBFA00A30EE5 /* GooglePlaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlaces;
+		};
+		81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlacesSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 81A4018C2F19D83A00A30EE5 /* Project object */;
+}
