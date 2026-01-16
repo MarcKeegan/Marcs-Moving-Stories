@@ -28,7 +28,7 @@ const STYLES: { id: StoryStyle; label: string; icon: React.ElementType; desc: st
   { id: 'CHILDREN', label: 'Children\'s Story', icon: Sparkles, desc: 'Whimsical, magical, and full of wonder.' },
   { id: 'HISTORICAL', label: 'Historical Epic', icon: ScrollText, desc: 'Grand, dramatic, echoing the past.' },
   { id: 'FANTASY', label: 'Fantasy Adventure', icon: Sword, desc: 'An epic quest through a magical realm.' },
-  { id: 'TOURGUIDE', label: 'Tour Guide', icon: Sword, desc: 'Detailed Tour Guide.' },
+  { id: 'HISTORIAN_GUIDE', label: 'Historian Guide', icon: Library, desc: 'Factual, authoritative, and deeply researched.' },
 ];
 
 const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }) => {

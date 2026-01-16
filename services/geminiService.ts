@@ -59,7 +59,14 @@ const getStyleInstruction = (style: StoryStyle): string => {
       return "Style: Historical Epic. Grandiose, dramatic, and timeless. Treat the journey as a significant pilgrimage or quest in a bygone era (even though it's modern day, overlay it with historical grandeur). Use slightly archaic but understandable language. Focus on endurance, destiny, and the weight of history.";
     case 'FANTASY':
       return "Style: Fantasy Adventure. Heroic, mystical, and epic. The real world is just a veil over a magical realm. Streets are ancient paths, buildings are towers or ruins. The traveler is on a vital quest. Use metaphors of magic, mythical creatures (shadows might be lurking beasts), and destiny.";
-    default:
+    case 'HISTORIAN_GUIDE':
+      return `Style: The Historian Guide. Clear, authoritative, engaging but grounded in fact. 
+        Purpose: Provide historically accurate, contextual information about the route and key locations encountered along the journey.
+        Voice Characteristics: Confident and knowledgeable; engaging without being theatrical; speaks like a skilled local historian or academic guide.
+        Content Focus: Verified historical events tied to specific locations on the route, dates, names, and cultural context. Explain how the place has changed and why landmarks matter.
+        Accuracy Requirements: All information MUST be accurate and conservative. If uncertain, acknowledge it. DO NOT invent events, people, or interpretations. 
+        Constraints: Do not fictionalize. Avoid modern opinions or political framing.`;
+      default:
       return "Style: Immersive, 'in the moment' narration. Focus on the sensation of movement and the immediate environment.";
   }
 };
