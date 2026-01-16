@@ -223,7 +223,20 @@ app.get('/', (req, res) => {
 
         const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY || "";
         const geminiApiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
-        const envScript = `<script>window.__ENV__ = { GOOGLE_MAPS_API_KEY: "${mapsApiKey}", API_KEY: "${geminiApiKey}" };</script>`;
+
+        const firebaseApiKey = process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || "";
+        const firebaseAuthDomain = process.env.FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || "";
+        const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "";
+        const firebaseAppId = process.env.FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || "";
+
+        const envScript = `<script>window.__ENV__ = {
+  GOOGLE_MAPS_API_KEY: "${mapsApiKey}",
+  API_KEY: "${geminiApiKey}",
+  FIREBASE_API_KEY: "${firebaseApiKey}",
+  FIREBASE_AUTH_DOMAIN: "${firebaseAuthDomain}",
+  FIREBASE_PROJECT_ID: "${firebaseProjectId}",
+  FIREBASE_APP_ID: "${firebaseAppId}"
+};</script>`;
 
         if (injectedHtml.includes('<head>')) {
             // Inject WebSocket interceptor first, then service worker script
