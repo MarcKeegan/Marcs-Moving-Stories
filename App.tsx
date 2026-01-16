@@ -32,6 +32,8 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number, errorMsg: string): Pro
     ]);
 };
 
+const LOGO_URL = 'https://res.cloudinary.com/marcusdiablo/image/upload/v1768537734/storymaps_sbmb9p.png';
+
 function App() {
     const {
         user,
@@ -268,7 +270,16 @@ function App() {
     if (loading) {
         return (
             <div className="min-h-screen bg-editorial-100 flex items-center justify-center">
-                <p className="text-stone-600">Checking your session...</p>
+                <div className="flex flex-col items-center gap-4">
+                    <img
+                        src={LOGO_URL}
+                        alt="StoryMaps"
+                        className="h-12 w-auto"
+                        loading="eager"
+                        decoding="async"
+                    />
+                    <p className="text-stone-600">Checking your session...</p>
+                </div>
             </div>
         );
     }
@@ -277,6 +288,15 @@ function App() {
         return (
             <div className="min-h-screen bg-editorial-100 flex items-center justify-center px-6">
                 <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl max-w-md w-full space-y-6 border border-stone-100">
+                    <div className="flex justify-center">
+                        <img
+                            src={LOGO_URL}
+                            alt="StoryMaps"
+                            className="h-16 w-auto"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
                     <h1 className="text-3xl font-serif text-editorial-900 text-center">
                         Welcome to StoryMaps.
                     </h1>
@@ -410,6 +430,15 @@ function App() {
         return (
             <div className="min-h-screen bg-editorial-100 flex items-center justify-center p-6">
                 <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-md text-center space-y-4 border-2 border-red-100">
+                    <div className="flex justify-center pb-2">
+                        <img
+                            src={LOGO_URL}
+                            alt="StoryMaps"
+                            className="h-12 w-auto"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
                     <AlertTriangle size={32} className="text-red-500 mx-auto" />
                     <p className="text-stone-600 font-medium">{scriptError}</p>
                 </div>
@@ -422,6 +451,15 @@ function App() {
             <MapBackground route={route} />
 
             <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32">
+                <div className="absolute top-4 left-0 flex justify-start">
+                    <img
+                        src={LOGO_URL}
+                        alt="StoryMaps"
+                        className="h-10 w-auto opacity-90"
+                        loading="eager"
+                        decoding="async"
+                    />
+                </div>
                 <div className="absolute top-4 right-0 flex justify-end">
                     <button
                         onClick={logout}
