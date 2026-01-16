@@ -297,7 +297,7 @@ function App() {
                             decoding="async"
                         />
                     </div>
-                    <h1 className="text-3xl font-serif text-editorial-900 text-center">
+                    <h1 className="text-3xl font-display text-editorial-900 text-center">
                         Welcome to StoryMaps.
                     </h1>
                     <p className="text-stone-500 text-center">
@@ -470,7 +470,7 @@ function App() {
                 </div>
                 {/* Hero Section */}
                 <div className={`transition-all duration-700 origin-top ease-in-out max-w-4xl mx-auto ${isHeroVisible ? 'opacity-100 translate-y-0 mb-16' : 'opacity-0 -translate-y-10 h-0 overflow-hidden mb-0'}`}>
-                    <h1 className="text-4xl md:text-6xl font-serif leading-[1.05] tracking-tight mb-8">
+                    <h1 className="text-4xl md:text-6xl font-display leading-[1.05] tracking-tight mb-8">
                         Your Journey. Your Soundtrack.<br /> <span className="italic text-stone-500">Your Story.</span>
                     </h1>
                     <p className="text-xl text-stone-600 max-w-xl leading-relaxed font-light">
@@ -491,7 +491,7 @@ function App() {
                 {appState === AppState.GENERATING_INITIAL_SEGMENT && (
                     <div className="mt-16 flex flex-col items-center justify-center space-y-8 animate-fade-in text-center py-12 max-w-4xl mx-auto">
                         <Loader2 size={48} className="animate-spin text-editorial-900" />
-                        <h3 className="text-3xl font-serif text-editorial-900">{loadingMessage}</h3>
+                        <h3 className="text-3xl font-display text-editorial-900">{loadingMessage}</h3>
                     </div>
                 )}
 

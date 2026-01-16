@@ -222,7 +222,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
     <div className={`transition-all duration-700 ${isLocked ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
       <div className="space-y-8 bg-white/80 backdrop-blur-lg p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-stone-200/50 border border-white/50">
         <div className="space-y-1">
-          <h2 className="text-2xl font-serif text-editorial-900">Plan Your Journey</h2>
+          <h2 className="text-2xl font-display text-editorial-900">Plan Your Journey</h2>
           <p className="text-stone-500">Search locations and customize your experience.</p>
         </div>
 

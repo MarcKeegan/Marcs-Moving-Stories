@@ -198,7 +198,7 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="text-xs text-stone-500 font-bold uppercase tracking-wider mb-0.5">Destination</div>
-                        <div className="text-editorial-900 font-serif text-lg leading-tight truncate">{route.endAddress}</div>
+                        <div className="text-editorial-900 font-display text-lg leading-tight truncate">{route.endAddress}</div>
                     </div>
                 </div>
             </div>
@@ -222,7 +222,7 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
                 </div>
 
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <span className="font-serif text-lg md:text-xl">
+                    <span className="font-display text-lg md:text-xl">
                         {route.duration} Journey
                     </span>
                 </div>
@@ -248,7 +248,7 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
                         key={segment.index}
                         className={`transition-all duration-1000 ${segment.index === currentSegmentIndex + 1 ? 'opacity-100 scale-100' : segment.index <= currentSegmentIndex ? 'opacity-60' : 'opacity-0 translate-y-10'}`}
                     >
-                        <p className="prose prose-xl md:prose-2xl max-w-none font-serif leading-relaxed text-editorial-900">
+                        <p className="prose prose-xl md:prose-2xl max-w-none font-display leading-relaxed text-editorial-900">
                             {segment.text}
                         </p>
                         {idx < story.segments.length - 1 && (
