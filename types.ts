@@ -5,7 +5,7 @@
 
 
 
-export type StoryStyle = 'NOIR' | 'CHILDREN' | 'HISTORICAL' | 'FANTASY';
+export type StoryStyle = 'NOIR' | 'CHILDREN' | 'HISTORICAL' | 'FANTASY' | 'HISTORIAN_GUIDE';
 
 export interface RouteDetails {
   startAddress: string;

@@ -6,7 +6,7 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Navigation, Loader2, Footprints, Car, CloudRain, Sparkles, ScrollText, Sword, Locate } from 'lucide-react';
+import { MapPin, Navigation, Loader2, Footprints, Car, CloudRain, Sparkles, ScrollText, Sword, Locate, Library } from 'lucide-react';
 import { RouteDetails, AppState, StoryStyle } from '../types';
 
 declare global {
