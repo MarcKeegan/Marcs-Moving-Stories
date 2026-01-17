@@ -59,7 +59,8 @@ class DirectionsClient {
     func getDirections(from start: Coordinate, to end: Coordinate, travelMode: String) async throws -> DirectionsResult {
         // Use server proxy instead of calling Directions API directly
         // This avoids iOS bundle ID restrictions and keeps API keys server-side
-        guard let serverBaseURL = AppConfig.serverBaseURL else {
+        let serverBaseURL = AppConfig.shared.serverBaseURL
+        guard !serverBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DirectionsError.missingServerURL
         }
         
@@ -166,3 +167,4 @@ enum DirectionsError: LocalizedError {
         }
     }
 }
+
