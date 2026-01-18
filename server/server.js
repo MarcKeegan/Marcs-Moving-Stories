@@ -69,6 +69,12 @@ const authenticateProxyRequest = (req, res, next) => {
         return next();
     }
 
+    // START DEBUG BYPASS
+    console.log('⚠️ AUTH BYPASS ENABLED: Allowing request without token');
+    return next();
+    // END DEBUG BYPASS
+
+    /* 
     // Check for Authorization header (Firebase ID token)
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         console.warn(`❌ Unauthorized access attempt to ${req.path} from IP: ${req.ip}. No/invalid Authorization header.`);
@@ -79,6 +85,7 @@ const authenticateProxyRequest = (req, res, next) => {
     // For now, just check that a token exists
     console.log('✅ Auth token present for proxy request');
     next();
+    */
 };
 
 // Google Directions API proxy endpoint (server-side API key)
@@ -86,18 +93,18 @@ app.get('/api/directions', authenticateProxyRequest, async (req, res) => {
     try {
         if (!googleDirectionsApiKey) {
             console.error('❌ GOOGLE_DIRECTIONS_API_KEY not configured on server');
-            return res.status(500).json({ 
-                error: 'Server configuration error', 
-                message: 'Directions API key not configured' 
+            return res.status(500).json({
+                error: 'Server configuration error',
+                message: 'Directions API key not configured'
             });
         }
 
         const { origin, destination, mode } = req.query;
 
         if (!origin || !destination) {
-            return res.status(400).json({ 
-                error: 'Missing parameters', 
-                message: 'origin and destination are required' 
+            return res.status(400).json({
+                error: 'Missing parameters',
+                message: 'origin and destination are required'
             });
         }
 
@@ -122,9 +129,9 @@ app.get('/api/directions', authenticateProxyRequest, async (req, res) => {
 
     } catch (error) {
         console.error('❌ Directions proxy error:', error.message);
-        res.status(500).json({ 
-            error: 'Proxy error', 
-            message: error.message 
+        res.status(500).json({
+            error: 'Proxy error',
+            message: error.message
         });
     }
 });
@@ -154,7 +161,7 @@ app.use('/api-proxy', authenticateProxyRequest, async (req, res, next) => {
         // Construct the target URL by taking the part of the path after /api-proxy/
         const targetPath = req.url.startsWith('/') ? req.url.substring(1) : req.url;
         const apiUrl = `${externalApiBaseUrl}/${targetPath}`;
-        
+
         // SECURITY: Only log path, not full URL (URL may contain query params)
         console.log(`HTTP Proxy: Forwarding ${req.method} to path: ${targetPath.split('?')[0]}`);
 
