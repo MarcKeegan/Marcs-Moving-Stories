@@ -8,6 +8,7 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { RouteDetails, StorySegment, StoryStyle } from "../types";
 import { base64ToArrayBuffer, pcmToWav } from "./audioUtils";
+import { auth } from "../firebase";
 
 // Sanitize the key to ensure no extra quotes or whitespace
 const getApiKey = () => {
@@ -37,7 +38,17 @@ if (!API_KEY) {
   console.warn("ECHO_PATHS WARNING: API_KEY is missing from environment.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+
+const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
+  const token = await auth.currentUser?.getIdToken();
+  const newInit = { ...init, headers: new Headers(init?.headers) };
+  if (token) {
+    newInit.headers.set('Authorization', `Bearer ${token}`);
+  }
+  return fetch(url, newInit);
+};
+
+const ai = new GoogleGenAI({ apiKey: API_KEY, fetch: customFetch });
 
 // CONSTANTS FOR CONTINUOUS STREAMING
 const TARGET_SEGMENT_DURATION_SEC = 60;
@@ -66,7 +77,7 @@ const getStyleInstruction = (style: StoryStyle): string => {
         Content Focus: Verified historical events tied to specific locations on the route, dates, names, and cultural context. Explain how the place has changed and why landmarks matter.
         Accuracy Requirements: All information MUST be accurate and conservative. If uncertain, acknowledge it. DO NOT invent events, people, or interpretations. 
         Constraints: Do not fictionalize. Avoid modern opinions or political framing.`;
-      default:
+    default:
       return "Style: Immersive, 'in the moment' narration. Focus on the sensation of movement and the immediate environment.";
   }
 };
