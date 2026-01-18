@@ -37,7 +37,7 @@ if (!apiKey) {
     console.error("Warning: GEMINI_API_KEY or API_KEY environment variable is not set! Proxy functionality will be disabled.");
 }
 else {
-    console.log("API KEY FOUND (proxy will use this)")
+    console.log(`API KEY FOUND: ${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 4)} (Length: ${apiKey.length})`);
 }
 
 // Limit body size to 50mb
