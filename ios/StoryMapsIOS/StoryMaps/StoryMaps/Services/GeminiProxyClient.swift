@@ -60,8 +60,8 @@ class GeminiProxyClient {
         self.baseURL = AppConfig.shared.serverBaseURL
     }
     
-    // Generate text using fiercefalcon model
-    func generateText(prompt: String, model: String = "fiercefalcon", responseJSON: Bool = false) async throws -> String {
+    // Generate text using Gemini model
+    func generateText(prompt: String, model: String = "gemini-2.5-flash", responseJSON: Bool = false) async throws -> String {
         guard !baseURL.isEmpty else {
             throw GeminiError.missingServerURL
         }

@@ -42,7 +42,7 @@ class StoryService {
         
         let responseText = try await GeminiProxyClient.shared.generateText(
             prompt: prompt,
-            model: "fiercefalcon",
+            model: "gemini-2.5-flash",
             responseJSON: true
         )
         
