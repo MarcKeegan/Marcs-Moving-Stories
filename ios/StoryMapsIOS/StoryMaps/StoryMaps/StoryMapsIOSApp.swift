@@ -21,6 +21,10 @@ import GoogleMaps
 import GooglePlaces
 #endif
 
+#if canImport(GoogleMobileAds)
+import GoogleMobileAds
+#endif
+
 @main
 struct StoryMapsIOSApp: App {
     @StateObject private var authViewModel = AuthViewModel()
@@ -54,6 +58,12 @@ struct StoryMapsIOSApp: App {
         } else {
             print("❌ Google Places API key is missing!")
         }
+        #endif
+        
+        // Initialize Google Mobile Ads SDK
+        #if canImport(GoogleMobileAds)
+        MobileAds.shared.start(completionHandler: nil)
+        print("✅ Google Mobile Ads SDK initialized")
         #endif
     }
     

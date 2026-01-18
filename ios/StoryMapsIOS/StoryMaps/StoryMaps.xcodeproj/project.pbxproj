@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */; };
 		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
 		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
 		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
@@ -69,6 +70,7 @@
 				81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */,
 				81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */,
 				81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */,
+				71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */,
 				81A402162F19DBFA00A30EE5 /* GooglePlaces in Frameworks */,
 				81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */,
 				81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */,
@@ -137,6 +139,7 @@
 				81A402122F19DB0700A30EE5 /* GoogleSignInSwift */,
 				81A402152F19DBFA00A30EE5 /* GooglePlaces */,
 				81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */,
+				71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */,
 			);
 			productName = StoryMaps;
 			productReference = 81A401942F19D83A00A30EE5 /* StoryMaps.app */;
@@ -219,6 +222,7 @@
 				81A4020C2F19DAB500A30EE5 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
 				81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
+				71176BDC2F1D0C1C00EBF0B1 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 81A401952F19D83A00A30EE5 /* Products */;
@@ -627,6 +631,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		71176BDC2F1D0C1C00EBF0B1 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
 		81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -662,6 +674,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71176BDC2F1D0C1C00EBF0B1 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
 		81A402082F19DA5600A30EE5 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
