@@ -42,7 +42,7 @@ if (!API_KEY) {
 const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
   console.log("CustomFetch PROXY: Intercepting request to", url);
   const token = await auth.currentUser?.getIdToken();
-  console.log("CustomFetch PROXY: Token present?", !!token);
+  console.error("CustomFetch PROXY: Token present?", !!token); // Using error to ensure visibility
   const newInit = { ...init, headers: new Headers(init?.headers) };
   if (token) {
     newInit.headers.set('Authorization', `Bearer ${token}`);
