@@ -39,25 +39,36 @@ if (!API_KEY) {
 }
 
 
-const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
-  console.log("CustomFetch PROXY: Intercepting request to", url);
-  const token = await auth.currentUser?.getIdToken();
-  console.error("CustomFetch PROXY: Token present?", !!token); // Using error to ensure visibility
-  const newInit = { ...init, headers: new Headers(init?.headers) };
-  if (token) {
-    newInit.headers.set('Authorization', `Bearer ${token}`);
-    console.log("CustomFetch PROXY: Authorization header set.");
-  } else {
-    console.warn("CustomFetch PROXY: No token found for user.");
-    // If we are using the proxy, we MUST have a token.
-    if (API_KEY === "proxy") {
-      throw new Error("Authentication required: Please sign in.");
+// Global Fetch Interceptor to ensure Authorization header is always present
+const originalFetch = window.fetch;
+window.fetch = async (input, init) => {
+  let url = input instanceof Request ? input.url : input.toString();
+
+  // Intercept Gemini API or Proxy requests
+  if (url.includes('generativelanguage.googleapis.com') || url.includes('/api-proxy/')) {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
+        // Ensure init object exists
+        init = init || {};
+
+        // Merge headers
+        const headers = new Headers(init.headers);
+        headers.set('Authorization', `Bearer ${token}`);
+        init.headers = headers;
+
+        // console.log("Global Fetch Interceptor: Token injected for", url);
+      } else if (API_KEY === 'proxy') {
+        console.warn("Global Fetch Interceptor: No token available for proxy request!");
+      }
+    } catch (e) {
+      console.error("Global Fetch Interceptor Error:", e);
     }
   }
-  return fetch(url, newInit);
+  return originalFetch(input, init);
 };
 
-const ai = new GoogleGenAI({ apiKey: API_KEY, fetch: customFetch });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 // CONSTANTS FOR CONTINUOUS STREAMING
 const TARGET_SEGMENT_DURATION_SEC = 60;
