@@ -140,6 +140,13 @@ struct StoryMapsMainView: View {
                                 proxy.scrollTo("loadingSection", anchor: .bottom)
                             }
                         }
+                    } else if newState == .readyToPlay {
+                        // Scroll back to top when story is ready
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation {
+                                proxy.scrollTo("topOfScreen", anchor: .top)
+                            }
+                        }
                     }
                 }
             }
