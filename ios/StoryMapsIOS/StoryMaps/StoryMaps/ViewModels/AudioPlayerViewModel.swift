@@ -10,18 +10,22 @@ import Combine
 
 @MainActor
 class AudioPlayerViewModel: NSObject, ObservableObject {
-    let objectWillChange = ObservableObjectPublisher()
 
     @Published var isPlaying = false
     @Published var currentSegmentIndex = 0
     @Published var isBuffering = false
+    @Published var errorMessage: String?
     
+    // Restoring missing properties
     private var audioPlayer: AVAudioPlayer?
     private var segments: [StorySegment] = []
     private var totalSegments: Int = 0
     
     var onSegmentChange: ((Int) -> Void)?
     
+    // New property for resume logic
+    private var loadedSegmentIndex: Int?
+
     override init() {
         super.init()
         setupAudioSession()
@@ -32,6 +36,9 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
         self.segments = segments
         self.totalSegments = totalSegments
         currentSegmentIndex = 0
+        errorMessage = nil
+        loadedSegmentIndex = nil
+        audioPlayer = nil
     }
     
     func togglePlayback() {
@@ -48,6 +55,13 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
             return
         }
         
+        // Resume if already loaded for this segment
+        if let player = audioPlayer, loadedSegmentIndex == currentSegmentIndex {
+            player.play()
+            isPlaying = true
+            return
+        }
+        
         let segment = segments[currentSegmentIndex]
         
         guard let audioData = segment.audioData else {
@@ -61,12 +75,16 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
             
+            loadedSegmentIndex = currentSegmentIndex
             isPlaying = true
             isBuffering = false
+            errorMessage = nil
             
             updateNowPlayingInfo(segment: segment)
         } catch {
             print("Audio playback error: \(error)")
+            errorMessage = "Playback failed: \(error.localizedDescription)"
+            isPlaying = false
         }
     }
     

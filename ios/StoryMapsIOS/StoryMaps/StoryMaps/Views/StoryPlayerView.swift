@@ -108,6 +108,16 @@ struct StoryPlayerView: View {
                     .background(Color(red: 0.1, green: 0.1, blue: 0.1))
                     .cornerRadius(30)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+                    
+                    if let error = audioPlayer.errorMessage {
+                        Text(error)
+                            .foregroundColor(.white)
+                            .font(.caption)
+                            .padding(.top, 8)
+                            .padding(.horizontal)
+                            .background(Color.red.opacity(0.8))
+                            .cornerRadius(8)
+                    }
                 }
                 
                 // Story Text Stream
@@ -167,6 +177,7 @@ struct StoryPlayerView: View {
                 audioPlayer.onSegmentChange = { index in
                     checkBuffering(currentIndex: index)
                 }
+                checkBuffering(currentIndex: audioPlayer.currentSegmentIndex)
             }
             .onChange(of: story.segments.count) { _, _ in
                 audioPlayer.updateSegments(story.segments)

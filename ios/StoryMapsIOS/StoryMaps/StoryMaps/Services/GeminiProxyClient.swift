@@ -6,8 +6,16 @@
 import Foundation
 
 struct GeminiGenerateRequest: Codable {
-    let contents: String
-    let config: GenerateConfig?
+    let contents: [Content]
+    let generationConfig: GenerateConfig?
+    
+    struct Content: Codable {
+        let parts: [Part]
+    }
+    
+    struct Part: Codable {
+        let text: String
+    }
     
     struct GenerateConfig: Codable {
         let responseMimeType: String?
@@ -81,14 +89,15 @@ class GeminiProxyClient {
             )
         }
         
-        let request = GeminiGenerateRequest(contents: prompt, config: config)
+        let content = GeminiGenerateRequest.Content(parts: [
+            GeminiGenerateRequest.Part(text: prompt)
+        ])
+        let request = GeminiGenerateRequest(contents: [content], generationConfig: config)
         let jsonData = try JSONEncoder().encode(request)
         
-        let response: GeminiGenerateResponse = try await HTTPClient.shared.request(
+        let response: GeminiGenerateResponse = try await performRequestWithRetry(
             url: url,
-            method: "POST",
-            headers: ["Content-Type": "application/json"],
-            body: jsonData
+            jsonData: jsonData
         )
         
         if let text = response.text {
@@ -127,14 +136,15 @@ class GeminiProxyClient {
             )
         )
         
-        let request = GeminiGenerateRequest(contents: text, config: config)
+        let content = GeminiGenerateRequest.Content(parts: [
+            GeminiGenerateRequest.Part(text: text)
+        ])
+        let request = GeminiGenerateRequest(contents: [content], generationConfig: config)
         let jsonData = try JSONEncoder().encode(request)
         
-        let response: GeminiGenerateResponse = try await HTTPClient.shared.request(
+        let response: GeminiGenerateResponse = try await performRequestWithRetry(
             url: url,
-            method: "POST",
-            headers: ["Content-Type": "application/json"],
-            body: jsonData
+            jsonData: jsonData
         )
         
         guard let candidate = response.candidates?.first,
@@ -161,6 +171,46 @@ class GeminiProxyClient {
         }
         
         return wavData
+    }
+    
+    private func performRequestWithRetry<T: Decodable>(
+        url: URL,
+        jsonData: Data,
+        attempt: Int = 1,
+        maxAttempts: Int = 4
+    ) async throws -> T {
+        do {
+            return try await HTTPClient.shared.request(
+                url: url,
+                method: "POST",
+                headers: ["Content-Type": "application/json"],
+                body: jsonData
+            )
+        } catch {
+            // Check if error is related to 503 Service Unavailable or "Overloaded"
+            // HTTPClient throws HTTPError.httpError(statusCode: Int, data: Data?)
+            // localizedDescription for this is "HTTP error: 503"
+            
+            let isOverloaded = error.localizedDescription.contains("503") || 
+                               error.localizedDescription.lowercased().contains("overloaded") ||
+                               error.localizedDescription.lowercased().contains("busy")
+            
+            if isOverloaded && attempt < maxAttempts {
+                // Exponential backoff: 1s, 2s, 4s
+                let delay = Double(pow(2.0, Double(attempt - 1)))
+                print("⚠️ API Overloaded (503). Retrying in \(delay)s (Attempt \(attempt + 1)/\(maxAttempts))...")
+                
+                try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                
+                return try await performRequestWithRetry(
+                    url: url,
+                    jsonData: jsonData,
+                    attempt: attempt + 1,
+                    maxAttempts: maxAttempts
+                )
+            }
+            throw error
+        }
     }
 }
 
