@@ -13,7 +13,6 @@ import MapBackground from './components/MapBackground';
 import { AppState, RouteDetails, AudioStory } from './types';
 import { generateSegment, generateSegmentAudio, calculateTotalSegments, generateStoryOutline } from './services/geminiService';
 import { useAuth } from './AuthContext';
-import { DebugStatus } from './components/DebugStatus';
 
 declare global {
     interface Window {
@@ -452,7 +451,6 @@ function App() {
 
     return (
         <div className="min-h-screen bg-editorial-100 text-editorial-900 relative selection:bg-stone-200">
-            <DebugStatus />
             <MapBackground route={route} />
 
             <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32">

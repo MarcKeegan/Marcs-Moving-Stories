@@ -69,14 +69,6 @@ const authenticateProxyRequest = (req, res, next) => {
         return next();
     }
 
-    console.log(`[DEBUG] Auth Check: ${req.method} ${req.path}`);
-    console.log(`[DEBUG] Headers:`, JSON.stringify(Object.keys(req.headers)));
-    if (req.headers.authorization) {
-        console.log(`[DEBUG] Auth Header: ${req.headers.authorization.substring(0, 15)}...`);
-    } else {
-        console.log(`[DEBUG] Auth Header: MISSING`);
-    }
-
     // Check for Authorization header (Firebase ID token)
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         console.warn(`❌ Unauthorized access attempt to ${req.path} from IP: ${req.ip}. No/invalid Authorization header.`);
@@ -85,7 +77,7 @@ const authenticateProxyRequest = (req, res, next) => {
 
     // TODO: In production, verify the Firebase ID token here
     // For now, just check that a token exists
-    console.log('✅ Auth token present for proxy request');
+    // console.log('✅ Auth token present for proxy request');
     next();
 };
 
