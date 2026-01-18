@@ -52,10 +52,21 @@ window.fetch = async (input, init) => {
         // Ensure init object exists
         init = init || {};
 
-        // Merge headers
-        const headers = new Headers(init.headers);
-        headers.set('Authorization', `Bearer ${token}`);
-        init.headers = headers;
+        // we must preserve headers from both the init object AND the input Request (if applicable).
+        // fetch(req, init) replaces req.headers with init.headers, so we must merge them manually.
+        const newHeaders = new Headers(init.headers);
+
+        if (input instanceof Request) {
+          input.headers.forEach((value, key) => {
+            // init headers take precedence, so only add if missing
+            if (!newHeaders.has(key)) {
+              newHeaders.append(key, value);
+            }
+          });
+        }
+
+        newHeaders.set('Authorization', `Bearer ${token}`);
+        init.headers = newHeaders;
 
         // console.log("Global Fetch Interceptor: Token injected for", url);
       } else if (API_KEY === 'proxy') {
