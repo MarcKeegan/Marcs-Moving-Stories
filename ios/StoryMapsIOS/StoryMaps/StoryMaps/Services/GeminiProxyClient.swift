@@ -41,10 +41,11 @@ struct GeminiGenerateResponse: Codable {
     let candidates: [Candidate]?
     
     struct Candidate: Codable {
-        let content: Content
+        let content: Content?
+        let finishReason: String?
         
         struct Content: Codable {
-            let parts: [Part]
+            let parts: [Part]?
             
             struct Part: Codable {
                 let text: String?
@@ -95,17 +96,44 @@ class GeminiProxyClient {
         let request = GeminiGenerateRequest(contents: [content], generationConfig: config)
         let jsonData = try JSONEncoder().encode(request)
         
-        let response: GeminiGenerateResponse = try await performRequestWithRetry(
-            url: url,
-            jsonData: jsonData
-        )
         
-        if let text = response.text {
-            return text
-        } else if let candidate = response.candidates?.first,
-                  let part = candidate.content.parts.first,
-                  let text = part.text {
-            return text
+        // Retry loop for empty STOP responses
+        for attempt in 1...3 {
+            do {
+                let response: GeminiGenerateResponse = try await performRequestWithRetry(
+                    url: url,
+                    jsonData: jsonData
+                )
+                
+                if let text = response.text {
+                    return text
+                } else if let candidate = response.candidates?.first {
+                    if let parts = candidate.content?.parts, let part = parts.first, let text = part.text {
+                        return text
+                    }
+                    
+                    if let finishReason = candidate.finishReason {
+                        if finishReason != "STOP" {
+                            print("⚠️ Generation stopped. Reason: \(finishReason)")
+                        }
+                        
+                        // If "STOP" but empty, retry if attempts remain
+                        if finishReason == "STOP" && attempt < 3 {
+                            print("⚠️ Received STOP with no content. Retrying... (Attempt \(attempt))")
+                            try await Task.sleep(nanoseconds: 1_000_000_000) // 1s wait
+                            continue
+                        }
+                        
+                        throw GeminiError.generationStopped(reason: finishReason)
+                    }
+                }
+                
+                throw GeminiError.noTextInResponse
+            } catch {
+                if attempt == 3 { throw error }
+                // Let other errors bubble up unless handled (performRequestWithRetry handles network/503)
+                throw error
+            }
         }
         
         throw GeminiError.noTextInResponse
@@ -142,35 +170,66 @@ class GeminiProxyClient {
         let request = GeminiGenerateRequest(contents: [content], generationConfig: config)
         let jsonData = try JSONEncoder().encode(request)
         
-        let response: GeminiGenerateResponse = try await performRequestWithRetry(
-            url: url,
-            jsonData: jsonData
-        )
         
-        guard let candidate = response.candidates?.first,
-              let part = candidate.content.parts.first,
-              let inlineData = part.inlineData else {
-            throw GeminiError.noAudioInResponse
+        // Retry loop for empty STOP responses
+        for attempt in 1...3 {
+            do {
+                let response: GeminiGenerateResponse = try await performRequestWithRetry(
+                    url: url,
+                    jsonData: jsonData
+                )
+                
+                guard let candidate = response.candidates?.first else {
+                    throw GeminiError.noAudioInResponse
+                }
+
+                if let parts = candidate.content?.parts,
+                   let part = parts.first,
+                   let inlineData = part.inlineData {
+                    
+                    let mimeType = inlineData.mimeType
+                    let base64Audio = inlineData.data
+                    
+                    // Extract sample rate from mime type (e.g., "audio/pcm;rate=24000")
+                    let sampleRate: Int
+                    if let rateMatch = mimeType.range(of: "rate=(\\d+)", options: .regularExpression) {
+                        let rateString = String(mimeType[rateMatch]).replacingOccurrences(of: "rate=", with: "")
+                        sampleRate = Int(rateString) ?? 24000
+                    } else {
+                        sampleRate = 24000
+                    }
+                    
+                    // Convert base64 PCM to WAV
+                    guard let wavData = WavEncoder.pcmToWav(base64PCM: base64Audio, sampleRate: sampleRate) else {
+                        throw GeminiError.audioConversionFailed
+                    }
+                    
+                    return wavData
+                }
+                
+                if let finishReason = candidate.finishReason {
+                    if finishReason != "STOP" {
+                        print("⚠️ Audio generation stopped. Reason: \(finishReason)")
+                    }
+                    
+                    // If "STOP" but empty, retry if attempts remain
+                    if finishReason == "STOP" && attempt < 3 {
+                         print("⚠️ Audio received STOP with no content. Retrying... (Attempt \(attempt))")
+                         try await Task.sleep(nanoseconds: 1_000_000_000)
+                         continue
+                    }
+                     
+                    throw GeminiError.generationStopped(reason: finishReason)
+                }
+                
+                throw GeminiError.noAudioInResponse
+            } catch {
+                if attempt == 3 { throw error }
+                throw error
+            }
         }
         
-        let mimeType = inlineData.mimeType
-        let base64Audio = inlineData.data
-        
-        // Extract sample rate from mime type (e.g., "audio/pcm;rate=24000")
-        let sampleRate: Int
-        if let rateMatch = mimeType.range(of: "rate=(\\d+)", options: .regularExpression) {
-            let rateString = String(mimeType[rateMatch]).replacingOccurrences(of: "rate=", with: "")
-            sampleRate = Int(rateString) ?? 24000
-        } else {
-            sampleRate = 24000
-        }
-        
-        // Convert base64 PCM to WAV
-        guard let wavData = WavEncoder.pcmToWav(base64PCM: base64Audio, sampleRate: sampleRate) else {
-            throw GeminiError.audioConversionFailed
-        }
-        
-        return wavData
+        throw GeminiError.noAudioInResponse
     }
     
     private func performRequestWithRetry<T: Decodable>(
@@ -220,6 +279,7 @@ enum GeminiError: LocalizedError {
     case noTextInResponse
     case noAudioInResponse
     case audioConversionFailed
+    case generationStopped(reason: String)
     
     var errorDescription: String? {
         switch self {
@@ -233,6 +293,8 @@ enum GeminiError: LocalizedError {
             return "No audio in Gemini response"
         case .audioConversionFailed:
             return "Failed to convert audio data"
+        case .generationStopped(let reason):
+            return "Generation stopped: \(reason)"
         }
     }
 }
