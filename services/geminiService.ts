@@ -49,6 +49,10 @@ const customFetch = async (url: RequestInfo | URL, init?: RequestInit) => {
     console.log("CustomFetch PROXY: Authorization header set.");
   } else {
     console.warn("CustomFetch PROXY: No token found for user.");
+    // If we are using the proxy, we MUST have a token.
+    if (API_KEY === "proxy") {
+      throw new Error("Authentication required: Please sign in.");
+    }
   }
   return fetch(url, newInit);
 };

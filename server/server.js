@@ -69,12 +69,6 @@ const authenticateProxyRequest = (req, res, next) => {
         return next();
     }
 
-    // START DEBUG BYPASS
-    console.log('⚠️ AUTH BYPASS ENABLED: Allowing request without token');
-    return next();
-    // END DEBUG BYPASS
-
-    /* 
     // Check for Authorization header (Firebase ID token)
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         console.warn(`❌ Unauthorized access attempt to ${req.path} from IP: ${req.ip}. No/invalid Authorization header.`);
@@ -85,7 +79,6 @@ const authenticateProxyRequest = (req, res, next) => {
     // For now, just check that a token exists
     console.log('✅ Auth token present for proxy request');
     next();
-    */
 };
 
 // Google Directions API proxy endpoint (server-side API key)
