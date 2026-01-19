@@ -52,7 +52,7 @@ struct StoryMapsMainView: View {
                                         .foregroundColor(.secondary)
                                 }
                                 
-                                Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply drop a pin for your start and finish, pick a genre, and let us create a unique audio companion for the road ahead.")
+                                Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us craft a unique audio companion for the road ahead.")
                                     .font(.system(size: 18, weight: .light))
                                     .foregroundColor(.secondary)
                                     .lineSpacing(4)
