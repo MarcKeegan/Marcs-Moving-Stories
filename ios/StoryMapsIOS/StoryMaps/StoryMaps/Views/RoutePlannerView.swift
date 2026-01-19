@@ -10,6 +10,8 @@ struct RoutePlannerView: View {
     @Binding var appState: AppState
     var onRouteFound: (RouteDetails) -> Void
     
+    @StateObject private var locationManager = LocationManager() // For location biasing
+    
     var body: some View {
         VStack(spacing: 24) {
             // Header
@@ -22,19 +24,24 @@ struct RoutePlannerView: View {
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .onAppear {
+                locationManager.requestLocation()
+            }
             
             // Location Inputs
             VStack(spacing: 12) {
                 PlaceAutocompletePicker(
                     placeholder: "Starting Point",
                     iconName: "mappin.circle.fill",
-                    place: $viewModel.startPlace
+                    place: $viewModel.startPlace,
+                    userLocation: locationManager.userLocation
                 )
                 
                 PlaceAutocompletePicker(
                     placeholder: "Destination",
                     iconName: "location.fill",
-                    place: $viewModel.endPlace
+                    place: $viewModel.endPlace,
+                    userLocation: locationManager.userLocation
                 )
             }
             

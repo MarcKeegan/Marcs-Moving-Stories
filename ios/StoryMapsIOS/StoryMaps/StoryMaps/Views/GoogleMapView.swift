@@ -17,8 +17,9 @@ struct GoogleMapView: UIViewRepresentable {
     
     #if canImport(GoogleMaps)
     func makeUIView(context: Context) -> GMSMapView {
+        let mapView = GMSMapView(frame: .zero)
         let camera = GMSCameraPosition.camera(withLatitude: 0, longitude: 0, zoom: 13)
-        let mapView = GMSMapView.map(withFrame: .zero, camera: camera)
+        mapView.camera = camera
         mapView.isMyLocationEnabled = false
         
         // Apply custom map style
@@ -94,3 +95,4 @@ struct GoogleMapView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
     #endif
 }
+

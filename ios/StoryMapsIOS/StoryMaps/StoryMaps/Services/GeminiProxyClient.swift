@@ -97,8 +97,8 @@ class GeminiProxyClient {
         let jsonData = try JSONEncoder().encode(request)
         
         
-        // Retry loop for empty STOP responses
-        for attempt in 1...3 {
+        // Retry loop for empty STOP responses (increased to 5 attempts)
+        for attempt in 1...5 {
             do {
                 let response: GeminiGenerateResponse = try await performRequestWithRetry(
                     url: url,
@@ -118,9 +118,11 @@ class GeminiProxyClient {
                         }
                         
                         // If "STOP" but empty, retry if attempts remain
-                        if finishReason == "STOP" && attempt < 3 {
-                            print("⚠️ Received STOP with no content. Retrying... (Attempt \(attempt))")
-                            try await Task.sleep(nanoseconds: 1_000_000_000) // 1s wait
+                        if finishReason == "STOP" && attempt < 5 {
+                            // Exponential backoff: 2s, 4s, 8s, 16s
+                            let delay = Double(pow(2.0, Double(attempt)))
+                            print("⚠️ Received STOP with no content. Retrying in \(delay)s... (Attempt \(attempt))")
+                            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                             continue
                         }
                         
@@ -130,7 +132,7 @@ class GeminiProxyClient {
                 
                 throw GeminiError.noTextInResponse
             } catch {
-                if attempt == 3 { throw error }
+                if attempt == 5 { throw error }
                 // Let other errors bubble up unless handled (performRequestWithRetry handles network/503)
                 throw error
             }
@@ -171,8 +173,8 @@ class GeminiProxyClient {
         let jsonData = try JSONEncoder().encode(request)
         
         
-        // Retry loop for empty STOP responses
-        for attempt in 1...3 {
+        // Retry loop for empty STOP responses (increased to 5 attempts)
+        for attempt in 1...5 {
             do {
                 let response: GeminiGenerateResponse = try await performRequestWithRetry(
                     url: url,
@@ -213,9 +215,11 @@ class GeminiProxyClient {
                     }
                     
                     // If "STOP" but empty, retry if attempts remain
-                    if finishReason == "STOP" && attempt < 3 {
-                         print("⚠️ Audio received STOP with no content. Retrying... (Attempt \(attempt))")
-                         try await Task.sleep(nanoseconds: 1_000_000_000)
+                    if finishReason == "STOP" && attempt < 5 {
+                         // Exponential backoff: 2s, 4s, 8s, 16s
+                         let delay = Double(pow(2.0, Double(attempt)))
+                         print("⚠️ Audio received STOP with no content. Retrying in \(delay)s... (Attempt \(attempt))")
+                         try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                          continue
                     }
                      
@@ -224,7 +228,7 @@ class GeminiProxyClient {
                 
                 throw GeminiError.noAudioInResponse
             } catch {
-                if attempt == 3 { throw error }
+                if attempt == 5 { throw error }
                 throw error
             }
         }

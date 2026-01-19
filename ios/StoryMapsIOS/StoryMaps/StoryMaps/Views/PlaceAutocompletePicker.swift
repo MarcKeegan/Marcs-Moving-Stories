@@ -11,10 +11,12 @@ import Combine
 import GooglePlaces
 #endif
 
+
 struct PlaceAutocompletePicker: View {
     let placeholder: String
     let iconName: String
     @Binding var place: Place?
+    var userLocation: CLLocation? // Added parameter for bias
     
     @State private var showingAutocomplete = false
     @State private var showingLocationPicker = false
@@ -54,7 +56,7 @@ struct PlaceAutocompletePicker: View {
         .background(
             Group {
                 #if canImport(GooglePlaces)
-                GooglePlacesAutocompleteView(place: $place, isPresented: $showingAutocomplete)
+                GooglePlacesAutocompleteView(place: $place, isPresented: $showingAutocomplete, userLocation: userLocation)
                     .frame(width: 0, height: 0)
                 #else
                 EmptyView()
@@ -71,6 +73,7 @@ struct PlaceAutocompletePicker: View {
 struct GooglePlacesAutocompleteView: UIViewControllerRepresentable {
     @Binding var place: Place?
     @Binding var isPresented: Bool
+    var userLocation: CLLocation?
     
     func makeUIViewController(context: Context) -> UIViewController {
         // Create a transparent container view controller
@@ -87,6 +90,18 @@ struct GooglePlacesAutocompleteView: UIViewControllerRepresentable {
             
             let fields: GMSPlaceField = [.name, .formattedAddress, .coordinate, .placeID]
             autocompleteController.placeFields = fields
+            
+            // Apply location bias if available
+            if let location = userLocation {
+                let filter = GMSAutocompleteFilter()
+                
+                // Use 'origin' for location bias (available in GMSAutocompleteFilter)
+                // This biases results to the user's location without requiring GMSRectangularBounds
+                filter.origin = location
+                
+                autocompleteController.autocompleteFilter = filter
+                print("📍 Applied location bias: \(location.coordinate)")
+            }
             
             uiViewController.present(autocompleteController, animated: true)
         }
@@ -215,92 +230,6 @@ struct CurrentLocationPicker: View {
             }
             .onAppear {
                 locationManager.requestLocation()
-            }
-        }
-    }
-}
-
-@MainActor
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var currentPlace: Place?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    
-    private let locationManager = CLLocationManager()
-    private let geocoder = CLGeocoder()
-    
-    override init() {
-        super.init()
-        locationManager.delegate = self
-    }
-    
-    func requestLocation() {
-        isLoading = true
-        errorMessage = nil
-        
-        let status = locationManager.authorizationStatus
-        
-        switch status {
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.requestLocation()
-        case .denied, .restricted:
-            isLoading = false
-            errorMessage = "Location access denied. Please enable it in Settings."
-        @unknown default:
-            isLoading = false
-            errorMessage = "Unknown location authorization status."
-        }
-    }
-    
-    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.first else { return }
-        
-        Task { @MainActor in
-            do {
-                let placemarks = try await geocoder.reverseGeocodeLocation(location)
-                guard let placemark = placemarks.first else {
-                    self.errorMessage = "Could not find address for your location"
-                    self.isLoading = false
-                    return
-                }
-                
-                let address = [
-                    placemark.subThoroughfare,
-                    placemark.thoroughfare,
-                    placemark.locality,
-                    placemark.administrativeArea,
-                    placemark.postalCode
-                ].compactMap { $0 }.joined(separator: ", ")
-                
-                self.currentPlace = Place(
-                    id: UUID().uuidString,
-                    name: placemark.name ?? "Current Location",
-                    address: address.isEmpty ? "Current Location" : address,
-                    coordinate: Coordinate(clLocation: location.coordinate)
-                )
-                
-                self.isLoading = false
-            } catch {
-                self.errorMessage = "Could not find address for your location"
-                self.isLoading = false
-            }
-        }
-    }
-    
-    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        Task { @MainActor in
-            self.errorMessage = "Unable to retrieve your location. Please check permissions."
-            self.isLoading = false
-        }
-    }
-    
-    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Task { @MainActor in
-            let status = manager.authorizationStatus
-            if status == .authorizedWhenInUse || status == .authorizedAlways {
-                manager.requestLocation()
             }
         }
     }

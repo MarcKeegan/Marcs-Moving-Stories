@@ -118,6 +118,32 @@ struct StoryPlayerView: View {
                             .background(Color.red.opacity(0.8))
                             .cornerRadius(8)
                     }
+                    
+                    // Buffering error with retry button
+                    if let bufferingError = viewModel.bufferingError {
+                        HStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                            
+                            Text(bufferingError)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                            
+                            Button("Retry") {
+                                viewModel.retryFailedSegments()
+                            }
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                        }
+                        .padding(12)
+                        .background(Color(red: 0.2, green: 0.15, blue: 0.1))
+                        .cornerRadius(12)
+                        .padding(.top, 8)
+                    }
                 }
                 
                 // Story Text Stream
@@ -186,10 +212,11 @@ struct StoryPlayerView: View {
     }
     
     private func checkBuffering(currentIndex: Int) {
-        let neededBufferIndex = currentIndex + 3
+        // Buffer ahead when we're getting close to the end of buffered content
+        let neededBufferIndex = currentIndex + 2
         
         if story.segments.count < neededBufferIndex && story.segments.count < story.totalSegmentsEstimate {
-            viewModel.bufferNextSegment()
+            viewModel.bufferNextSegments()
         }
     }
 }
