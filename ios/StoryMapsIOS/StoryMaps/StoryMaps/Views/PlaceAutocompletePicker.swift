@@ -95,9 +95,16 @@ struct GooglePlacesAutocompleteView: UIViewControllerRepresentable {
             if let location = userLocation {
                 let filter = GMSAutocompleteFilter()
                 
-                // Use 'origin' for location bias (available in GMSAutocompleteFilter)
-                // This biases results to the user's location without requiring GMSRectangularBounds
+                // Set location bias (soft preference)
                 filter.origin = location
+                
+                // Add country restriction based on user's location
+                // This restricts results to the detected country
+                let countryCode = getCountryCode(for: location.coordinate)
+                if let country = countryCode {
+                    filter.countries = [country]
+                    print("🌍 Restricting results to country: \(country)")
+                }
                 
                 autocompleteController.autocompleteFilter = filter
                 print("📍 Applied location bias: \(location.coordinate)")
@@ -160,6 +167,65 @@ struct GooglePlacesAutocompleteView: UIViewControllerRepresentable {
                 }
             }
         }
+    }
+    
+    // Helper function to determine country code from coordinates
+    func getCountryCode(for coordinate: CLLocationCoordinate2D) -> String? {
+        // Simple geographic bounds-based country detection
+        let lat = coordinate.latitude
+        let lon = coordinate.longitude
+        
+        // Australia
+        if lat >= -44 && lat <= -10 && lon >= 113 && lon <= 154 {
+            return "AU"
+        }
+        // United States (continental)
+        else if lat >= 24 && lat <= 49 && lon >= -125 && lon <= -66 {
+            return "US"
+        }
+        // United Kingdom
+        else if lat >= 49.5 && lat <= 61 && lon >= -8 && lon <= 2 {
+            return "GB"
+        }
+        // Canada
+        else if lat >= 41 && lat <= 84 && lon >= -141 && lon <= -52 {
+            return "CA"
+        }
+        // New Zealand
+        else if lat >= -47 && lat <= -34 && lon >= 166 && lon <= 179 {
+            return "NZ"
+        }
+        // Germany
+        else if lat >= 47 && lat <= 55 && lon >= 5 && lon <= 15 {
+            return "DE"
+        }
+        // France
+        else if lat >= 41 && lat <= 51 && lon >= -5 && lon <= 10 {
+            return "FR"
+        }
+        // Spain
+        else if lat >= 36 && lat <= 44 && lon >= -10 && lon <= 5 {
+            return "ES"
+        }
+        // Italy
+        else if lat >= 36 && lat <= 47 && lon >= 6 && lon <= 19 {
+            return "IT"
+        }
+        // Japan
+        else if lat >= 24 && lat <= 46 && lon >= 123 && lon <= 146 {
+            return "JP"
+        }
+        // India
+        else if lat >= 6 && lat <= 36 && lon >= 68 && lon <= 97 {
+            return "IN"
+        }
+        // Brazil
+        else if lat >= -34 && lat <= 6 && lon >= -74 && lon <= -34 {
+            return "BR"
+        }
+        
+        // Default: no country restriction (will show global results)
+        return nil
     }
 }
 #endif
