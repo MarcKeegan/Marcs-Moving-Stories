@@ -17,10 +17,14 @@ struct RoutePlannerView: View {
             // Header
             VStack(alignment: .leading, spacing: 4) {
                 Text("Plan Your Journey")
-                    .font(.title2.weight(.bold))
+                    .font(.googleSans(size: 19))
+                    .fontWeight(.bold)
+                    .lineSpacing(2)
                 
                 Text("Search locations and customize your experience.")
-                    .font(.subheadline)
+                    .font(.googleSans(size: 13))
+                    .fontWeight(.regular)
+                    .lineSpacing(2)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,7 +52,8 @@ struct RoutePlannerView: View {
             // Travel Mode
             VStack(alignment: .leading, spacing: 12) {
                 Text("TRAVEL MODE")
-                    .font(.caption.weight(.medium))
+                    .font(.googleSansCaption)
+                    .fontWeight(.medium)
                     .foregroundColor(.secondary)
                 
                 HStack(spacing: 8) {
@@ -57,7 +62,8 @@ struct RoutePlannerView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: mode.iconName)
                                 Text(mode.displayName)
-                                    .font(.subheadline.weight(.medium))
+                                    .font(.googleSansSubheadline)
+                                    .fontWeight(.medium)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
@@ -75,7 +81,8 @@ struct RoutePlannerView: View {
             // Story Style
             VStack(alignment: .leading, spacing: 12) {
                 Text("STORY STYLE")
-                    .font(.caption.weight(.medium))
+                    .font(.googleSansCaption)
+                    .fontWeight(.medium)
                     .foregroundColor(.secondary)
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -84,16 +91,17 @@ struct RoutePlannerView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: style.iconName)
-                                        .font(.title2)
+                                        .font(.googleSansTitle2)
                                     Spacer()
                                 }
                                 
                                 Text(style.displayName)
-                                    .font(.subheadline.weight(.bold))
+                                    .font(.googleSansSubheadline)
+                                    .fontWeight(.bold)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 
                                 Text(style.description)
-                                    .font(.caption)
+                                    .font(.googleSansCaption)
                                     .lineLimit(2)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -114,7 +122,7 @@ struct RoutePlannerView: View {
             // Error Message
             if let error = viewModel.errorMessage {
                 Text(error)
-                    .font(.caption)
+                    .font(.googleSansCaption)
                     .foregroundColor(.red)
                     .padding(12)
                     .frame(maxWidth: .infinity)
@@ -134,7 +142,7 @@ struct RoutePlannerView: View {
                         Text("Create your story")
                     }
                 }
-                .font(.headline)
+                .font(.googleSansHeadline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color(red: 0.1, green: 0.1, blue: 0.1))

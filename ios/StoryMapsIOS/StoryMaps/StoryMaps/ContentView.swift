@@ -24,16 +24,16 @@ struct ContentView: View {
 struct LoadingView: View {
     var body: some View {
         ZStack {
-            Color(red: 0.96, green: 0.96, blue: 0.94)
+            Color(red: 34/255, green: 30/255, blue: 35/255)
                 .ignoresSafeArea()
             
             VStack(spacing: 16) {
                 Image(systemName: "map.fill")
-                    .font(.system(size: 48))
+                    .font(.googleSans(size: 48))
                     .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                 
                 Text("Checking your session...")
-                    .font(.subheadline)
+                    .font(.googleSansSubheadline)
                     .foregroundColor(.secondary)
             }
         }

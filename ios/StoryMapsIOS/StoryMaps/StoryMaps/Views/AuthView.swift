@@ -22,7 +22,7 @@ struct AuthView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 0.96, green: 0.96, blue: 0.94)
+            Color(red: 34/255, green: 30/255, blue: 35/255)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -31,15 +31,16 @@ struct AuthView: View {
                 VStack(spacing: 24) {
                     // Logo
                     Image(systemName: "map.fill")
-                        .font(.system(size: 64))
+                        .font(.googleSans(size: 64))
                         .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                     
                     VStack(spacing: 8) {
                         Text("Welcome to StoryMaps.")
-                            .font(.system(size: 30, weight: .bold, design: .serif))
+                            .font(.googleSans(size: 30))
+                            .fontWeight(.bold)
                         
                         Text("Sign in to create and listen to personalized journey stories.")
-                            .font(.subheadline)
+                            .font(.googleSansSubheadline)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
@@ -48,7 +49,8 @@ struct AuthView: View {
                     HStack(spacing: 0) {
                         Button(action: { authMode = .login }) {
                             Text("Sign in")
-                                .font(.subheadline.weight(.medium))
+                                .font(.googleSansSubheadline)
+                                .fontWeight(.medium)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(authMode == .login ? Color.white : Color.clear)
@@ -58,7 +60,8 @@ struct AuthView: View {
                         
                         Button(action: { authMode = .signup }) {
                             Text("Sign up")
-                                .font(.subheadline.weight(.medium))
+                                .font(.googleSansSubheadline)
+                                .fontWeight(.medium)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(authMode == .signup ? Color.white : Color.clear)
@@ -75,7 +78,8 @@ struct AuthView: View {
                         VStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Email")
-                                    .font(.caption.weight(.medium))
+                                    .font(.googleSansCaption)
+                                    .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                 
                                 TextField("", text: $email)
@@ -93,7 +97,8 @@ struct AuthView: View {
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Password")
-                                    .font(.caption.weight(.medium))
+                                    .font(.googleSansCaption)
+                                    .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                 
                                 SecureField("", text: $password)
@@ -110,7 +115,8 @@ struct AuthView: View {
                             if authMode == .signup {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Confirm password")
-                                        .font(.caption.weight(.medium))
+                                        .font(.googleSansCaption)
+                                        .fontWeight(.medium)
                                         .foregroundColor(.secondary)
                                     
                                     SecureField("", text: $confirmPassword)
@@ -128,7 +134,8 @@ struct AuthView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Email")
-                                .font(.caption.weight(.medium))
+                                .font(.googleSansCaption)
+                                .fontWeight(.medium)
                                 .foregroundColor(.secondary)
                             
                             TextField("", text: $email)
@@ -148,7 +155,7 @@ struct AuthView: View {
                     // Error Message
                     if let error = authViewModel.errorMessage {
                         Text(error)
-                            .font(.caption)
+                            .font(.googleSansCaption)
                             .foregroundColor(.red)
                             .padding(12)
                             .frame(maxWidth: .infinity)
@@ -159,7 +166,7 @@ struct AuthView: View {
                     // Reset Success Message
                     if showResetMessage {
                         Text("If an account exists for that email, a reset link has been sent.")
-                            .font(.caption)
+                            .font(.googleSansCaption)
                             .foregroundColor(.green)
                             .padding(12)
                             .frame(maxWidth: .infinity)
@@ -170,7 +177,8 @@ struct AuthView: View {
                     // Submit Button
                     Button(action: handleEmailAuth) {
                         Text(authMode == .signup ? "Create account" : authMode == .reset ? "Send reset link" : "Sign in with email")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.googleSansSubheadline)
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color(red: 0.1, green: 0.1, blue: 0.1))
@@ -184,7 +192,7 @@ struct AuthView: View {
                         Button("Forgot password?") {
                             authMode = .reset
                         }
-                        .font(.caption)
+                        .font(.googleSansCaption)
                         .foregroundColor(.secondary)
                         .underline()
                     } else if authMode == .reset {
@@ -192,7 +200,7 @@ struct AuthView: View {
                             authMode = .login
                             showResetMessage = false
                         }
-                        .font(.caption)
+                        .font(.googleSansCaption)
                         .foregroundColor(.secondary)
                         .underline()
                     }
@@ -204,7 +212,7 @@ struct AuthView: View {
                             .frame(height: 1)
                         
                         Text("OR")
-                            .font(.caption)
+                            .font(.googleSansCaption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 12)
                         
@@ -217,7 +225,8 @@ struct AuthView: View {
                     VStack(spacing: 12) {
                         Button(action: { Task { await authViewModel.signInWithGoogle() } }) {
                             Text("Continue with Google")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.googleSansSubheadline)
+                                .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color.white)

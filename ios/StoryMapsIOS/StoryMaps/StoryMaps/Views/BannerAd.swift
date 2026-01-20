@@ -35,7 +35,7 @@ struct BannerAd: View {
     let unitID: String
     var body: some View {
         Text("AdMob Banner Placeholder")
-            .font(.caption)
+            .font(.googleSansCaption)
             .padding()
             .background(Color.gray.opacity(0.2))
     }

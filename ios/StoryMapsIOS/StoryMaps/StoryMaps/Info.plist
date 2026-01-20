@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
+	<key>CFBundleSignature</key>
+	<string></string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -18,11 +20,20 @@
 		</dict>
 		<dict/>
 	</array>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-5422665078059042~2131515255</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>GoogleSans-VariableFont_GRAD,opsz,wght.ttf</string>
+		<string>GoogleSans-Italic-VariableFont_GRAD,opsz,wght.ttf</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 	</array>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-5422665078059042~2131515255</string>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict/>
+	</array>
 </dict>
 </plist>

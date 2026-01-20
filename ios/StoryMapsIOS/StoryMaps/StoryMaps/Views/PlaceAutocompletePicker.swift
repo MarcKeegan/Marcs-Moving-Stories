@@ -24,14 +24,15 @@ struct PlaceAutocompletePicker: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
-                .font(.title3)
+                .font(.googleSansTitle3)
                 .foregroundColor(.secondary)
                 .frame(width: 24)
             
             Button(action: { showingAutocomplete = true }) {
                 HStack {
                     Text(place?.name ?? placeholder)
-                        .font(.body.weight(.medium))
+                        .font(.googleSansBody)
+                        .fontWeight(.medium)
                         .foregroundColor(place == nil ? .secondary : Color(red: 0.1, green: 0.1, blue: 0.1))
                     
                     Spacer()
@@ -41,7 +42,7 @@ struct PlaceAutocompletePicker: View {
             if placeholder == "Starting Point" {
                 Button(action: { showingLocationPicker = true }) {
                     Image(systemName: "location.circle.fill")
-                        .font(.title3)
+                        .font(.googleSansTitle3)
                         .foregroundColor(.secondary)
                 }
             }
@@ -242,15 +243,15 @@ struct CurrentLocationPicker: View {
                     ProgressView()
                         .scaleEffect(1.5)
                     Text("Getting your location...")
-                        .font(.subheadline)
+                        .font(.googleSansSubheadline)
                         .foregroundColor(.secondary)
                 } else if let error = locationManager.errorMessage {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 48))
+                        .font(.googleSans(size: 48))
                         .foregroundColor(.orange)
                     
                     Text(error)
-                        .font(.subheadline)
+                        .font(.googleSansSubheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
@@ -265,11 +266,11 @@ struct CurrentLocationPicker: View {
                     .cornerRadius(12)
                 } else if let currentPlace = locationManager.currentPlace {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
+                        .font(.googleSans(size: 48))
                         .foregroundColor(.green)
                     
                     Text(currentPlace.address)
-                        .font(.subheadline)
+                        .font(.googleSansSubheadline)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                     

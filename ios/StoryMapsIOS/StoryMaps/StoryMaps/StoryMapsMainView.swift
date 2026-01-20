@@ -13,7 +13,7 @@ struct StoryMapsMainView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 0.96, green: 0.96, blue: 0.94)
+            Color(red: 34/255, green: 30/255, blue: 35/255)
                 .ignoresSafeArea()
             
             ScrollViewReader { proxy in
@@ -22,7 +22,7 @@ struct StoryMapsMainView: View {
                         // Header
                         HStack {
                             Image(systemName: "map.fill")
-                                .font(.title2)
+                                .font(.googleSansTitle2)
                                 .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.9))
                             
                             Spacer()
@@ -30,7 +30,7 @@ struct StoryMapsMainView: View {
                             Button("Sign out") {
                                 authViewModel.signOut()
                             }
-                            .font(.caption)
+                            .font(.googleSansCaption)
                             .foregroundColor(.secondary)
                         }
                         .padding(.horizontal, 24)
@@ -41,19 +41,21 @@ struct StoryMapsMainView: View {
                         // Hero Section (visible until ready to play)
                         if appState.rawValue < AppState.readyToPlay.rawValue {
                             VStack(alignment: .leading, spacing: 20) {
-                                VStack(alignment: .leading, spacing: 8) {
+                                VStack(alignment: .leading, spacing: 4) {
                                     Text("Your Journey. Your Soundtrack.")
-                                        .font(.system(size: 32, weight: .bold, design: .serif))
+                                        .font(.googleSans(size: 19))
+                                        .fontWeight(.bold)
                                         .lineSpacing(2)
                                     
                                     Text("Your Story.")
-                                        .font(.system(size: 32, weight: .bold, design: .serif))
-                                        .italic()
+                                        .font(.googleSansItalic(size: 19))
+                                        .fontWeight(.bold)
                                         .foregroundColor(.secondary)
                                 }
                                 
-                                Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us craft a unique audio companion for the road ahead.")
-                                    .font(.system(size: 18, weight: .light))
+                                Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us create a unique audio companion for the road ahead.")
+                                    .font(.googleSans(size: 15))
+                                    .fontWeight(.light)
                                     .foregroundColor(.secondary)
                                     .lineSpacing(4)
                             }
@@ -83,7 +85,7 @@ struct StoryMapsMainView: View {
                                     .scaleEffect(1.5)
                                 
                                 Text(storyViewModel.loadingMessage)
-                                    .font(.title3)
+                                    .font(.googleSansTitle3)
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                                 
@@ -114,7 +116,7 @@ struct StoryMapsMainView: View {
                             Button(action: handleReset) {
                                 HStack(spacing: 12) {
                                     Text("End Journey & Start New")
-                                        .font(.headline)
+                                        .font(.googleSansHeadline)
                                     
                                     Image(systemName: "arrow.right")
                                 }

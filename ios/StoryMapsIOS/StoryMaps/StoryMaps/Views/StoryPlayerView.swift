@@ -31,7 +31,7 @@ struct StoryPlayerView: View {
                         HStack {
                             HStack(spacing: 12) {
                                 Image(systemName: route.travelMode == "DRIVING" ? "car.fill" : "figure.walk")
-                                    .font(.title3)
+                                    .font(.googleSansTitle3)
                                     .foregroundColor(.white)
                                     .padding(12)
                                     .background(Color(red: 0.1, green: 0.1, blue: 0.1))
@@ -39,11 +39,13 @@ struct StoryPlayerView: View {
                                 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("DESTINATION")
-                                        .font(.caption2.weight(.bold))
+                                        .font(.googleSansCaption2)
+                                        .fontWeight(.bold)
                                         .foregroundColor(.secondary)
                                     
                                     Text(route.endAddress)
-                                        .font(.system(size: 18, weight: .bold, design: .serif))
+                                        .font(.googleSans(size: 18))
+                                        .fontWeight(.bold)
                                         .lineLimit(1)
                                 }
                             }
@@ -72,12 +74,13 @@ struct StoryPlayerView: View {
                                     ProgressView()
                                         .scaleEffect(0.8)
                                     Text("Buffering...")
-                                        .font(.caption)
+                                        .font(.googleSansCaption)
                                 }
                                 .foregroundColor(.orange)
                             } else {
                                 Text(audioPlayer.isPlaying ? "Playing" : "Paused")
-                                    .font(.caption.weight(.medium))
+                                    .font(.googleSansCaption)
+                                    .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                             }
                         }
@@ -85,21 +88,22 @@ struct StoryPlayerView: View {
                         Spacer()
                         
                         Text("\(route.duration) Journey")
-                            .font(.system(size: 18, weight: .bold, design: .serif))
+                            .font(.googleSans(size: 18))
+                            .fontWeight(.bold)
                         
                         Spacer()
                         
                         // Auto-scroll Toggle
                         Button(action: { autoScroll.toggle() }) {
                             Image(systemName: autoScroll ? "arrow.down.circle.fill" : "arrow.down.circle")
-                                .font(.title3)
+                                .font(.googleSansTitle3)
                                 .foregroundColor(autoScroll ? .white : .white.opacity(0.5))
                         }
                         
                         // Play/Pause Button
                         Button(action: { audioPlayer.togglePlayback() }) {
                             Image(systemName: audioPlayer.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 44))
+                                .font(.googleSans(size: 44))
                                 .foregroundColor(.white)
                         }
                     }
@@ -112,7 +116,7 @@ struct StoryPlayerView: View {
                     if let error = audioPlayer.errorMessage {
                         Text(error)
                             .foregroundColor(.white)
-                            .font(.caption)
+                            .font(.googleSansCaption)
                             .padding(.top, 8)
                             .padding(.horizontal)
                             .background(Color.red.opacity(0.8))
@@ -126,13 +130,14 @@ struct StoryPlayerView: View {
                                 .foregroundColor(.orange)
                             
                             Text(bufferingError)
-                                .font(.caption)
+                                .font(.googleSansCaption)
                                 .foregroundColor(.white)
                             
                             Button("Retry") {
                                 viewModel.retryFailedSegments()
                             }
-                            .font(.caption.weight(.bold))
+                            .font(.googleSansCaption)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
@@ -152,7 +157,7 @@ struct StoryPlayerView: View {
                         ForEach(story.segments) { segment in
                             VStack(spacing: 20) {
                                 Text(segment.text)
-                                    .font(.system(size: 20, weight: .regular, design: .serif))
+                                    .font(.googleSans(size: 20))
                                     .lineSpacing(8)
                                     .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                                     .opacity(segment.id <= audioPlayer.currentSegmentIndex + 1 ? 1.0 : 0.3)
@@ -172,7 +177,8 @@ struct StoryPlayerView: View {
                             VStack(spacing: 12) {
                                 ProgressView()
                                 Text("Loading next paragraph...")
-                                    .font(.caption.weight(.medium))
+                                    .font(.googleSansCaption)
+                                    .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                     .textCase(.uppercase)
                             }
