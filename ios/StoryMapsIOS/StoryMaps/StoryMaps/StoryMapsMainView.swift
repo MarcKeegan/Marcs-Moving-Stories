@@ -46,18 +46,19 @@ struct StoryMapsMainView: View {
                                         .font(.googleSans(size: 19))
                                         .fontWeight(.bold)
                                         .lineSpacing(2)
+                                        .foregroundColor(.white)
                                     
                                     Text("Your Story.")
                                         .font(.googleSansItalic(size: 19))
                                         .fontWeight(.bold)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white)
                                 }
                                 
                                 Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us create a unique audio companion for the road ahead.")
                                     .font(.googleSans(size: 15))
                                     .fontWeight(.light)
-                                    .foregroundColor(.secondary)
                                     .lineSpacing(4)
+                                    .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
@@ -74,7 +75,7 @@ struct StoryMapsMainView: View {
                                     handleGenerateStory(route: route)
                                 }
                             )
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, 0)
                             .transition(.opacity)
                         }
                         

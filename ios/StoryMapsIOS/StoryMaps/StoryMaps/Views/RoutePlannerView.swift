@@ -20,12 +20,13 @@ struct RoutePlannerView: View {
                     .font(.googleSans(size: 19))
                     .fontWeight(.bold)
                     .lineSpacing(2)
+                    .foregroundColor(.white)
                 
                 Text("Search locations and customize your experience.")
                     .font(.googleSans(size: 13))
                     .fontWeight(.regular)
                     .lineSpacing(2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .onAppear {
@@ -54,12 +55,12 @@ struct RoutePlannerView: View {
                 Text("TRAVEL MODE")
                     .font(.googleSansCaption)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.7))
                 
                 HStack(spacing: 8) {
                     ForEach(RoutePlannerViewModel.TravelMode.allCases, id: \.self) { mode in
                         Button(action: { viewModel.travelMode = mode }) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 6) {
                                 Image(systemName: mode.iconName)
                                 Text(mode.displayName)
                                     .font(.googleSansSubheadline)
@@ -67,15 +68,15 @@ struct RoutePlannerView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(viewModel.travelMode == mode ? Color.white : Color.clear)
-                            .foregroundColor(viewModel.travelMode == mode ? Color(red: 0.1, green: 0.1, blue: 0.1) : .secondary)
-                            .cornerRadius(12)
+                            .background(viewModel.travelMode == mode ? Color(red: 0.23, green: 0.16, blue: 0.25) : Color.clear)
+                            .foregroundColor(viewModel.travelMode == mode ? Color.white : .white.opacity(0.7))
+                            .cornerRadius(6)
                         }
                     }
                 }
-                .padding(6)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(16)
+                .padding(4)
+                .background(Color(red: 0.13, green: 0.12, blue: 0.14))
+                .cornerRadius(10)
             }
             
             // Story Style
@@ -83,7 +84,7 @@ struct RoutePlannerView: View {
                 Text("STORY STYLE")
                     .font(.googleSansCaption)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.7))
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(StoryStyle.allCases) { style in
@@ -107,8 +108,8 @@ struct RoutePlannerView: View {
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(viewModel.selectedStyle == style ? Color(red: 0.1, green: 0.1, blue: 0.1) : Color.gray.opacity(0.05))
-                            .foregroundColor(viewModel.selectedStyle == style ? .white : Color(red: 0.1, green: 0.1, blue: 0.1))
+                            .background(viewModel.selectedStyle == style ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                            .foregroundColor(.white)
                             .cornerRadius(16)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
@@ -153,8 +154,8 @@ struct RoutePlannerView: View {
             .opacity((viewModel.startPlace == nil || viewModel.endPlace == nil || viewModel.isCalculating) ? 0.5 : 1.0)
         }
         .padding(24)
-        .background(Color.white.opacity(0.8))
-        .cornerRadius(32)
+        .background(Color(red: 0.23, green: 0.16, blue: 0.25))
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
     }
     
