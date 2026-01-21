@@ -21,8 +21,10 @@ struct StoryMapsMainView: View {
                     VStack(spacing: 0) {
                         // Header
                         HStack {
-                            Image(systemName: "map.fill")
-                                .font(.googleSansTitle2)
+                            Image("Logo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 130, height: 40)
                                 .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.9))
                             
                             Spacer()
@@ -31,7 +33,7 @@ struct StoryMapsMainView: View {
                                 authViewModel.signOut()
                             }
                             .font(.googleSansCaption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                         }
                         .padding(.horizontal, 24)
                         .padding(.top, 16)
@@ -62,7 +64,8 @@ struct StoryMapsMainView: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
-                            .padding(.vertical, 24)
+                            .padding(.top, 24)
+                            .padding(.bottom, 40)
                             .transition(.opacity)
                         }
                         
@@ -86,9 +89,11 @@ struct StoryMapsMainView: View {
                                     .scaleEffect(1.5)
                                 
                                 Text(storyViewModel.loadingMessage)
-                                    .font(.googleSansTitle3)
+                                    .font(.googleSans(size: 19))
+                                    .fontWeight(.medium)
+                                    .lineSpacing(2)
+                                    .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
-                                    .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                                 
                                 // AdMob Banner
                                 BannerAd(unitID: "ca-app-pub-5422665078059042/7857666419")

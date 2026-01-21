@@ -66,6 +66,7 @@ struct RoutePlannerView: View {
                                     .font(.googleSansSubheadline)
                                     .fontWeight(.medium)
                             }
+                            .frame(height: 20)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                             .background(viewModel.travelMode == mode ? Color(red: 0.23, green: 0.16, blue: 0.25) : Color.clear)
@@ -74,7 +75,7 @@ struct RoutePlannerView: View {
                         }
                     }
                 }
-                .padding(4)
+                .padding(3)
                 .background(Color(red: 0.13, green: 0.12, blue: 0.14))
                 .cornerRadius(10)
             }

@@ -44,7 +44,7 @@ struct StoryPlayerView: View {
                                         .foregroundColor(.secondary)
                                     
                                     Text(route.endAddress)
-                                        .font(.googleSans(size: 18))
+                                        .font(.googleSans(size: 14))
                                         .fontWeight(.bold)
                                         .lineLimit(1)
                                 }
@@ -81,15 +81,16 @@ struct StoryPlayerView: View {
                                 Text(audioPlayer.isPlaying ? "Playing" : "Paused")
                                     .font(.googleSansCaption)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white)
                             }
                         }
                         
                         Spacer()
                         
                         Text("\(route.duration) Journey")
-                            .font(.googleSans(size: 18))
+                            .font(.googleSans(size: 14))
                             .fontWeight(.bold)
+                            .foregroundColor(.white)
                         
                         Spacer()
                         
@@ -109,7 +110,7 @@ struct StoryPlayerView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
-                    .background(Color(red: 0.1, green: 0.1, blue: 0.1))
+                    .background(Color(red: 0.23, green: 0.16, blue: 0.25))
                     .cornerRadius(30)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
                     
@@ -157,9 +158,9 @@ struct StoryPlayerView: View {
                         ForEach(story.segments) { segment in
                             VStack(spacing: 20) {
                                 Text(segment.text)
-                                    .font(.googleSans(size: 20))
+                                    .font(.googleSans(size: 16))
                                     .lineSpacing(8)
-                                    .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
+                                    .foregroundColor(.white)
                                     .opacity(segment.id <= audioPlayer.currentSegmentIndex + 1 ? 1.0 : 0.3)
                                     .id(segment.id)
                                 
@@ -179,7 +180,7 @@ struct StoryPlayerView: View {
                                 Text("Loading next paragraph...")
                                     .font(.googleSansCaption)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white)
                                     .textCase(.uppercase)
                             }
                             .padding(.vertical, 20)

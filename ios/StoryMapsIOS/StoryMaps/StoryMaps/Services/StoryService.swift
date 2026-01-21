@@ -115,7 +115,7 @@ class StoryService {
     private func getStyleInstruction(for style: StoryStyle) -> String {
         switch style {
         case .noir:
-            return "Style: Noir Thriller. Gritty, cynical, atmospheric. Use inner monologue. The traveler is a detective or someone with a troubled past. The city is a character itself—dark, rainy, hiding secrets. Use metaphors of shadows, smoke, and cold neon."
+            return "Style: Noir thriller narration in the style of the Sin City movie narrator. Female voice, low-pitched, husky, gravel-edged, world-weary. Slow to medium-slow pacing with deliberate pauses and space between lines. Tone is cynical, restrained, and dangerous calm, with controlled bitterness and quiet menace. This is first-person inner monologue from a detective or traveller with a troubled past. The city is alive, watching, judging, hiding secrets. Use sharp, blunt language and hard metaphors: rain, smoke, shadows, neon, wet asphalt, flickering lights. Keep sentences short and punchy. No warmth, no enthusiasm, no theatrical delivery. Let breath and rasp be audible. End sentences flat or downward. Speak as if every word costs something."
         case .children:
             return "Style: Children's Story. Whimsical, magical, full of wonder and gentle humor. The world is bright and alive; maybe inanimate objects (like traffic lights or trees) have slight personalities. Simple but evocative language. A sense of delightful discovery."
         case .historical:

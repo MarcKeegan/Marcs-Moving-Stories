@@ -31,9 +31,9 @@ struct PlaceAutocompletePicker: View {
             Button(action: { showingAutocomplete = true }) {
                 HStack {
                     Text(place?.name ?? placeholder)
-                        .font(.googleSansBody)
-                        .fontWeight(.medium)
-                        .foregroundColor(place == nil ? .secondary : Color(red: 0.1, green: 0.1, blue: 0.1))
+                        .font(.googleSansSubheadline)
+                        .fontWeight(.regular)
+                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                     
                     Spacer()
                 }
@@ -49,9 +49,9 @@ struct PlaceAutocompletePicker: View {
         }
         .padding(16)
         .background(Color.white)
-        .cornerRadius(16)
+        .cornerRadius(10)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.gray.opacity(0.2), lineWidth: 2)
         )
         .background(

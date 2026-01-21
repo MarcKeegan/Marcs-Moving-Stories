@@ -33,6 +33,7 @@ class StoryViewModel: ObservableObject {
         loadingMessage = "Crafting story arc...1 - 2 minutes"
         let outline = try await StoryService.shared.generateOutline(for: route)
         
+        
         // Step 2: Generate first segment text
         loadingMessage = "Writing first chapter... 1 minute"
         let firstOutlineBeat = outline.first ?? "Begin the journey."
