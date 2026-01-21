@@ -30,13 +30,16 @@ struct AuthView: View {
                 
                 VStack(spacing: 24) {
                     // Logo
-                    Image(systemName: "map.fill")
-                        .font(.googleSans(size: 64))
-                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
+                    
+                    Image("Logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 130, height: 40)
+                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.9))
                     
                     VStack(spacing: 8) {
                         Text("Welcome to StoryMaps.")
-                            .font(.googleSans(size: 30))
+                            .font(.googleSans(size: 20))
                             .fontWeight(.bold)
                         
                         Text("Sign in to create and listen to personalized journey stories.")
@@ -265,7 +268,7 @@ struct AuthView: View {
                 Spacer()
             }
         }
-        .preferredColorScheme(.light) // Force light mode for consistent UI design
+        .preferredColorScheme(.dark) // Force light mode for consistent UI design
     }
     
     private func handleEmailAuth() {

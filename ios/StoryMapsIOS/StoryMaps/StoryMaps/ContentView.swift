@@ -28,15 +28,17 @@ struct LoadingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 16) {
-                Image(systemName: "map.fill")
-                    .font(.googleSans(size: 48))
-                    .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
+                Image("Logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 130, height: 40)
+                    .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.9))
                 
                 Text("Checking your session...")
                     .font(.googleSansSubheadline)
                     .foregroundColor(.secondary)
             }
         }
-        .preferredColorScheme(.light) // Force light mode for consistent UI design
+        .preferredColorScheme(.dark) // Force light mode for consistent UI design
     }
 }

@@ -159,7 +159,7 @@ struct StoryMapsMainView: View {
                 }
             }
         }
-        .preferredColorScheme(.light) // Force light mode for consistent UI design
+        .preferredColorScheme(.dark) // Force light mode for consistent UI design
         .animation(.easeInOut(duration: 0.5), value: appState)
     }
     
