@@ -85,8 +85,8 @@ struct StoryMapsMainView: View {
                         // Loading State
                         if appState == .generatingInitialSegment {
                             VStack(spacing: 24) {
-                                ProgressView()
-                                    .scaleEffect(1.5)
+                                LottieView(name: "handtap")
+                                    .frame(width: 120, height: 120)
                                 
                                 Text(storyViewModel.loadingMessage)
                                     .font(.googleSans(size: 19))

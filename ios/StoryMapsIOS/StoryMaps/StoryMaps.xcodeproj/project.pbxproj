@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */; };
+		71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6A02F20ED3C002BC29C /* Lottie */; };
 		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
 		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
 		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
@@ -68,6 +69,7 @@
 			files = (
 				81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */,
 				81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */,
+				71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */,
 				81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */,
 				81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */,
 				71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */,
@@ -140,6 +142,7 @@
 				81A402152F19DBFA00A30EE5 /* GooglePlaces */,
 				81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */,
 				71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */,
+				71B2B6A02F20ED3C002BC29C /* Lottie */,
 			);
 			productName = StoryMaps;
 			productReference = 81A401942F19D83A00A30EE5 /* StoryMaps.app */;
@@ -223,6 +226,7 @@
 				81A4020F2F19DB0700A30EE5 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				81A402142F19DBFA00A30EE5 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
 				71176BDC2F1D0C1C00EBF0B1 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				71B2B69F2F20ED3C002BC29C /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 81A401952F19D83A00A30EE5 /* Products */;
@@ -639,6 +643,14 @@
 				minimumVersion = 12.14.0;
 			};
 		};
+		71B2B69F2F20ED3C002BC29C /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.0;
+			};
+		};
 		81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -678,6 +690,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 71176BDC2F1D0C1C00EBF0B1 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		71B2B6A02F20ED3C002BC29C /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 71B2B69F2F20ED3C002BC29C /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 		81A402082F19DA5600A30EE5 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

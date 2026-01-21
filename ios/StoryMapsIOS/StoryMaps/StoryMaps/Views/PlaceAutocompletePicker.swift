@@ -24,8 +24,8 @@ struct PlaceAutocompletePicker: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
-                .font(.googleSansTitle3)
-                .foregroundColor(.secondary)
+                .font(.googleSans(size: 16))
+                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                 .frame(width: 24)
             
             Button(action: { showingAutocomplete = true }) {
@@ -42,8 +42,8 @@ struct PlaceAutocompletePicker: View {
             if placeholder == "Starting Point" {
                 Button(action: { showingLocationPicker = true }) {
                     Image(systemName: "location.circle.fill")
-                        .font(.googleSansTitle3)
-                        .foregroundColor(.secondary)
+                        .font(.googleSans(size: 16))
+                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                 }
             }
         }
