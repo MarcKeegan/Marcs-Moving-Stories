@@ -234,11 +234,11 @@ struct AuthView: View {
                     // Social Sign-In Buttons
                     VStack(spacing: 12) {
                         Button(action: { Task { await authViewModel.signInWithGoogle() } }) {
-                            Text("Continue with Google")
-                                .font(.googleSansSubheadline)
-                                .fontWeight(.semibold)
+                            Text("Sign in with Google")
+                                .font(.googleSans(size: 18))
+                                .fontWeight(.bold)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                                .padding(.vertical, 12)
                                 .background(Color.white)
                                 .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
                                 .cornerRadius(30)
