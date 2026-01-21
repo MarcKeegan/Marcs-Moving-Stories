@@ -31,20 +31,23 @@ struct AuthView: View {
                 VStack(spacing: 24) {
                     // Logo
                     
-                    Image("Logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 130, height: 40)
-                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1).opacity(0.9))
+                    
                     
                     VStack(spacing: 8) {
-                        Text("Welcome to StoryMaps.")
+                        Image("Logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 130, height: 40)
+                            .foregroundColor(.white)
+                        
+                        Text("Every journey has a story.")
                             .font(.googleSans(size: 20))
                             .fontWeight(.bold)
+                            .foregroundColor(.white)
                         
-                        Text("Sign in to create and listen to personalized journey stories.")
+                        Text("Sign in to turn every journey into a living story.")
                             .font(.googleSansSubheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)
                     }
                     
@@ -57,7 +60,7 @@ struct AuthView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(authMode == .login ? Color.white : Color.clear)
-                                .foregroundColor(authMode == .login ? Color(red: 0.1, green: 0.1, blue: 0.1) : .secondary)
+                                .foregroundColor(authMode == .login ? Color(red: 0.1, green: 0.1, blue: 0.1) : .white.opacity(0.6))
                                 .cornerRadius(20)
                         }
                         
@@ -68,12 +71,12 @@ struct AuthView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                                 .background(authMode == .signup ? Color.white : Color.clear)
-                                .foregroundColor(authMode == .signup ? Color(red: 0.1, green: 0.1, blue: 0.1) : .secondary)
+                                .foregroundColor(authMode == .signup ? Color(red: 0.1, green: 0.1, blue: 0.1) : .white.opacity(0.6))
                                 .cornerRadius(20)
                         }
                     }
                     .padding(4)
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color.white.opacity(0.1))
                     .cornerRadius(24)
                     
                     // Email/Password Form
@@ -83,36 +86,38 @@ struct AuthView: View {
                                 Text("Email")
                                     .font(.googleSansCaption)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white.opacity(0.8))
                                 
                                 TextField("", text: $email)
                                     .textContentType(.emailAddress)
                                     .autocapitalization(.none)
                                     .keyboardType(.emailAddress)
                                     .padding(12)
-                                    .background(Color.white)
+                                    .background(Color.white.opacity(0.05))
                                     .cornerRadius(12)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                     )
+                                    .foregroundColor(.white)
                             }
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Password")
                                     .font(.googleSansCaption)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white.opacity(0.8))
                                 
                                 SecureField("", text: $password)
                                     .textContentType(authMode == .signup ? .newPassword : .password)
                                     .padding(12)
-                                    .background(Color.white)
+                                    .background(Color.white.opacity(0.05))
                                     .cornerRadius(12)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                     )
+                                    .foregroundColor(.white)
                             }
                             
                             if authMode == .signup {
@@ -120,17 +125,18 @@ struct AuthView: View {
                                     Text("Confirm password")
                                         .font(.googleSansCaption)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white.opacity(0.8))
                                     
                                     SecureField("", text: $confirmPassword)
                                         .textContentType(.newPassword)
                                         .padding(12)
-                                        .background(Color.white)
+                                        .background(Color.white.opacity(0.05))
                                         .cornerRadius(12)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                         )
+                                        .foregroundColor(.white)
                                 }
                             }
                         }
@@ -139,19 +145,20 @@ struct AuthView: View {
                             Text("Email")
                                 .font(.googleSansCaption)
                                 .fontWeight(.medium)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white.opacity(0.8))
                             
                             TextField("", text: $email)
                                 .textContentType(.emailAddress)
                                 .autocapitalization(.none)
                                 .keyboardType(.emailAddress)
                                 .padding(12)
-                                .background(Color.white)
+                                .background(Color.white.opacity(0.05))
                                 .cornerRadius(12)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
+                                .foregroundColor(.white)
                         }
                     }
                     
@@ -196,7 +203,7 @@ struct AuthView: View {
                             authMode = .reset
                         }
                         .font(.googleSansCaption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                         .underline()
                     } else if authMode == .reset {
                         Button("Back to sign in") {
@@ -204,7 +211,7 @@ struct AuthView: View {
                             showResetMessage = false
                         }
                         .font(.googleSansCaption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                         .underline()
                     }
                     
@@ -216,7 +223,7 @@ struct AuthView: View {
                         
                         Text("OR")
                             .font(.googleSansCaption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.5))
                             .padding(.horizontal, 12)
                         
                         Rectangle()
@@ -260,9 +267,9 @@ struct AuthView: View {
                 }
                 .padding(.horizontal, 32)
                 .padding(.vertical, 40)
-                .background(Color.white)
+                .background(Color(red: 59/255, green: 40/255, blue: 64/255))
                 .cornerRadius(32)
-                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+                .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
                 .padding(.horizontal, 24)
                 
                 Spacer()
