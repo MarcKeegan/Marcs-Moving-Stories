@@ -114,23 +114,18 @@ class StoryService {
     
     private func getStyleInstruction(for style: StoryStyle) -> String {
         switch style {
-        case .noir:
-            return "Style: Noir thriller narration in the style of the Sin City movie narrator. Female voice, low-pitched, husky, gravel-edged, world-weary. Slow to medium-slow pacing with deliberate pauses and space between lines. Tone is cynical, restrained, and dangerous calm, with controlled bitterness and quiet menace. This is first-person inner monologue from a detective or traveller with a troubled past. The city is alive, watching, judging, hiding secrets. Use sharp, blunt language and hard metaphors: rain, smoke, shadows, neon, wet asphalt, flickering lights. Keep sentences short and punchy. No warmth, no enthusiasm, no theatrical delivery. Let breath and rasp be audible. End sentences flat or downward. Speak as if every word costs something."
-        case .children:
-            return "Style: Children's Story. Whimsical, magical, full of wonder and gentle humor. The world is bright and alive; maybe inanimate objects (like traffic lights or trees) have slight personalities. Simple but evocative language. A sense of delightful discovery."
-        case .historical:
-            return "Style: Historical Epic. Grandiose, dramatic, and timeless. Treat the journey as a significant pilgrimage or quest in a bygone era (even though it's modern day, overlay it with historical grandeur). Use slightly archaic but understandable language. Focus on endurance, destiny, and the weight of history."
-        case .fantasy:
-            return "Style: Fantasy Adventure. Heroic, mystical, and epic. The real world is just a veil over a magical realm. Streets are ancient paths, buildings are towers or ruins. The traveler is on a vital quest. Use metaphors of magic, mythical creatures (shadows might be lurking beasts), and destiny."
-        case .historianGuide:
-            return """
-            Style: The Historian Guide. Clear, authoritative, engaging but grounded in fact.
-            Purpose: Provide historically accurate, contextual information about the route and key locations encountered along the journey.
-            Voice Characteristics: Confident and knowledgeable; engaging without being theatrical; speaks like a skilled local historian or academic guide.
-            Content Focus: Verified historical events tied to specific locations on the route, dates, names, and cultural context. Explain how the place has changed and why landmarks matter.
-            Accuracy Requirements: All information MUST be accurate and conservative. If uncertain, acknowledge it. DO NOT invent events, people, or interpretations.
-            Constraints: Do not fictionalize. Avoid modern opinions or political framing.
-            """
+        case .horror:
+            return "Style: Modern horror narration. Low, intimate voice. Slow pacing with long silences. Build dread through small details, not gore. The ordinary world feels subtly wrong: streetlights hum, empty windows watch, footsteps echo too long. Use sensory cues: cold air, metallic taste, distant dripping, static. Short sentences. Escalate from unease to fear in waves. No jokes. No melodrama. End lines with a quiet, chilling certainty."
+        case .mystery:
+            return "Style: Mystery detective narration. Calm, precise, observant. Medium pacing with thoughtful pauses. First-person or close third-person. Treat every detail as a clue: timings, odd behaviours, out-of-place objects, overheard fragments. Use clean, logical language with occasional dry wit. Keep tension through questions and deductions, not action. Reveal insights gradually. Maintain a confident, investigative tone."
+        case .historicalFiction:
+            return "Style: Historical fiction overlay. Warm, vivid, immersive, but not flowery. Medium pacing. The modern route becomes a corridor through earlier eras. Weave short, sensory snapshots of past life at specific places: trades, uniforms, smells, sounds, routines. Use lightly archaic phrasing, still easy to understand. Emphasise human stakes and small moments. Keep it cinematic and grounded, not a lecture."
+        case .scienceFiction:
+            return "Style: Near-future sci-fi narration. Clean, cool, focused. Medium-fast pacing with crisp articulation. The city is a system: sensors, drones, augmented overlays, personalised ads, predictive policing, glitching maps. Use technical metaphors sparingly and clearly. Tension comes from anomalies: corrupted wayfinding, time drift, wrong memories, silent networks. Maintain a controlled, analytical voice with rising urgency when systems fail."
+        case .NoirEpic:
+            return "Style: FNoir thriller narration in the style of the Sin City movie narrator. Female voice, low-pitched, husky, gravel-edged, world-weary. Slow to medium-slow pacing with deliberate pauses and space between lines. Tone is cynical, restrained, and dangerous calm, with controlled bitterness and quiet menace. This is first-person inner monologue from a detective or traveller with a troubled past. The city is alive, watching, judging, hiding secrets. Use sharp, blunt language and hard metaphors: rain, smoke, shadows, neon, wet asphalt, flickering lights. Keep sentences short and punchy. No warmth, no enthusiasm, no theatrical delivery. Let breath and rasp be audible. End sentences flat or downward. Speak as if every word costs something."
+        case .walkingTourAdventure:
+            return "Style: The Historian Guide. Clear, authoritative, engaging but grounded in fact. Purpose: Provide historically accurate, contextual information about the route and key locations encountered along the journey. Voice Characteristics: Confident and knowledgeable; engaging without being theatrical; speaks like a skilled local historian or academic guide. Content Focus: Verified historical events tied to specific locations on the route, dates, names, and cultural context. Explain how the place has changed and why landmarks matter. Accuracy Requirements: All information MUST be accurate and conservative. If uncertain, acknowledge it. DO NOT invent events, people, or interpretations. Constraints: Do not fictionalize. Avoid modern opinions or political framing."
         }
     }
 }

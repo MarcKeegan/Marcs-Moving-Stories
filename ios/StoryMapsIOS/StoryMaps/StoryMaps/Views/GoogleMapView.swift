@@ -47,7 +47,7 @@ struct GoogleMapView: UIViewRepresentable {
         }
         
         let polyline = GMSPolyline(path: path)
-        polyline.strokeColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.9)
+        polyline.strokeColor = UIColor(red: 0.565, green: 0.078, blue: 0.686, alpha: 0.9)
         polyline.strokeWidth = 5.0
         polyline.map = mapView
         
