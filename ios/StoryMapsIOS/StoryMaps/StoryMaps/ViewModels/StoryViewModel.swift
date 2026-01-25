@@ -72,6 +72,9 @@ class StoryViewModel: ObservableObject {
             return
         }
         
+        // Prevent multiple simultaneous buffering checks
+        if isGenerating { return }
+        
         // Buffer multiple segments ahead
         for i in 0..<segmentsToBufferAhead {
             let nextIndex = story.segments.count + 1 + i
@@ -81,24 +84,23 @@ class StoryViewModel: ObservableObject {
                 continue
             }
             
-            // Skip if already generating or if this segment already exists
-            guard !isGenerating else {
-                continue
-            }
-            
-            // Check if segment already exists
+            // Re-check after potential sync delays
             if story.segments.count >= nextIndex {
                 continue
             }
             
-            bufferSegment(index: nextIndex, route: route)
+            // Final guard before spawning the task
+            if !isGenerating {
+                isGenerating = true
+                isBackgroundGenerating = true
+                bufferSegment(index: nextIndex, route: route)
+                break // We only trigger one segment buffering at a time now for safety
+            }
         }
     }
     
     private func bufferSegment(index: Int, route: RouteDetails) {
         Task {
-            isGenerating = true
-            isBackgroundGenerating = true
             bufferingError = nil
             
             defer {

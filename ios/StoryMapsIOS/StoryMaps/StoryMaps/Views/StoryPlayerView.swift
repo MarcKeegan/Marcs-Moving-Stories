@@ -201,12 +201,18 @@ struct StoryPlayerView: View {
             .onAppear {
                 audioPlayer.loadStory(segments: story.segments, totalSegments: story.totalSegmentsEstimate)
                 audioPlayer.onSegmentChange = { index in
-                    checkBuffering(currentIndex: index)
+                    if audioPlayer.isPlaying {
+                        checkBuffering(currentIndex: index)
+                    }
                 }
-                checkBuffering(currentIndex: audioPlayer.currentSegmentIndex)
             }
             .onChange(of: story.segments.count) { _, _ in
                 audioPlayer.updateSegments(story.segments)
+            }
+            .onChange(of: audioPlayer.isPlaying) { _, isPlaying in
+                if isPlaying {
+                    checkBuffering(currentIndex: audioPlayer.currentSegmentIndex)
+                }
             }
         }
     }
