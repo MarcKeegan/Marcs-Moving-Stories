@@ -10,7 +10,7 @@ struct StoryPlayerView: View {
     let route: RouteDetails
     @ObservedObject var viewModel: StoryViewModel
     
-    @StateObject private var audioPlayer = AudioPlayerViewModel()
+    @ObservedObject var audioPlayer: AudioPlayerViewModel
     @State private var autoScroll = true
     
     var body: some View {
@@ -188,13 +188,6 @@ struct StoryPlayerView: View {
                         }
                     }
                     .padding(.vertical, 20)
-                    .onChange(of: story.segments.count) { oldValue, newValue in
-                        if autoScroll, oldValue != newValue, let lastSegment = story.segments.last {
-                            withAnimation {
-                                proxy.scrollTo(lastSegment.id, anchor: .bottom)
-                            }
-                        }
-                    }
                     .onChange(of: audioPlayer.currentSegmentIndex) { _, newIndex in
                         if autoScroll && newIndex < story.segments.count {
                             withAnimation {

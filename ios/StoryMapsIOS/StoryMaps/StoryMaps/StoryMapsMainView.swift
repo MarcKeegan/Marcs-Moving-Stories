@@ -9,6 +9,7 @@ struct StoryMapsMainView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var routePlannerVM = RoutePlannerViewModel()
     @StateObject private var storyViewModel = StoryViewModel()
+    @StateObject private var audioPlayer = AudioPlayerViewModel()
     @State private var appState: AppState = .planning
     
     var body: some View {
@@ -112,7 +113,8 @@ struct StoryMapsMainView: View {
                             StoryPlayerView(
                                 story: story,
                                 route: route,
-                                viewModel: storyViewModel
+                                viewModel: storyViewModel,
+                                audioPlayer: audioPlayer
                             )
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
@@ -181,5 +183,6 @@ struct StoryMapsMainView: View {
         appState = .planning
         routePlannerVM.reset()
         storyViewModel.reset()
+        audioPlayer.stop()
     }
 }

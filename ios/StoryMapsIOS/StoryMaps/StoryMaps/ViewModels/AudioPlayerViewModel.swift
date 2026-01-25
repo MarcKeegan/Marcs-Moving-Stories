@@ -23,13 +23,20 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
     
     var onSegmentChange: ((Int) -> Void)?
     
-    // New property for resume logic
+    private var remoteCommandTargets: [MPRemoteCommand: Any?] = [:]
     private var loadedSegmentIndex: Int?
 
     override init() {
         super.init()
         setupAudioSession()
         setupRemoteCommands()
+    }
+    
+    deinit {
+        // Since stop() and removeRemoteCommands() might touch MainActor properties,
+        // we use a detached task to handle cleanup if needed, or rely on normal cleanup.
+        // However, in Swift UI, @StateObject/ObservedObject usually outlive the view.
+        // For deinit, we should be careful.
     }
     
     func loadStory(segments: [StorySegment], totalSegments: Int) {
@@ -93,6 +100,16 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
         isPlaying = false
     }
     
+    func stop() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        isPlaying = false
+        currentSegmentIndex = 0
+        loadedSegmentIndex = nil
+        isBuffering = false
+        updateNowPlayingInfo(segment: nil)
+    }
+    
     func nextSegment() {
         guard currentSegmentIndex + 1 < segments.count else {
             isBuffering = true
@@ -144,28 +161,45 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
     private func setupRemoteCommands() {
         let commandCenter = MPRemoteCommandCenter.shared()
         
-        commandCenter.playCommand.addTarget { [weak self] _ in
-            self?.play()
+        remoteCommandTargets[commandCenter.playCommand] = commandCenter.playCommand.addTarget { [weak self] _ in
+            guard let self = self else { return .commandFailed }
+            Task { @MainActor in self.play() }
             return .success
         }
         
-        commandCenter.pauseCommand.addTarget { [weak self] _ in
-            self?.pause()
+        remoteCommandTargets[commandCenter.pauseCommand] = commandCenter.pauseCommand.addTarget { [weak self] _ in
+            guard let self = self else { return .commandFailed }
+            Task { @MainActor in self.pause() }
             return .success
         }
         
-        commandCenter.nextTrackCommand.addTarget { [weak self] _ in
-            self?.nextSegment()
+        remoteCommandTargets[commandCenter.nextTrackCommand] = commandCenter.nextTrackCommand.addTarget { [weak self] _ in
+            guard let self = self else { return .commandFailed }
+            Task { @MainActor in self.nextSegment() }
             return .success
         }
         
-        commandCenter.previousTrackCommand.addTarget { [weak self] _ in
-            self?.previousSegment()
+        remoteCommandTargets[commandCenter.previousTrackCommand] = commandCenter.previousTrackCommand.addTarget { [weak self] _ in
+            guard let self = self else { return .commandFailed }
+            Task { @MainActor in self.previousSegment() }
             return .success
         }
     }
     
-    private func updateNowPlayingInfo(segment: StorySegment) {
+    func removeRemoteCommands() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        for (command, target) in remoteCommandTargets {
+            command.removeTarget(target)
+        }
+        remoteCommandTargets.removeAll()
+    }
+    
+    private func updateNowPlayingInfo(segment: StorySegment?) {
+        guard let segment = segment else {
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+            return
+        }
+        
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = "StoryMaps - Segment \(segment.id)"
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
