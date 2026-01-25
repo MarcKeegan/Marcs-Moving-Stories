@@ -20,7 +20,8 @@ struct GoogleMapView: UIViewRepresentable {
         let mapView = GMSMapView(frame: .zero)
         let camera = GMSCameraPosition.camera(withLatitude: 0, longitude: 0, zoom: 13)
         mapView.camera = camera
-        mapView.isMyLocationEnabled = false
+        mapView.isMyLocationEnabled = true
+        mapView.settings.myLocationButton = true
         
         // Apply custom map style
         if let styleURL = Bundle.main.url(forResource: "MapStyle", withExtension: "json"),

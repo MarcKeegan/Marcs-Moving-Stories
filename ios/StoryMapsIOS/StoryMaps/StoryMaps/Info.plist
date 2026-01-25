@@ -35,5 +35,9 @@
 	<array>
 		<dict/>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>StoryPath needs your location to show your progress on the map during your journey.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>StoryPath needs your location to show your progress on the map during your journey and provide audio updates while the app is in the background.</string>
 </dict>
 </plist>
