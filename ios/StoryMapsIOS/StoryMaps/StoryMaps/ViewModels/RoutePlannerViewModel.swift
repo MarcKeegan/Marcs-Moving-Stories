@@ -12,7 +12,7 @@ class RoutePlannerViewModel: ObservableObject {
     @Published var startPlace: Place?
     @Published var endPlace: Place?
     @Published var travelMode: TravelMode = .walking
-    @Published var selectedStyle: StoryStyle = .horror
+    @Published var selectedStyle: StoryStyle = .walkingTourAdventure
     @Published var isCalculating = false
     @Published var errorMessage: String?
     @Published var currentRoute: RouteDetails?
@@ -88,7 +88,7 @@ class RoutePlannerViewModel: ObservableObject {
         startPlace = nil
         endPlace = nil
         travelMode = .walking
-        selectedStyle = .horror
+        selectedStyle = .walkingTourAdventure
         isCalculating = false
         errorMessage = nil
         currentRoute = nil

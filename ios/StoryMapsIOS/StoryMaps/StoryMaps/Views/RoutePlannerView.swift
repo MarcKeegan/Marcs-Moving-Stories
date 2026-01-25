@@ -91,24 +91,24 @@ struct RoutePlannerView: View {
                     ForEach(StoryStyle.allCases) { style in
                         Button(action: { viewModel.selectedStyle = style }) {
                             VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: style.iconName)
-                                        .font(.googleSansTitle2)
-                                    Spacer()
-                                }
+                                Image(systemName: style.iconName)
+                                    .font(.googleSansTitle2)
                                 
                                 Text(style.displayName)
                                     .font(.googleSansSubheadline)
                                     .fontWeight(.bold)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .multilineTextAlignment(.leading)
                                 
                                 Text(style.description)
                                     .font(.googleSansCaption)
-                                    .lineLimit(2)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .lineLimit(3)
+                                    .multilineTextAlignment(.leading)
+                                
+                                Spacer(minLength: 0)
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .frame(height: 150)
                             .background(viewModel.selectedStyle == style ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
                             .foregroundColor(.white)
                             .cornerRadius(16)
