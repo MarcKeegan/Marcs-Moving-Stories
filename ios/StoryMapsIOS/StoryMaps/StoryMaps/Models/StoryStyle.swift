@@ -39,12 +39,12 @@ enum StoryStyle: String, Codable, CaseIterable, Identifiable {
     
     var iconName: String {
         switch self {
-        case .walkingTourAdventure: return "face.smiling.fill"
-        case .horror: return "eye.trianglebadge.exclamationmark.fill"
+        case .walkingTourAdventure: return "signpost.right"
+        case .horror: return "moon"
         case .mystery: return "magnifyingglass.circle.fill"
         case .historicalFiction: return "hourglass"
-        case .scienceFiction: return "cpu"
-        case .NoirEpic: return "shield.lefthalf.filled"
+        case .scienceFiction: return "robotic.vacuum.fill"
+        case .NoirEpic: return "cloud.drizzle"
         }
     }
 }
