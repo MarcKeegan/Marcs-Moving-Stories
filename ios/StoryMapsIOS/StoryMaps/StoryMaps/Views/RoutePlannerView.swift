@@ -4,6 +4,7 @@
  */
 
 import SwiftUI
+import CoreLocation
 
 struct RoutePlannerView: View {
     @ObservedObject var viewModel: RoutePlannerViewModel
@@ -46,7 +47,9 @@ struct RoutePlannerView: View {
                     placeholder: "Destination",
                     iconName: "location.fill",
                     place: $viewModel.endPlace,
-                    userLocation: locationManager.userLocation
+                    userLocation: viewModel.startPlace != nil ? 
+                        CLLocation(latitude: viewModel.startPlace!.coordinate.latitude, longitude: viewModel.startPlace!.coordinate.longitude) : 
+                        locationManager.userLocation
                 )
             }
             

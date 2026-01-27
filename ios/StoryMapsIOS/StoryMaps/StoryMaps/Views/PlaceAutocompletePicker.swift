@@ -18,7 +18,7 @@ struct PlaceAutocompletePicker: View {
     @Binding var place: Place?
     var userLocation: CLLocation? // Added parameter for bias
     
-    @State private var showingAutocomplete = false
+    @State private var showingPlaceSearch = false
     @State private var showingLocationPicker = false
     
     var body: some View {
@@ -28,12 +28,12 @@ struct PlaceAutocompletePicker: View {
                 .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                 .frame(width: 24)
             
-            Button(action: { showingAutocomplete = true }) {
+            Button(action: { showingPlaceSearch = true }) {
                 HStack {
                     Text(place?.name ?? placeholder)
                         .font(.googleSansSubheadline)
                         .fontWeight(.regular)
-                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                        .foregroundColor(place == nil ? Color(red: 0.6, green: 0.6, blue: 0.6) : .primary)
                     
                     Spacer()
                 }
@@ -54,16 +54,13 @@ struct PlaceAutocompletePicker: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.gray.opacity(0.2), lineWidth: 2)
         )
-        .background(
-            Group {
-                #if canImport(GooglePlaces)
-                GooglePlacesAutocompleteView(place: $place, isPresented: $showingAutocomplete, userLocation: userLocation)
-                    .frame(width: 0, height: 0)
-                #else
-                EmptyView()
-                #endif
-            }
-        )
+        .fullScreenCover(isPresented: $showingPlaceSearch) {
+            PlaceSearchView(
+                placeholder: placeholder,
+                biasCoordinate: userLocation?.coordinate,
+                selectedPlace: $place
+            )
+        }
         .sheet(isPresented: $showingLocationPicker) {
             CurrentLocationPicker(place: $place)
         }
