@@ -45,19 +45,15 @@ struct StoryMapsMainView: View {
                         if appState.rawValue < AppState.readyToPlay.rawValue {
                             VStack(alignment: .leading, spacing: 20) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Your Journey. Your Soundtrack.")
+                                    Text("Every journey has a story.")
                                         .font(.googleSans(size: 19))
                                         .fontWeight(.bold)
                                         .lineSpacing(2)
                                         .foregroundColor(.white)
-                                    
-                                    Text("Your Story.")
-                                        .font(.googleSansItalic(size: 19))
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
+                                   
                                 }
                                 
-                                Text("Navigation apps tell you where to turn. StoryMaps tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us create a unique audio companion for the road ahead.")
+                                Text("Navigation apps tell you where to turn. StoryPath tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us create a unique audio companion for the road ahead.")
                                     .font(.googleSans(size: 15))
                                     .fontWeight(.light)
                                     .lineSpacing(4)
