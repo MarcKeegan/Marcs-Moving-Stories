@@ -38,14 +38,38 @@ class PlaceSearchService: NSObject, ObservableObject {
                 }
             }
             
-            self.suggestions = likelihoods.map { likelihood in
-                Place(
-                    id: likelihood.place.placeID ?? UUID().uuidString,
-                    name: likelihood.place.name ?? "Nearby Point of Interest",
-                    address: likelihood.place.formattedAddress ?? "Nearby",
-                    coordinate: Coordinate(clLocation: likelihood.place.coordinate)
+            let referenceLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            
+            // Relevant types for storytelling and points of interest
+            let relevantTypes: Set<String> = [
+                "historical_landmark", "museum", "landmark", "park", "tourist_attraction",
+                "cafe", "coffee_shop", "bakery", "playground", "art_gallery", "church", "viewpoint"
+            ]
+            
+            self.suggestions = likelihoods.compactMap { likelihood -> Place? in
+                let place = likelihood.place
+                guard place.name != "Nearby Point of Interest" else { return nil }
+                
+                // If it's the starting point, we can be more broad, 
+                // but for "Suggested Destinations" we definitely want to filter by type
+                let placeTypes = place.types ?? []
+                let isRelevant = placeTypes.contains { type in
+                    relevantTypes.contains(type)
+                }
+                
+                guard isRelevant else { return nil }
+                
+                return Place(
+                    id: place.placeID ?? UUID().uuidString,
+                    name: place.name ?? "Nearby Location",
+                    address: place.formattedAddress ?? "Nearby",
+                    coordinate: Coordinate(clLocation: place.coordinate)
                 )
-            }.filter { $0.name != "Nearby Point of Interest" }
+            }.sorted { place1, place2 in
+                let loc1 = CLLocation(latitude: place1.coordinate.latitude, longitude: place1.coordinate.longitude)
+                let loc2 = CLLocation(latitude: place2.coordinate.latitude, longitude: place2.coordinate.longitude)
+                return loc1.distance(from: referenceLocation) < loc2.distance(from: referenceLocation)
+            }
             
             // If we didn't get enough likelihoods, let's add some hardcoded "interesting" targets that are always good
             // In a more advanced version, we'd use a search query nearby

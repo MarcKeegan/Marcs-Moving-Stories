@@ -40,7 +40,8 @@ struct RoutePlannerView: View {
                     placeholder: "Starting Point",
                     iconName: "mappin.circle.fill",
                     place: $viewModel.startPlace,
-                    userLocation: locationManager.userLocation
+                    userLocation: locationManager.userLocation,
+                    currentPlace: locationManager.currentPlace
                 )
                 
                 PlaceAutocompletePicker(
@@ -49,7 +50,8 @@ struct RoutePlannerView: View {
                     place: $viewModel.endPlace,
                     userLocation: viewModel.startPlace != nil ? 
                         CLLocation(latitude: viewModel.startPlace!.coordinate.latitude, longitude: viewModel.startPlace!.coordinate.longitude) : 
-                        locationManager.userLocation
+                        locationManager.userLocation,
+                    currentPlace: locationManager.currentPlace
                 )
             }
             

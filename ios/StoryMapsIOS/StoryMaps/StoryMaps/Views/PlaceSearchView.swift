@@ -8,7 +8,8 @@ import CoreLocation
 
 struct PlaceSearchView: View {
     let placeholder: String
-    let biasCoordinate: CLLocationCoordinate2D?
+    let userLocation: CLLocation?
+    let currentPlace: Place?
     @Binding var selectedPlace: Place?
     @Environment(\.dismiss) var dismiss
     
@@ -30,7 +31,7 @@ struct PlaceSearchView: View {
                     .font(.googleSansSubheadline)
                     .foregroundColor(.white)
                     .onChange(of: searchText) { _, newValue in
-                        searchService.searchAutocomplete(query: newValue, bias: biasCoordinate)
+                        searchService.searchAutocomplete(query: newValue, bias: userLocation?.coordinate)
                     }
                     
                     if !searchText.isEmpty {
@@ -53,6 +54,16 @@ struct PlaceSearchView: View {
                 
                 List {
                     if searchText.isEmpty {
+                        // Current Location row
+                        if let current = currentPlace {
+                            Section {
+                                PlaceRow(place: current, icon: "location.fill") {
+                                    selectPlace(current)
+                                }
+                            }
+                            .listRowBackground(Color.clear)
+                        }
+                        
                         // Suggestions Section
                         Section {
                             if searchService.isFetchingSuggestions {
@@ -76,7 +87,7 @@ struct PlaceSearchView: View {
                                 }
                             }
                         } header: {
-                            Text("SUGGESTED DESTINATIONS")
+                            Text(placeholder == "Starting Point" ? "SUGGESTED STARTING POINTS" : "SUGGESTED DESTINATIONS")
                                 .font(.googleSansCaption)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white.opacity(0.5))
@@ -126,7 +137,7 @@ struct PlaceSearchView: View {
                 }
             }
             .onAppear {
-                if let bias = biasCoordinate {
+                if let bias = userLocation?.coordinate {
                     Task {
                         await searchService.fetchSuggestions(near: bias)
                     }
@@ -189,7 +200,8 @@ struct PlaceRow: View {
 #Preview {
     PlaceSearchView(
         placeholder: "Search for a destination",
-        biasCoordinate: CLLocationCoordinate2D(latitude: -37.8136, longitude: 144.9631),
+        userLocation: CLLocation(latitude: -37.8136, longitude: 144.9631),
+        currentPlace: nil,
         selectedPlace: .constant(nil)
     )
 }

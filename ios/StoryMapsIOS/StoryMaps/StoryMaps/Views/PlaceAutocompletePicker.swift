@@ -16,7 +16,8 @@ struct PlaceAutocompletePicker: View {
     let placeholder: String
     let iconName: String
     @Binding var place: Place?
-    var userLocation: CLLocation? // Added parameter for bias
+    var userLocation: CLLocation?
+    var currentPlace: Place?
     
     @State private var showingPlaceSearch = false
     @State private var showingLocationPicker = false
@@ -33,7 +34,7 @@ struct PlaceAutocompletePicker: View {
                     Text(place?.name ?? placeholder)
                         .font(.googleSansSubheadline)
                         .fontWeight(.regular)
-                        .foregroundColor(place == nil ? Color(red: 0.6, green: 0.6, blue: 0.6) : .primary)
+                        .foregroundColor(place == nil ? Color(red: 0.6, green: 0.6, blue: 0.6) : Color(red: 0.2, green: 0.2, blue: 0.2))
                     
                     Spacer()
                 }
@@ -57,7 +58,8 @@ struct PlaceAutocompletePicker: View {
         .fullScreenCover(isPresented: $showingPlaceSearch) {
             PlaceSearchView(
                 placeholder: placeholder,
-                biasCoordinate: userLocation?.coordinate,
+                userLocation: userLocation,
+                currentPlace: currentPlace,
                 selectedPlace: $place
             )
         }
