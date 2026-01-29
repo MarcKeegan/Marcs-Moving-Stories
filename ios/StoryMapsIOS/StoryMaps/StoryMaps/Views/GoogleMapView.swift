@@ -14,14 +14,60 @@ struct GoogleMapView: UIViewRepresentable {
     let route: RouteDetails
     let currentSegmentIndex: Int
     let totalSegments: Int
+    @Binding var centerOnLocationTrigger: Bool
     
     #if canImport(GoogleMaps)
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject {
+        var parent: GoogleMapView
+        var mapView: GMSMapView?
+        
+        init(_ parent: GoogleMapView) {
+            self.parent = parent
+        }
+        
+        func centerOnCurrentPosition() {
+            guard let mapView = mapView else { return }
+            
+            // First try to use user's location if available
+            if let userLocation = mapView.myLocation {
+                let camera = GMSCameraPosition.camera(
+                    withLatitude: userLocation.coordinate.latitude,
+                    longitude: userLocation.coordinate.longitude,
+                    zoom: 16
+                )
+                mapView.animate(to: camera)
+            } else {
+                // Fallback: center on current story progress position
+                let route = parent.route
+                if !route.polyline.isEmpty {
+                    let progressRatio = Double(parent.currentSegmentIndex) / Double(max(1, parent.totalSegments))
+                    let pathIndex = min(Int(progressRatio * Double(route.polyline.count - 1)), route.polyline.count - 1)
+                    let progressCoord = route.polyline[pathIndex]
+                    
+                    let camera = GMSCameraPosition.camera(
+                        withLatitude: progressCoord.latitude,
+                        longitude: progressCoord.longitude,
+                        zoom: 16
+                    )
+                    mapView.animate(to: camera)
+                }
+            }
+        }
+    }
+    
     func makeUIView(context: Context) -> GMSMapView {
         let mapView = GMSMapView(frame: .zero)
         let camera = GMSCameraPosition.camera(withLatitude: 0, longitude: 0, zoom: 13)
         mapView.camera = camera
         mapView.isMyLocationEnabled = true
-        mapView.settings.myLocationButton = true
+        mapView.settings.myLocationButton = false // We use our own button
+        
+        // Store reference in coordinator
+        context.coordinator.mapView = mapView
         
         // Apply custom map style
         if let styleURL = Bundle.main.url(forResource: "MapStyle", withExtension: "json"),
@@ -38,6 +84,14 @@ struct GoogleMapView: UIViewRepresentable {
     }
     
     func updateUIView(_ mapView: GMSMapView, context: Context) {
+        // Check if we need to center on location
+        if centerOnLocationTrigger {
+            DispatchQueue.main.async {
+                context.coordinator.centerOnCurrentPosition()
+                self.centerOnLocationTrigger = false
+            }
+        }
+        
         // Clear existing overlays
         mapView.clear()
         
@@ -48,7 +102,7 @@ struct GoogleMapView: UIViewRepresentable {
         }
         
         let polyline = GMSPolyline(path: path)
-        polyline.strokeColor = UIColor(red: 0.565, green: 0.078, blue: 0.686, alpha: 0.9)
+        polyline.strokeColor = UIColor(red: 0.78, green: 0.08, blue: 0.52, alpha: 1.0)
         polyline.strokeWidth = 5.0
         polyline.map = mapView
         
@@ -80,10 +134,12 @@ struct GoogleMapView: UIViewRepresentable {
             progressMarker.map = mapView
         }
         
-        // Fit bounds to show entire route
-        let bounds = GMSCoordinateBounds(path: path)
-        let update = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
-        mapView.moveCamera(update)
+        // Only fit bounds on initial load (when trigger is false and not centered yet)
+        if !centerOnLocationTrigger {
+            let bounds = GMSCoordinateBounds(path: path)
+            let update = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
+            mapView.moveCamera(update)
+        }
     }
     #else
     func makeUIView(context: Context) -> UIView {
@@ -96,4 +152,3 @@ struct GoogleMapView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
     #endif
 }
-
