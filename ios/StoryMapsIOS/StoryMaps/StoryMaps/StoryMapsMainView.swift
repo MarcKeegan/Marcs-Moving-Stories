@@ -33,7 +33,10 @@ struct StoryMapsMainView: View {
                                 
                                 Spacer()
                                 
-                                Button(action: { showProfileSheet = true }) {
+                                Button(action: {
+                                    AnalyticsService.shared.logEvent("profile_opened")
+                                    showProfileSheet = true
+                                }) {
                                     Image(systemName: "person.circle")
                                         .font(.system(size: 24))
                                         .foregroundColor(.white)
@@ -75,6 +78,7 @@ struct StoryMapsMainView: View {
                                     handleGenerateStory(route: route)
                                 }
                             )
+                            .environmentObject(authViewModel)
                             .padding(.horizontal, 0)
                             .transition(.opacity)
                             
@@ -136,6 +140,9 @@ struct StoryMapsMainView: View {
                 ProfileView()
                     .environmentObject(authViewModel)
             }
+        }
+        .onAppear {
+            AnalyticsService.shared.logScreenView(screenName: "StoryMapsMainView")
         }
     }
     

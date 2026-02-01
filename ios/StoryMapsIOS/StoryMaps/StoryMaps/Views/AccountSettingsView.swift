@@ -114,7 +114,10 @@ struct AccountSettingsView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    Button(action: { showDeleteConfirmation = true }) {
+                    Button(action: {
+                        AnalyticsService.shared.logEvent("delete_account_initiated")
+                        showDeleteConfirmation = true
+                    }) {
                         Text("Delete Account")
                             .font(.googleSansBody)
                             .fontWeight(.medium)
@@ -142,6 +145,7 @@ struct AccountSettingsView: View {
         .alert("Delete Account", isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
+                AnalyticsService.shared.logEvent("delete_account_confirmed")
                 Task {
                     await authViewModel.deleteAccount()
                 }
@@ -159,6 +163,7 @@ struct AccountSettingsView: View {
     }
     
     private func saveProfile() {
+        AnalyticsService.shared.logEvent("profile_saved")
         isSaving = true
         showSavedMessage = false
         Task {

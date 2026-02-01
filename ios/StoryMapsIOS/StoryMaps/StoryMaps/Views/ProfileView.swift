@@ -41,36 +41,61 @@ struct ProfileView: View {
                 
                 // Settings Options
                 VStack(spacing: 0) {
-                    SettingsRow(title: "Account") {
-                        showAccountSettings = true
-                    }
-                    
-                    SettingsRow(title: "Notifications") {
-                        showNotificationSettings = true
+                    // Only show account settings for authenticated users
+                    if !authViewModel.isGuest {
+                        SettingsRow(title: "Account") {
+                            AnalyticsService.shared.logEvent("settings_row_tapped", parameters: ["destination": "account"])
+                            showAccountSettings = true
+                        }
+                        
+                        SettingsRow(title: "Notifications") {
+                            AnalyticsService.shared.logEvent("settings_row_tapped", parameters: ["destination": "notifications"])
+                            showNotificationSettings = true
+                        }
                     }
                     
                     SettingsRow(title: "Terms & Privacy") {
+                        AnalyticsService.shared.logEvent("settings_row_tapped", parameters: ["destination": "terms_privacy"])
                         showTermsPrivacy = true
                     }
                 }
                 
                 Spacer()
                 
-                // Logout Button
-                Button(action: {
-                    authViewModel.signOut()
-                    dismiss()
-                }) {
-                    Text("Logout")
-                        .font(.googleSansBody)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color(red: 0.23, green: 0.16, blue: 0.25))
-                        .cornerRadius(12)
+                // Sign In / Logout Button
+                if authViewModel.isGuest {
+                    Button(action: {
+                        AnalyticsService.shared.logEvent("guest_sign_in_tapped")
+                        authViewModel.signOut() // Exit guest mode
+                        dismiss()
+                    }) {
+                        Text("Sign In")
+                            .font(.googleSansBody)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(red: 0.23, green: 0.16, blue: 0.25))
+                            .cornerRadius(12)
+                    }
+                    .padding(.bottom, 32)
+                } else {
+                    Button(action: {
+                        AnalyticsService.shared.logEvent("logout_tapped")
+                        authViewModel.signOut()
+                        dismiss()
+                    }) {
+                        Text("Logout")
+                            .font(.googleSansBody)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(red: 0.23, green: 0.16, blue: 0.25))
+                            .cornerRadius(12)
+                    }
+                    .padding(.bottom, 32)
                 }
-                .padding(.bottom, 32)
                 
                 // Footer
                 Text("Made by Marc")
@@ -89,6 +114,9 @@ struct ProfileView: View {
         }
         .navigationDestination(isPresented: $showTermsPrivacy) {
             TermsPrivacyView()
+        }
+        .onAppear {
+            AnalyticsService.shared.logScreenView(screenName: "ProfileView")
         }
     }
 }

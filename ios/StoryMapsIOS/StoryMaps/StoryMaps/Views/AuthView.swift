@@ -53,7 +53,10 @@ struct AuthView: View {
                     
                     // Mode Selector
                     HStack(spacing: 0) {
-                        Button(action: { authMode = .login }) {
+                        Button(action: {
+                            authMode = .login
+                            AnalyticsService.shared.logEvent("auth_mode_switched", parameters: ["mode": "login"])
+                        }) {
                             Text("Sign in")
                                 .font(.googleSansSubheadline)
                                 .fontWeight(.medium)
@@ -64,7 +67,10 @@ struct AuthView: View {
                                 .cornerRadius(20)
                         }
                         
-                        Button(action: { authMode = .signup }) {
+                        Button(action: {
+                            authMode = .signup
+                            AnalyticsService.shared.logEvent("auth_mode_switched", parameters: ["mode": "signup"])
+                        }) {
                             Text("Sign up")
                                 .font(.googleSansSubheadline)
                                 .fontWeight(.medium)
@@ -201,6 +207,7 @@ struct AuthView: View {
                     if authMode == .login {
                         Button("Forgot password?") {
                             authMode = .reset
+                            AnalyticsService.shared.logEvent("forgot_password_tapped")
                         }
                         .font(.googleSansCaption)
                         .foregroundColor(.white.opacity(0.6))
@@ -233,7 +240,10 @@ struct AuthView: View {
                     
                     // Social Sign-In Buttons
                     VStack(spacing: 12) {
-                        Button(action: { Task { await authViewModel.signInWithGoogle() } }) {
+                        Button(action: {
+                            AnalyticsService.shared.logEvent("login_google_tapped")
+                            Task { await authViewModel.signInWithGoogle() }
+                        }) {
                             Text("Sign in with Google")
                                 .font(.googleSans(size: 18))
                                 .fontWeight(.bold)
@@ -251,6 +261,7 @@ struct AuthView: View {
                         // Sign in with Apple
                         SignInWithAppleButton(
                             onRequest: { request in
+                                AnalyticsService.shared.logEvent("login_apple_tapped")
                                 let nonce = randomNonceString()
                                 currentNonce = nonce
                                 request.requestedScopes = [.email, .fullName]
@@ -263,6 +274,22 @@ struct AuthView: View {
                         .frame(height: 50)
                         .cornerRadius(30)
                         .signInWithAppleButtonStyle(.black)
+                        
+                        // Continue as Guest
+                        Button(action: {
+                            AnalyticsService.shared.logEvent("guest_mode_entered")
+                            authViewModel.continueAsGuest()
+                        }) {
+                            Text("Continue as Guest")
+                                .font(.googleSansSubheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding(.top, 8)
+                        
+                        Text("Sign in required to create stories")
+                            .font(.googleSansCaption)
+                            .foregroundColor(.white.opacity(0.4))
                     }
                 }
                 .padding(.horizontal, 32)
@@ -283,6 +310,7 @@ struct AuthView: View {
             showResetMessage = false
             
             if authMode == .signup {
+                AnalyticsService.shared.logEvent("signup_email_submitted")
                 guard password == confirmPassword else {
                     authViewModel.errorMessage = "Passwords don't match"
                     return
@@ -293,8 +321,10 @@ struct AuthView: View {
                 }
                 await authViewModel.registerWithEmail(email: email, password: password)
             } else if authMode == .login {
+                AnalyticsService.shared.logEvent("login_email_submitted")
                 await authViewModel.signInWithEmail(email: email, password: password)
             } else if authMode == .reset {
+                AnalyticsService.shared.logEvent("password_reset_requested")
                 guard !email.isEmpty else {
                     authViewModel.errorMessage = "Enter your email to reset your password"
                     return

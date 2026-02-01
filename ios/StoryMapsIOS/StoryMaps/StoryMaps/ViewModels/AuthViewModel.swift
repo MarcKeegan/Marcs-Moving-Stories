@@ -27,6 +27,7 @@ class AuthViewModel: ObservableObject {
     @Published var currentUser: AuthUser?
     @Published var userProfile: UserProfile?
     @Published var isLoading = true
+    @Published var isGuest = false
     @Published var isProfileLoading = false
     @Published var errorMessage: String?
     
@@ -70,6 +71,13 @@ class AuthViewModel: ObservableObject {
             Auth.auth().removeStateDidChangeListener(handle)
         }
         #endif
+    }
+    
+    // MARK: - Guest Mode
+    
+    func continueAsGuest() {
+        isGuest = true
+        isLoading = false
     }
     
     // MARK: - Firestore Profile Operations
@@ -286,6 +294,7 @@ class AuthViewModel: ObservableObject {
             GIDSignIn.sharedInstance.signOut()
             #endif
             self.userProfile = nil
+            self.isGuest = false
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -9,6 +9,10 @@ import SwiftUI
 import FirebaseCore
 #endif
 
+#if canImport(FirebaseAnalytics)
+import FirebaseAnalytics
+#endif
+
 #if canImport(GoogleSignIn)
 import GoogleSignIn
 #endif
@@ -27,6 +31,7 @@ import GoogleMobileAds
 
 @main
 struct StoryMapsIOSApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authViewModel = AuthViewModel()
     
     init() {

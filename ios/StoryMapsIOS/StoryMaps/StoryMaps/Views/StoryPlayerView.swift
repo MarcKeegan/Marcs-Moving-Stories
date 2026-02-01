@@ -12,6 +12,8 @@ struct StoryPlayerView: View {
     @ObservedObject var audioPlayer: AudioPlayerViewModel
     var onReset: () -> Void
     
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var showProfileSheet = false
     @State private var autoScroll = true
     @State private var centerOnLocation = false
     
@@ -41,7 +43,7 @@ struct StoryPlayerView: View {
                 )
                 .ignoresSafeArea()
                 
-                // Header Overlay (Logo + Sign out)
+                // Header Overlay (Logo + Profile)
                 VStack {
                     HStack {
                         Image("Logo")
@@ -51,11 +53,14 @@ struct StoryPlayerView: View {
                         
                         Spacer()
                         
-                        Button("Sign out") {
-                            onReset()
+                        Button(action: {
+                            AnalyticsService.shared.logEvent("profile_opened")
+                            showProfileSheet = true
+                        }) {
+                            Image(systemName: "person.circle")
+                                .font(.system(size: 24))
+                                .foregroundColor(.white)
                         }
-                        .font(.googleSansCaption)
-                        .foregroundColor(.white)
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 12)
@@ -71,6 +76,7 @@ struct StoryPlayerView: View {
                         Spacer()
                         Button(action: {
                             centerOnLocation = true
+                            AnalyticsService.shared.logEvent("center_on_location_tapped")
                         }) {
                             Image(systemName: "location.circle")
                                 .font(.system(size: 24))
@@ -140,7 +146,11 @@ struct StoryPlayerView: View {
                         Spacer()
                         
                         // Play Button
-                        Button(action: { audioPlayer.togglePlayback() }) {
+                        Button(action: {
+                            let eventName = audioPlayer.isPlaying ? "playback_pause_tapped" : "playback_play_tapped"
+                            AnalyticsService.shared.logEvent(eventName, parameters: ["segment_index": audioPlayer.currentSegmentIndex])
+                            audioPlayer.togglePlayback()
+                        }) {
                             Image(systemName: audioPlayer.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 56))
                                 .foregroundColor(.white)
@@ -184,7 +194,12 @@ struct StoryPlayerView: View {
                                 }
                                 
                                 // End Journey Button
-                                Button(action: onReset) {
+                                Button(action: {
+                                    AnalyticsService.shared.logEvent("end_journey_tapped", parameters: [
+                                        "segments_completed": audioPlayer.currentSegmentIndex
+                                    ])
+                                    onReset()
+                                }) {
                                     HStack(spacing: 12) {
                                         Text("End Journey & Start New")
                                             .font(.googleSansHeadline)
@@ -291,11 +306,13 @@ struct StoryPlayerView: View {
                                     // Currently expanded - check if should collapse
                                     if dragAmount > snapThreshold || velocity > velocityThreshold {
                                         isExpanded = false
+                                        AnalyticsService.shared.logEvent("player_sheet_collapsed")
                                     }
                                 } else {
                                     // Currently collapsed - check if should expand
                                     if dragAmount < -snapThreshold || velocity < -velocityThreshold {
                                         isExpanded = true
+                                        AnalyticsService.shared.logEvent("player_sheet_expanded")
                                     }
                                 }
                             }
@@ -318,6 +335,12 @@ struct StoryPlayerView: View {
         .onChange(of: audioPlayer.isPlaying) { _, isPlaying in
             if isPlaying {
                 checkBuffering(currentIndex: audioPlayer.currentSegmentIndex)
+            }
+        }
+        .sheet(isPresented: $showProfileSheet) {
+            NavigationStack {
+                ProfileView()
+                    .environmentObject(authViewModel)
             }
         }
     }

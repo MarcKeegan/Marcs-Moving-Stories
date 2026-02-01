@@ -4,16 +4,19 @@
  */
 
 import SwiftUI
+import UserNotifications
 
 struct NotificationSettingsView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var pushService = PushNotificationService.shared
     
     @State private var pushNotificationsEnabled = true
     @State private var emailNotificationsEnabled = true
     @State private var marketingOptIn = false
     @State private var isSaving = false
     @State private var hasChanges = false
+    @State private var showPermissionDeniedAlert = false
     
     var body: some View {
         ZStack {
@@ -45,10 +48,12 @@ struct NotificationSettingsView: View {
                 VStack(spacing: 0) {
                     NotificationToggleRow(
                         title: "Push Notifications",
-                        subtitle: "Receive story updates and trip reminders",
+                        subtitle: pushNotificationSubtitle,
                         isOn: $pushNotificationsEnabled
                     )
-                    .onChange(of: pushNotificationsEnabled) { _, _ in hasChanges = true }
+                    .onChange(of: pushNotificationsEnabled) { _, newValue in
+                        handlePushToggleChange(newValue)
+                    }
                     
                     Divider()
                         .background(Color.white.opacity(0.1))
@@ -58,7 +63,10 @@ struct NotificationSettingsView: View {
                         subtitle: "Get updates about new features",
                         isOn: $emailNotificationsEnabled
                     )
-                    .onChange(of: emailNotificationsEnabled) { _, _ in hasChanges = true }
+                    .onChange(of: emailNotificationsEnabled) { _, newValue in
+                        hasChanges = true
+                        AnalyticsService.shared.logEvent("notification_toggle_changed", parameters: ["type": "email", "enabled": newValue])
+                    }
                     
                     Divider()
                         .background(Color.white.opacity(0.1))
@@ -68,7 +76,10 @@ struct NotificationSettingsView: View {
                         subtitle: "Promotional content and offers",
                         isOn: $marketingOptIn
                     )
-                    .onChange(of: marketingOptIn) { _, _ in hasChanges = true }
+                    .onChange(of: marketingOptIn) { _, newValue in
+                        hasChanges = true
+                        AnalyticsService.shared.logEvent("notification_toggle_changed", parameters: ["type": "marketing", "enabled": newValue])
+                    }
                 }
                 
                 // Save Button
@@ -97,6 +108,66 @@ struct NotificationSettingsView: View {
         .navigationBarHidden(true)
         .onAppear {
             loadSettings()
+            pushService.checkAuthorizationStatus()
+        }
+        .alert("Notifications Disabled", isPresented: $showPermissionDeniedAlert) {
+            Button("Open Settings") {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                // Revert toggle since permission was denied
+                pushNotificationsEnabled = false
+            }
+        } message: {
+            Text("Push notifications are disabled. Please enable them in Settings to receive updates.")
+        }
+    }
+    
+    private var pushNotificationSubtitle: String {
+        switch pushService.authorizationStatus {
+        case .authorized:
+            return "Receive story updates and trip reminders"
+        case .denied:
+            return "Disabled in system settings"
+        case .notDetermined:
+            return "Tap to enable notifications"
+        case .provisional:
+            return "Provisional notifications enabled"
+        case .ephemeral:
+            return "Temporary notifications enabled"
+        @unknown default:
+            return "Receive story updates and trip reminders"
+        }
+    }
+    
+    private func handlePushToggleChange(_ newValue: Bool) {
+        hasChanges = true
+        AnalyticsService.shared.logEvent("notification_toggle_changed", parameters: ["type": "push", "enabled": newValue])
+        
+        if newValue {
+            // User wants to enable push notifications
+            Task {
+                // Check current system permission status
+                if pushService.authorizationStatus == .denied {
+                    // Permission was previously denied, show alert to open settings
+                    showPermissionDeniedAlert = true
+                } else if pushService.authorizationStatus == .notDetermined {
+                    // Request permission for the first time
+                    let granted = await pushService.requestPermission()
+                    if !granted {
+                        await MainActor.run {
+                            pushNotificationsEnabled = false
+                        }
+                    }
+                } else {
+                    // Permission already granted, just register
+                    await MainActor.run {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                }
+            }
         }
     }
     
@@ -110,6 +181,11 @@ struct NotificationSettingsView: View {
     }
     
     private func saveSettings() {
+        AnalyticsService.shared.logEvent("notification_settings_saved", parameters: [
+            "push": pushNotificationsEnabled,
+            "email": emailNotificationsEnabled,
+            "marketing": marketingOptIn
+        ])
         isSaving = true
         Task {
             let profile = authViewModel.userProfile ?? UserProfile()

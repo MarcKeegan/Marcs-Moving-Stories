@@ -10,6 +10,9 @@
 		71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */; };
 		71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6A02F20ED3C002BC29C /* Lottie */; };
 		71B2B6B92F2F12CD002BC29C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6B82F2F12CD002BC29C /* FirebaseFirestore */; };
+		71B2B6BB2F2F13C4002BC29C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6BA2F2F13C4002BC29C /* FirebaseAnalytics */; };
+		71B2B6BF2F2F1AE2002BC29C /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6BE2F2F1AE2002BC29C /* FirebaseMessaging */; };
+		71B2B6C12F2F1AF3002BC29C /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6C02F2F1AF3002BC29C /* FirebaseInAppMessaging-Beta */; };
 		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
 		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
 		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
@@ -68,12 +71,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71B2B6C12F2F1AF3002BC29C /* FirebaseInAppMessaging-Beta in Frameworks */,
+				71B2B6BF2F2F1AE2002BC29C /* FirebaseMessaging in Frameworks */,
 				81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */,
 				81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */,
 				71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */,
 				71B2B6B92F2F12CD002BC29C /* FirebaseFirestore in Frameworks */,
 				81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */,
 				81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */,
+				71B2B6BB2F2F13C4002BC29C /* FirebaseAnalytics in Frameworks */,
 				71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */,
 				81A402162F19DBFA00A30EE5 /* GooglePlaces in Frameworks */,
 				81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */,
@@ -154,6 +160,9 @@
 				71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */,
 				71B2B6A02F20ED3C002BC29C /* Lottie */,
 				71B2B6B82F2F12CD002BC29C /* FirebaseFirestore */,
+				71B2B6BA2F2F13C4002BC29C /* FirebaseAnalytics */,
+				71B2B6BE2F2F1AE2002BC29C /* FirebaseMessaging */,
+				71B2B6C02F2F1AF3002BC29C /* FirebaseInAppMessaging-Beta */,
 			);
 			productName = StoryMaps;
 			productReference = 81A401942F19D83A00A30EE5 /* StoryMaps.app */;
@@ -715,6 +724,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		71B2B6BA2F2F13C4002BC29C /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		71B2B6BE2F2F1AE2002BC29C /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		71B2B6C02F2F1AF3002BC29C /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 		81A402082F19DA5600A30EE5 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

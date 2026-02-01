@@ -12,7 +12,7 @@ struct ContentView: View {
         Group {
             if authViewModel.isLoading {
                 LoadingView()
-            } else if authViewModel.currentUser != nil {
+            } else if authViewModel.currentUser != nil || authViewModel.isGuest {
                 StoryMapsMainView()
             } else {
                 AuthView()

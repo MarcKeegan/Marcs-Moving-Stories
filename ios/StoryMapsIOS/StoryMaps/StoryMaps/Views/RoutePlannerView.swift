@@ -7,11 +7,13 @@ import SwiftUI
 import CoreLocation
 
 struct RoutePlannerView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @ObservedObject var viewModel: RoutePlannerViewModel
     @Binding var appState: AppState
     var onRouteFound: (RouteDetails) -> Void
     
     @StateObject private var locationManager = LocationManager() // For location biasing
+    @State private var showSignInPrompt = false
     
     var body: some View {
         VStack(spacing: 24) {
@@ -64,7 +66,10 @@ struct RoutePlannerView: View {
                 
                 HStack(spacing: 8) {
                     ForEach(RoutePlannerViewModel.TravelMode.allCases, id: \.self) { mode in
-                        Button(action: { viewModel.travelMode = mode }) {
+                        Button(action: {
+                            viewModel.travelMode = mode
+                            AnalyticsService.shared.logEvent("travel_mode_changed", parameters: ["mode": mode.displayName])
+                        }) {
                             HStack(spacing: 6) {
                                 Image(systemName: mode.iconName)
                                 Text(mode.displayName)
@@ -94,7 +99,10 @@ struct RoutePlannerView: View {
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(StoryStyle.allCases) { style in
-                        Button(action: { viewModel.selectedStyle = style }) {
+                        Button(action: {
+                            viewModel.selectedStyle = style
+                            AnalyticsService.shared.logEvent("story_style_selected", parameters: ["style": style.displayName])
+                        }) {
                             VStack(alignment: .leading, spacing: 8) {
                                 Image(systemName: style.iconName)
                                     .font(.googleSansTitle2)
@@ -138,7 +146,13 @@ struct RoutePlannerView: View {
             }
             
             // Create Story Button
-            Button(action: handleCreateStory) {
+            Button(action: {
+                if authViewModel.isGuest {
+                    showSignInPrompt = true
+                } else {
+                    handleCreateStory()
+                }
+            }) {
                 HStack(spacing: 8) {
                     if viewModel.isCalculating {
                         ProgressView()
@@ -163,9 +177,22 @@ struct RoutePlannerView: View {
         .background(Color(red: 0.23, green: 0.16, blue: 0.25))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+        .alert("Sign In Required", isPresented: $showSignInPrompt) {
+            Button("Sign In") {
+                AnalyticsService.shared.logEvent("guest_sign_in_prompted")
+                authViewModel.signOut() // Exit guest mode and return to auth
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Create an account or sign in to generate personalized audio stories for your journey.")
+        }
     }
     
     private func handleCreateStory() {
+        AnalyticsService.shared.logEvent("create_story_tapped", parameters: [
+            "style": viewModel.selectedStyle.displayName,
+            "travel_mode": viewModel.travelMode.displayName
+        ])
         Task {
             do {
                 let route = try await viewModel.calculateRoute()
