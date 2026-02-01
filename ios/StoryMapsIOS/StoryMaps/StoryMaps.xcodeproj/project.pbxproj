@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */; };
 		71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6A02F20ED3C002BC29C /* Lottie */; };
+		71B2B6B92F2F12CD002BC29C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 71B2B6B82F2F12CD002BC29C /* FirebaseFirestore */; };
 		81A402092F19DA5600A30EE5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 81A402082F19DA5600A30EE5 /* FirebaseAuth */; };
 		81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020A2F19DA5600A30EE5 /* FirebaseCore */; };
 		81A4020E2F19DAB500A30EE5 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 81A4020D2F19DAB500A30EE5 /* GoogleMaps */; };
@@ -70,6 +71,7 @@
 				81A402132F19DB0700A30EE5 /* GoogleSignInSwift in Frameworks */,
 				81A4020B2F19DA5600A30EE5 /* FirebaseCore in Frameworks */,
 				71B2B6A12F20ED3C002BC29C /* Lottie in Frameworks */,
+				71B2B6B92F2F12CD002BC29C /* FirebaseFirestore in Frameworks */,
 				81A402182F19DBFA00A30EE5 /* GooglePlacesSwift in Frameworks */,
 				81A402112F19DB0700A30EE5 /* GoogleSignIn in Frameworks */,
 				71176BDE2F1D0C1C00EBF0B1 /* GoogleMobileAds in Frameworks */,
@@ -96,10 +98,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71B2B6B72F2F12CD002BC29C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		81A4018B2F19D83A00A30EE5 = {
 			isa = PBXGroup;
 			children = (
 				81A401962F19D83A00A30EE5 /* StoryMaps */,
+				71B2B6B72F2F12CD002BC29C /* Frameworks */,
 				81A401952F19D83A00A30EE5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -143,6 +153,7 @@
 				81A402172F19DBFA00A30EE5 /* GooglePlacesSwift */,
 				71176BDD2F1D0C1C00EBF0B1 /* GoogleMobileAds */,
 				71B2B6A02F20ED3C002BC29C /* Lottie */,
+				71B2B6B82F2F12CD002BC29C /* FirebaseFirestore */,
 			);
 			productName = StoryMaps;
 			productReference = 81A401942F19D83A00A30EE5 /* StoryMaps.app */;
@@ -436,7 +447,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StoryMaps/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Story Maps";
+				INFOPLIST_KEY_CFBundleDisplayName = StoryPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
@@ -481,7 +492,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StoryMaps/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Story Maps";
+				INFOPLIST_KEY_CFBundleDisplayName = StoryPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
@@ -699,6 +710,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 71B2B69F2F20ED3C002BC29C /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		71B2B6B82F2F12CD002BC29C /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 81A402072F19DA5600A30EE5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 		81A402082F19DA5600A30EE5 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

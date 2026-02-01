@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct AuthUser: Identifiable {
+struct AuthUser: Identifiable, Equatable {
     let id: String
     let email: String?
     let displayName: String?

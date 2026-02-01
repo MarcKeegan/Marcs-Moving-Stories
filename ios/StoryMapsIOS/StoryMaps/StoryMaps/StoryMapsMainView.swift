@@ -11,6 +11,7 @@ struct StoryMapsMainView: View {
     @StateObject private var storyViewModel = StoryViewModel()
     @StateObject private var audioPlayer = AudioPlayerViewModel()
     @State private var appState: AppState = .planning
+    @State private var showProfileSheet = false
     
     var body: some View {
         ZStack {
@@ -32,11 +33,11 @@ struct StoryMapsMainView: View {
                                 
                                 Spacer()
                                 
-                                Button("Sign out") {
-                                    authViewModel.signOut()
+                                Button(action: { showProfileSheet = true }) {
+                                    Image(systemName: "person.circle")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.white)
                                 }
-                                .font(.googleSansCaption)
-                                .foregroundColor(.white)
                             }
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
@@ -130,6 +131,12 @@ struct StoryMapsMainView: View {
         }
         .preferredColorScheme(.dark)
         .animation(.easeInOut(duration: 0.5), value: appState)
+        .sheet(isPresented: $showProfileSheet) {
+            NavigationStack {
+                ProfileView()
+                    .environmentObject(authViewModel)
+            }
+        }
     }
     
     private func handleGenerateStory(route: RouteDetails) {
