@@ -4,7 +4,7 @@
 Getting "Autocomplete error: Internal Error" when selecting a place from the autocomplete list.
 
 ## Your Current Setup
-- **API Key**: `AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI` (same key for Maps, Places, and Directions)
+- **API Key**: `YOUR_API_KEY_HERE` (same key for Maps, Places, and Directions)
 - **Error**: "Internal Error" suggests API key restrictions or permissions issue
 
 ## Most Common Causes
@@ -51,7 +51,7 @@ The API key might be restricted in a way that blocks the autocomplete requests.
 ### Step 4: Check API Key Restrictions
 
 1. **APIs & Services** → **Credentials**
-2. Find your API key: `AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI`
+2. Find your API key: `YOUR_API_KEY_HERE`
 3. Click the **Edit** (pencil) icon
 
 #### Check Application Restrictions:

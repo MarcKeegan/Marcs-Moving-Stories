@@ -1,2 +1,45 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Build output
 dist/
+build/
+
+# Environment files - NEVER COMMIT SECRETS
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+
+# Secret/config files
+*.pem
+*.key
+*.p12
+*.pfx
+Secrets.plist
+GoogleService-Info.plist
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# iOS/Xcode
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside

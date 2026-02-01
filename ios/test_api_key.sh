@@ -3,7 +3,7 @@
 # Test Google Places API Key
 # Run this script to verify your API key works
 
-API_KEY="AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI"
+API_KEY="${GOOGLE_PLACES_API_KEY:-YOUR_API_KEY_HERE}"
 
 echo "🧪 Testing Google Places API Key..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

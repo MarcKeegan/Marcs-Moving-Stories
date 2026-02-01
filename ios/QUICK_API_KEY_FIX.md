@@ -5,7 +5,7 @@ You're getting "Autocomplete error: Internal Error" which is **100% an API key c
 
 ## Your Current API Key
 ```
-AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI
+YOUR_API_KEY_HERE
 ```
 
 ## Quick Fix (5 Minutes)
@@ -13,7 +13,7 @@ AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI
 ### Step 1: Temporarily Remove All Restrictions (Test Only)
 
 1. Go to: https://console.cloud.google.com/apis/credentials
-2. Find your API key: `AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI`
+2. Find your API key: `YOUR_API_KEY_HERE`
 3. Click the **Edit** (pencil) icon
 4. Under **Application restrictions**: Select **"None"**
 5. Under **API restrictions**: Select **"Don't restrict key"**
@@ -116,7 +116,7 @@ You can test if your API key works outside the app:
 
 ```bash
 # Test Places Autocomplete API
-curl "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Lane%20Cove&key=AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI"
+curl "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Lane%20Cove&key=YOUR_API_KEY_HERE"
 ```
 
 **If this returns results**: Your API key works, but iOS restrictions are wrong.

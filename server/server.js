@@ -14,6 +14,44 @@ const WebSocket = require('ws');
 const { URLSearchParams, URL } = require('url');
 const rateLimit = require('express-rate-limit');
 
+// Firebase Admin SDK for token verification
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin
+// Option 1: Use GOOGLE_APPLICATION_CREDENTIALS environment variable (path to service account JSON)
+// Option 2: Use FIREBASE_SERVICE_ACCOUNT_JSON environment variable (JSON string of service account)
+// Option 3: On Google Cloud Run, uses default credentials automatically
+let firebaseInitialized = false;
+try {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+        // Parse JSON from environment variable
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            projectId: serviceAccount.project_id
+        });
+        firebaseInitialized = true;
+        console.log('✅ Firebase Admin initialized with service account from env var');
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        // Use path to service account file
+        admin.initializeApp({
+            credential: admin.credential.applicationDefault()
+        });
+        firebaseInitialized = true;
+        console.log('✅ Firebase Admin initialized with GOOGLE_APPLICATION_CREDENTIALS');
+    } else {
+        // Try application default credentials (works on Cloud Run)
+        admin.initializeApp({
+            credential: admin.credential.applicationDefault()
+        });
+        firebaseInitialized = true;
+        console.log('✅ Firebase Admin initialized with application default credentials');
+    }
+} catch (error) {
+    console.warn('⚠️ Firebase Admin SDK initialization failed:', error.message);
+    console.warn('⚠️ Token verification will be disabled. Set FIREBASE_SERVICE_ACCOUNT_JSON or GOOGLE_APPLICATION_CREDENTIALS.');
+}
+
 const app = express();
 const port = process.env.PORT || 3000;
 const externalApiBaseUrl = 'https://generativelanguage.googleapis.com';
@@ -61,9 +99,9 @@ const proxyLimiter = rateLimit({
 // Apply the rate limiter to the /api-proxy route before the main proxy logic
 app.use('/api-proxy', proxyLimiter);
 
-// Basic authentication middleware for proxy endpoints
-// For production, this should validate Firebase ID tokens
-const authenticateProxyRequest = (req, res, next) => {
+// Authentication middleware for proxy endpoints
+// Properly verifies Firebase ID tokens when Firebase Admin is initialized
+const authenticateProxyRequest = async (req, res, next) => {
     // Skip auth check for OPTIONS (CORS preflight)
     if (req.method === 'OPTIONS') {
         return next();
@@ -75,10 +113,29 @@ const authenticateProxyRequest = (req, res, next) => {
         return res.status(401).json({ error: 'Unauthorized', message: 'Authentication required.' });
     }
 
-    // TODO: In production, verify the Firebase ID token here
-    // For now, just check that a token exists
-    // console.log('✅ Auth token present for proxy request');
-    next();
+    const token = req.headers.authorization.split('Bearer ')[1];
+
+    // If Firebase Admin is initialized, verify the token cryptographically
+    if (firebaseInitialized) {
+        try {
+            const decodedToken = await admin.auth().verifyIdToken(token);
+            req.user = decodedToken; // Attach user info to request
+            // console.log(`✅ Token verified for user: ${decodedToken.uid}`);
+            return next();
+        } catch (error) {
+            console.warn(`❌ Token verification failed for ${req.path} from IP: ${req.ip}. Error: ${error.message}`);
+            return res.status(401).json({
+                error: 'Unauthorized',
+                message: 'Invalid or expired token.',
+                code: error.code
+            });
+        }
+    } else {
+        // Firebase Admin not initialized - log warning but allow request
+        // This maintains backwards compatibility during migration
+        console.warn('⚠️ Firebase Admin not initialized - token not verified. Request allowed but NOT SECURE.');
+        return next();
+    }
 };
 
 // Google Directions API proxy endpoint (server-side API key)

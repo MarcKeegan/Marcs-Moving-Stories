@@ -50,7 +50,7 @@ In **Render.com dashboard**:
 2. Click **Environment** tab
 3. Add:
    ```
-   GOOGLE_DIRECTIONS_API_KEY=AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI
+   GOOGLE_DIRECTIONS_API_KEY=YOUR_API_KEY_HERE
    ```
 4. Click **Save Changes**
 
@@ -86,9 +86,9 @@ Remove the unused `GOOGLE_DIRECTIONS_API_KEY` from `Secrets.plist`:
     <key>SERVER_BASE_URL</key>
     <string>https://storymode-1024844710120.us-west1.run.app</string>
     <key>GOOGLE_MAPS_IOS_API_KEY</key>
-    <string>AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI</string>
+    <string>YOUR_API_KEY_HERE</string>
     <key>GOOGLE_PLACES_IOS_API_KEY</key>
-    <string>AIzaSyANwdUer4vuMh4xilyROQlYZyProyrZ7VI</string>
+    <string>YOUR_API_KEY_HERE</string>
     <!-- REMOVED: GOOGLE_DIRECTIONS_API_KEY (no longer needed) -->
 </dict>
 </plist>
