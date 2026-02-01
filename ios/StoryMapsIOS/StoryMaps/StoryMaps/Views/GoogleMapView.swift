@@ -24,6 +24,8 @@ struct GoogleMapView: UIViewRepresentable {
     class Coordinator: NSObject {
         var parent: GoogleMapView
         var mapView: GMSMapView?
+        var hasInitiallyFitBounds = false
+        var isUserCentered = false
         
         init(_ parent: GoogleMapView) {
             self.parent = parent
@@ -32,12 +34,14 @@ struct GoogleMapView: UIViewRepresentable {
         func centerOnCurrentPosition() {
             guard let mapView = mapView else { return }
             
-            // First try to use user's location if available
+            isUserCentered = true
+            
+            // Use user's location if available
             if let userLocation = mapView.myLocation {
                 let camera = GMSCameraPosition.camera(
                     withLatitude: userLocation.coordinate.latitude,
                     longitude: userLocation.coordinate.longitude,
-                    zoom: 16
+                    zoom: 17
                 )
                 mapView.animate(to: camera)
             } else {
@@ -51,11 +55,25 @@ struct GoogleMapView: UIViewRepresentable {
                     let camera = GMSCameraPosition.camera(
                         withLatitude: progressCoord.latitude,
                         longitude: progressCoord.longitude,
-                        zoom: 16
+                        zoom: 17
                     )
                     mapView.animate(to: camera)
                 }
             }
+        }
+        
+        func fitRouteBounds() {
+            guard let mapView = mapView, !parent.route.polyline.isEmpty else { return }
+            
+            let path = GMSMutablePath()
+            for coord in parent.route.polyline {
+                path.add(CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude))
+            }
+            
+            let bounds = GMSCoordinateBounds(path: path)
+            let update = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
+            mapView.moveCamera(update)
+            hasInitiallyFitBounds = true
         }
     }
     
@@ -84,12 +102,15 @@ struct GoogleMapView: UIViewRepresentable {
     }
     
     func updateUIView(_ mapView: GMSMapView, context: Context) {
+        let coordinator = context.coordinator
+        
         // Check if we need to center on location
         if centerOnLocationTrigger {
             DispatchQueue.main.async {
-                context.coordinator.centerOnCurrentPosition()
+                coordinator.centerOnCurrentPosition()
                 self.centerOnLocationTrigger = false
             }
+            return // Don't update overlays while centering to avoid visual glitch
         }
         
         // Clear existing overlays
@@ -102,7 +123,7 @@ struct GoogleMapView: UIViewRepresentable {
         }
         
         let polyline = GMSPolyline(path: path)
-        polyline.strokeColor = UIColor(red: 0.78, green: 0.08, blue: 0.52, alpha: 1.0)
+        polyline.strokeColor = UIColor(red: 0.016, green: 0.702, blue: 0.11, alpha: 1.0)
         polyline.strokeWidth = 5.0
         polyline.map = mapView
         
@@ -110,7 +131,7 @@ struct GoogleMapView: UIViewRepresentable {
         if let first = route.polyline.first {
             let startMarker = GMSMarker(position: CLLocationCoordinate2D(latitude: first.latitude, longitude: first.longitude))
             startMarker.title = "Start"
-            startMarker.icon = GMSMarker.markerImage(with: .systemGreen)
+            startMarker.icon = GMSMarker.markerImage(with: .systemRed)
             startMarker.map = mapView
         }
         
@@ -118,7 +139,7 @@ struct GoogleMapView: UIViewRepresentable {
         if let last = route.polyline.last {
             let endMarker = GMSMarker(position: CLLocationCoordinate2D(latitude: last.latitude, longitude: last.longitude))
             endMarker.title = "Destination"
-            endMarker.icon = GMSMarker.markerImage(with: .systemRed)
+            endMarker.icon = GMSMarker.markerImage(with: .systemGreen)
             endMarker.map = mapView
         }
         
@@ -134,11 +155,9 @@ struct GoogleMapView: UIViewRepresentable {
             progressMarker.map = mapView
         }
         
-        // Only fit bounds on initial load (when trigger is false and not centered yet)
-        if !centerOnLocationTrigger {
-            let bounds = GMSCoordinateBounds(path: path)
-            let update = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
-            mapView.moveCamera(update)
+        // Only fit bounds on initial load, and not if user has manually centered
+        if !coordinator.hasInitiallyFitBounds && !coordinator.isUserCentered {
+            coordinator.fitRouteBounds()
         }
     }
     #else

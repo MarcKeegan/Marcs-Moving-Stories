@@ -58,11 +58,11 @@ struct StoryPlayerView: View {
                         .foregroundColor(.white)
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, geometry.safeAreaInsets.top + 8)
                     .padding(.bottom, 12)
                     
                     Spacer()
                 }
+                .padding(.top, geometry.safeAreaInsets.top > 0 ? geometry.safeAreaInsets.top + 8 : 52)
                 
                 // Location Button Overlay (above bottom sheet)
                 VStack {
