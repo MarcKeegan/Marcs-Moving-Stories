@@ -133,6 +133,7 @@ struct AccountSettingsView: View {
             .padding(.horizontal, 24)
         }
         .navigationBarHidden(true)
+        .ignoresSafeArea(.keyboard)
         .onAppear {
             loadUserProfile()
         }
