@@ -158,45 +158,60 @@ function App() {
             // Gather all previous text for robust context, but limit length to avoid token overflow
             const allPreviousText = story.segments.map(s => s.text).join(" ").slice(-3000);
 
-            // Get the specific outline beat for this segment. 
-            // Fallback to generic if we somehow exceed the outline length.
+            // Get the specific outline beat for this segment.
             const segmentOutline = story.outline[index - 1] || "Continue the journey towards the final destination, wrapping up any loose narrative threads.";
 
-            // 1. Generate Text (increased to 60s timeout for safety)
+            // 1. Generate text
             const segmentData = await withTimeout(
                 generateSegment(route, index, story.totalSegmentsEstimate, segmentOutline, allPreviousText),
                 60000,
                 `Text generation timed out for segment ${index}`
             );
 
-            // 2. Generate Audio (increased to 100s timeout as TTS can be slow under load)
-            const audioUrl = await withTimeout(
-                generateSegmentAudio(segmentData.text),
-                100000,
-                `Audio generation timed out for segment ${index}`
-            );
+            // 2. Generate audio and pre-fetch NEXT segment text in parallel
+            const nextOutlineBeat = story.outline[index] || "Continue the journey towards the final destination, wrapping up any loose narrative threads.";
+            const hasNextAlready = story.segments.some(s => s.index === index + 1);
+            const [audioResult, nextSegDataResult] = await Promise.allSettled([
+                withTimeout(
+                    generateSegmentAudio(segmentData.text),
+                    100000,
+                    `Audio generation timed out for segment ${index}`
+                ),
+                // Pre-fetch next segment text only if it doesn't already exist and is within bounds
+                (!hasNextAlready && index < story.totalSegmentsEstimate)
+                    ? withTimeout(
+                        generateSegment(route, index + 1, story.totalSegmentsEstimate, nextOutlineBeat, allPreviousText + " " + segmentData.text),
+                        60000,
+                        `Text pre-fetch timed out for segment ${index + 1}`
+                    )
+                    : Promise.resolve(null)
+            ]);
 
-            // 3. Append to stream
+            if (audioResult.status === 'rejected') throw new Error(audioResult.reason?.message || `Audio failed for segment ${index}`);
+
+            // 3. Append current segment (and optional pre-fetched next) to stream
             setStory(prev => {
                 if (!prev) return null;
-                // Ensure we don't add duplicates if race conditions occurred
                 if (prev.segments.some(s => s.index === index)) return prev;
-                return {
-                    ...prev,
-                    segments: [...prev.segments, { ...segmentData, audioUrl }].sort((a, b) => a.index - b.index)
-                };
+                const updated = [...prev.segments, { ...segmentData, audioUrl: audioResult.value }];
+
+                // Also append the pre-fetched next segment text (no audio yet) if available
+                if (nextSegDataResult.status === 'fulfilled' && nextSegDataResult.value && !prev.segments.some(s => s.index === index + 1)) {
+                    updated.push({ ...(nextSegDataResult.value as any), audioUrl: null });
+                }
+
+                return { ...prev, segments: updated.sort((a, b) => a.index - b.index) };
             });
             console.log(`[Buffering] Segment ${index} ready.`);
 
         } catch (e) {
             console.error(`Failed to generate segment ${index}`, e);
-            // We don't alert the user, we just hope the next attempt works.
-            // The continuous loop in useEffect will retry if we are still behind buffer.
         } finally {
             isGeneratingRef.current = false;
             setIsBackgroundGenerating(false);
         }
     };
+
 
     // --- Handlers ---
     const handleGenerateStory = async (details: RouteDetails) => {
@@ -208,37 +223,70 @@ function App() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const totalSegmentsEstimate = calculateTotalSegments(details.durationSeconds);
-            setLoadingMessage("Crafting story arc...1 - 2 minutes");
+            setLoadingMessage("Crafting story arc...");
 
             // 1. Generate the Story Outline first
-            // Increased timeout to 60s to handle long complex journeys
             const outline = await withTimeout(
                 generateStoryOutline(details, totalSegmentsEstimate),
                 60000, "Story outline generation timed out"
             );
 
-            setLoadingMessage("Writing first chapter... 1 minute");
+            setLoadingMessage("Writing first chapter...");
 
-            // 2. Generate first segment using the first outline beat
+            // 2. Generate first segment text using the first outline beat
             const firstOutlineBeat = outline[0] || "Begin the journey.";
             const seg1Data = await withTimeout(
                 generateSegment(details, 1, totalSegmentsEstimate, firstOutlineBeat, ""),
                 60000, "Initial text generation timed out"
             );
 
-            setLoadingMessage("Preparing audio stream...30 seconds");
-            const seg1AudioUrl = await withTimeout(
-                generateSegmentAudio(seg1Data.text),
-                100000, "Initial audio generation timed out"
-            );
+            setLoadingMessage("Preparing audio...");
+
+            // 3. Generate audio for segment 1 AND pre-generate segment 2 text in parallel
+            const secondOutlineBeat = outline[1] || "Continue the journey.";
+            const [seg1AudioUrl, seg2DataResult] = await Promise.allSettled([
+                withTimeout(generateSegmentAudio(seg1Data.text), 100000, "Initial audio generation timed out"),
+                withTimeout(
+                    generateSegment(details, 2, totalSegmentsEstimate, secondOutlineBeat, seg1Data.text),
+                    60000, "Segment 2 text generation timed out"
+                )
+            ]);
+
+            if (seg1AudioUrl.status === 'rejected') throw new Error(seg1AudioUrl.reason?.message || "Audio generation failed");
+
+            const initialSegments: any[] = [{ ...seg1Data, audioUrl: seg1AudioUrl.value }];
+
+            // If segment 2 text came back while we were waiting for audio, kick off its audio too
+            let seg2TextData: any = null;
+            if (seg2DataResult.status === 'fulfilled') {
+                seg2TextData = seg2DataResult.value;
+                initialSegments.push({ ...seg2TextData, audioUrl: null });
+            }
 
             setStory({
                 totalSegmentsEstimate,
                 outline,
-                segments: [{ ...seg1Data, audioUrl: seg1AudioUrl }]
+                segments: initialSegments
             });
 
             setAppState(AppState.READY_TO_PLAY);
+
+            // Generate audio for segment 2 in the background (don't block UI)
+            if (seg2TextData && totalSegmentsEstimate > 1) {
+                generateSegmentAudio(seg2TextData.text)
+                    .then(audioUrl => {
+                        setStory(prev => {
+                            if (!prev) return null;
+                            return {
+                                ...prev,
+                                segments: prev.segments.map(s =>
+                                    s.index === 2 ? { ...s, audioUrl } : s
+                                )
+                            };
+                        });
+                    })
+                    .catch(e => console.warn("Background seg2 audio failed:", e));
+            }
 
         } catch (error: any) {
             console.error("Initial generation failed:", error);

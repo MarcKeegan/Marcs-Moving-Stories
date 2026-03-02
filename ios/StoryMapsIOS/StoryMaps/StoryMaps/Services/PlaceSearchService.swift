@@ -92,10 +92,19 @@ class PlaceSearchService: NSObject, ObservableObject {
         isSearching = true
         
         let filter = GMSAutocompleteFilter()
-        filter.type = .address
+        // Use noFilter to include all place types (addresses, landmarks, beaches, POIs, etc.)
+        filter.type = .noFilter
         
         if let bias = bias {
+            // Set origin for distance calculations in results
             filter.origin = CLLocation(latitude: bias.latitude, longitude: bias.longitude)
+            
+            // Add a circular location bias (100km radius) to prioritize nearby results
+            // This ensures "Bondi Beach" in Sydney appears before "Bondi Beach Court" in California
+            filter.locationBias = GMSPlaceCircularLocationOption(
+                CLLocationCoordinate2D(latitude: bias.latitude, longitude: bias.longitude),
+                100000 // 100km radius in meters
+            )
         }
         
         placesClient.findAutocompletePredictions(fromQuery: query, filter: filter, sessionToken: token) { [weak self] (results, error) in
