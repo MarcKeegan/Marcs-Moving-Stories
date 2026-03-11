@@ -49,6 +49,13 @@ struct DirectionsResult {
     let duration: String
     let durationSeconds: Int
     let polyline: [Coordinate]
+    let startAddress: String
+    let endAddress: String
+}
+
+struct NearbyPOIResponse: Codable {
+    let status: String
+    let places: [NearbyPOI]
 }
 
 class DirectionsClient {
@@ -99,7 +106,9 @@ class DirectionsClient {
             distance: leg.distance.text,
             duration: leg.duration.text,
             durationSeconds: leg.duration.value,
-            polyline: polyline
+            polyline: polyline,
+            startAddress: leg.startAddress,
+            endAddress: leg.endAddress
         )
     }
     
@@ -148,6 +157,55 @@ class DirectionsClient {
     }
 }
 
+class NearbyPlacesClient {
+    static let shared = NearbyPlacesClient()
+
+    private init() {}
+
+    func fetchNearbyPOIs(
+        around coordinate: Coordinate,
+        radius: Int = 650,
+        keyword: String? = nil
+    ) async throws -> [NearbyPOI] {
+        let serverBaseURL = AppConfig.shared.serverBaseURL
+        guard !serverBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw DirectionsError.missingServerURL
+        }
+
+        let endpoint = "\(serverBaseURL)/api/nearby-pois"
+        var components = URLComponents(string: endpoint)
+        components?.queryItems = [
+            URLQueryItem(name: "location", value: "\(coordinate.latitude),\(coordinate.longitude)"),
+            URLQueryItem(name: "radius", value: String(radius))
+        ]
+
+        if let keyword, !keyword.isEmpty {
+            components?.queryItems?.append(URLQueryItem(name: "keyword", value: keyword))
+        }
+
+        guard let url = components?.url else {
+            throw DirectionsError.invalidURL
+        }
+
+        do {
+            let response: NearbyPOIResponse = try await HTTPClient.shared.request(url: url)
+            return response.places
+        } catch let error as HTTPError {
+            switch error {
+            case .httpError(let statusCode, _):
+                if statusCode == 404 {
+                    print("⚠️ Nearby POI endpoint unavailable on current server deployment. Continuing without POIs.")
+                    return []
+                }
+            default:
+                break
+            }
+
+            throw error
+        }
+    }
+}
+
 enum DirectionsError: LocalizedError {
     case missingServerURL
     case invalidURL
@@ -167,4 +225,3 @@ enum DirectionsError: LocalizedError {
         }
     }
 }
-

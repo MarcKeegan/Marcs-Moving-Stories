@@ -65,6 +65,10 @@ const apiKey =
 
 // Google Directions API Key (used server-side to avoid iOS restrictions)
 const googleDirectionsApiKey = process.env.GOOGLE_DIRECTIONS_API_KEY;
+const googlePlacesApiKey =
+    process.env.GOOGLE_PLACES_API_KEY ||
+    process.env.GOOGLE_MAPS_API_KEY ||
+    googleDirectionsApiKey;
 
 const staticPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
@@ -179,6 +183,78 @@ app.get('/api/directions', authenticateProxyRequest, async (req, res) => {
 
     } catch (error) {
         console.error('❌ Directions proxy error:', error.message);
+        res.status(500).json({
+            error: 'Proxy error',
+            message: error.message
+        });
+    }
+});
+
+app.get('/api/nearby-pois', authenticateProxyRequest, async (req, res) => {
+    try {
+        if (!googlePlacesApiKey) {
+            console.error('❌ GOOGLE_PLACES_API_KEY not configured on server');
+            return res.status(500).json({
+                error: 'Server configuration error',
+                message: 'Places API key not configured'
+            });
+        }
+
+        const { location, radius, keyword, type } = req.query;
+
+        if (!location) {
+            return res.status(400).json({
+                error: 'Missing parameters',
+                message: 'location is required'
+            });
+        }
+
+        const searchRadius = Math.min(parseInt(radius, 10) || 650, 1500);
+        const params = new URLSearchParams({
+            location,
+            radius: String(searchRadius),
+            key: googlePlacesApiKey
+        });
+
+        if (keyword) {
+            params.set('keyword', String(keyword));
+        }
+        if (type) {
+            params.set('type', String(type));
+        }
+
+        const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
+        console.log(`📍 Nearby POI request: ${location} (${searchRadius}m)`);
+
+        const response = await axios.get(placesUrl);
+        const status = response.data.status;
+
+        if (!['OK', 'ZERO_RESULTS'].includes(status)) {
+            console.error(`❌ Nearby Places API error: ${status}`);
+            return res.status(400).json({
+                error: 'Places API error',
+                status,
+                message: response.data.error_message || 'Failed to fetch nearby POIs'
+            });
+        }
+
+        const places = (response.data.results || []).slice(0, 10).map((place) => ({
+            id: place.place_id,
+            name: place.name,
+            address: place.vicinity || place.formatted_address || '',
+            coordinate: {
+                latitude: place.geometry?.location?.lat,
+                longitude: place.geometry?.location?.lng
+            },
+            types: place.types || [],
+            rating: typeof place.rating === 'number' ? place.rating : null,
+            userRatingsTotal: typeof place.user_ratings_total === 'number' ? place.user_ratings_total : null
+        }));
+
+        console.log(`✅ Nearby POI success (${places.length} results)`);
+        res.json({ status, places });
+    } catch (error) {
+        console.error('❌ Nearby POI proxy error:', error.message);
         res.status(500).json({
             error: 'Proxy error',
             message: error.message

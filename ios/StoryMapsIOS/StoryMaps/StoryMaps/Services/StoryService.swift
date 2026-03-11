@@ -10,6 +10,7 @@ class StoryService {
     
     private let targetSegmentDurationSec = 60
     private let wordsPerMinute = 145
+    private let continuousStorySegmentEstimate = 9_999
     
     private init() {}
     
@@ -19,6 +20,14 @@ class StoryService {
     
     func calculateTotalSegments(durationSeconds: Int) -> Int {
         max(1, durationSeconds / targetSegmentDurationSec)
+    }
+
+    func defaultTotalSegments(for route: RouteDetails) -> Int {
+        if route.isFreeRoam {
+            return continuousStorySegmentEstimate
+        }
+
+        return calculateTotalSegments(durationSeconds: route.durationSeconds)
     }
 
     func makeFallbackOutline(for route: RouteDetails, totalSegments: Int) -> [String] {
@@ -51,6 +60,8 @@ class StoryService {
     
     // Generate story outline
     func generateOutline(for route: RouteDetails) async throws -> [String] {
+        guard !route.isFreeRoam else { return [] }
+
         let totalSegments = calculateTotalSegments(durationSeconds: route.durationSeconds)
         let styleInstruction = getStyleInstruction(for: route.storyStyle)
         
@@ -134,6 +145,107 @@ class StoryService {
         
         return StorySegment(id: segmentIndex, text: text.trimmingCharacters(in: .whitespacesAndNewlines))
     }
+
+    func generateContextualSegment(
+        for route: RouteDetails,
+        liveContext: LiveJourneyContext,
+        narrativeState: NarrativeState,
+        segmentIndex: Int,
+        previousContext: String
+    ) async throws -> (segment: StorySegment, narrativeState: NarrativeState) {
+        let styleInstruction = getStyleInstruction(for: route.storyStyle)
+        let liveLocation = describeLocation(liveContext.currentLocation)
+        let snappedLocation = describeLocation(liveContext.snappedLocation)
+        let destinationText = route.endCoordinate == nil ? "No fixed destination. The traveler is roaming freely." : "Destination: \(route.endAddress)."
+        let poiLines = liveContext.nearbyPOIs.prefix(6).map { poi in
+            let address = poi.address.isEmpty ? "address unknown" : poi.address
+            let types = poi.types.prefix(3).joined(separator: ", ")
+            return "- \(poi.name) (\(address)) [\(types)]"
+        }.joined(separator: "\n")
+
+        let previousNarrative = String(previousContext.suffix(1800))
+        let rollingSummary = narrativeState.rollingSummary.isEmpty ? "No previous summary yet." : narrativeState.rollingSummary
+        let openThreads = narrativeState.openThreads.isEmpty ? "None" : narrativeState.openThreads.joined(separator: "; ")
+        let routeModeDescription = route.isFreeRoam ? "FREE ROAMING" : "PLANNED ROUTE"
+        let routeSummary = liveContext.routeSummary
+
+        let prompt = """
+        You are an AI storytelling engine generating a continuous, immersive audio experience for a traveler moving through the real world.
+        Journey Mode: \(routeModeDescription)
+        Travel Mode: \(route.travelMode.lowercased())
+        Style Instructions:
+        \(styleInstruction)
+
+        LOCATION AND ROUTE CONTEXT
+        - Current location: \(liveLocation)
+        - Snapped route position: \(snappedLocation)
+        - Route version: \(max(route.routeVersion, narrativeState.lastRouteVersion))
+        - Off route: \(liveContext.isOffRoute ? "yes" : "no")
+        - Distance from route in meters: \(formatMeters(liveContext.distanceFromRouteMeters))
+        - Heading degrees: \(formatNumber(liveContext.headingDegrees))
+        - Speed m/s: \(formatNumber(liveContext.speedMps))
+        - Route summary: \(routeSummary)
+        - \(destinationText)
+
+        NEARBY POINTS OF INTEREST
+        \(poiLines.isEmpty ? "- None supplied. Narrate conservatively from streetscape and movement only." : poiLines)
+
+        STORY MEMORY
+        - Rolling summary: \(rollingSummary)
+        - Open threads: \(openThreads)
+        - Previously referenced POI ids: \(narrativeState.referencedPOIIDs.joined(separator: ", "))
+        - Previous narrative excerpt: \(previousNarrative.isEmpty ? "None" : previousNarrative)
+
+        TASK
+        Write the next ~\(targetSegmentDurationSec) seconds of narration (about \(wordsPerSegment) words).
+        The narration must feel anchored to the current place and recent movement.
+        If the route changed, acknowledge it naturally and continue the same story instead of restarting.
+        Only mention POIs from the supplied nearby POI list.
+        Do not invent exact facts about a POI beyond the supplied name, address, and obvious category.
+        Keep continuity with the story so far, but prioritize the current physical context over any old plan.
+
+        OUTPUT
+        Return strict JSON with this schema:
+        {
+          "narration": "string",
+          "rollingSummary": "string",
+          "openThreads": ["string"],
+          "referencedPOIIDs": ["string"]
+        }
+        """
+
+        let responseText = try await GeminiProxyClient.shared.generateText(
+            prompt: prompt,
+            model: "gemini-2.5-flash",
+            responseJSON: true
+        )
+
+        guard let jsonData = responseText.data(using: .utf8),
+              let envelope = try? JSONDecoder().decode(ContextualSegmentEnvelope.self, from: jsonData) else {
+            throw StoryError.invalidOutlineFormat
+        }
+
+        let referencedNames = liveContext.nearbyPOIs
+            .filter { envelope.referencedPOIIDs.contains($0.id) }
+            .map(\.name)
+
+        let nextNarrativeState = NarrativeState(
+            rollingSummary: envelope.rollingSummary,
+            openThreads: envelope.openThreads,
+            referencedPOIIDs: Array(Set(narrativeState.referencedPOIIDs + envelope.referencedPOIIDs)),
+            lastRouteVersion: route.routeVersion
+        )
+
+        let segment = StorySegment(
+            id: segmentIndex,
+            text: envelope.narration.trimmingCharacters(in: .whitespacesAndNewlines),
+            generatedFromRouteVersion: route.routeVersion,
+            location: liveContext.currentLocation,
+            referencedPOIs: referencedNames
+        )
+
+        return (segment, nextNarrativeState)
+    }
     
     // Generate audio for a segment
     func generateAudio(for text: String, voiceName: String = "Kore") async throws -> Data {
@@ -179,6 +291,21 @@ Style: Noir thriller narration in the style of the Sin City movie narrator. Fema
 Style: The Historian Guide. Clear, authoritative, engaging but grounded in fact. Purpose: Provide historically accurate, contextual information about the route and key locations encountered along the journey. Voice Characteristics: Confident and knowledgeable; engaging without being theatrical; speaks like a skilled local historian or academic guide. Content Focus: Verified historical events tied to specific locations on the route, dates, names, and cultural context. Explain how the place has changed and why landmarks matter. Accuracy Requirements: All information MUST be accurate and conservative. If uncertain, acknowledge it. DO NOT invent events, people, or interpretations. Constraints: Do not fictionalize. Avoid modern opinions or political framing.
 """
         }
+    }
+
+    private func describeLocation(_ coordinate: Coordinate?) -> String {
+        guard let coordinate else { return "Unknown" }
+        return String(format: "%.5f, %.5f", coordinate.latitude, coordinate.longitude)
+    }
+
+    private func formatNumber(_ value: Double?) -> String {
+        guard let value else { return "Unknown" }
+        return String(format: "%.1f", value)
+    }
+
+    private func formatMeters(_ value: Double?) -> String {
+        guard let value else { return "Unknown" }
+        return String(format: "%.0f", value)
     }
 }
 

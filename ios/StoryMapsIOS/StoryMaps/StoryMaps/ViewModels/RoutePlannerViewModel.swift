@@ -13,6 +13,7 @@ class RoutePlannerViewModel: ObservableObject {
     @Published var endPlace: Place?
     @Published var travelMode: TravelMode = .walking
     @Published var selectedStyle: StoryStyle = .walkingTourAdventure
+    @Published var journeyMode: JourneyMode = .planned
     @Published var isCalculating = false
     @Published var errorMessage: String?
     @Published var currentRoute: RouteDetails?
@@ -37,7 +38,11 @@ class RoutePlannerViewModel: ObservableObject {
     }
     
     func calculateRoute() async throws -> RouteDetails {
-        guard let start = startPlace, let end = endPlace else {
+        guard let start = startPlace else {
+            throw RouteError.missingLocations
+        }
+
+        if journeyMode == .planned && endPlace == nil {
             throw RouteError.missingLocations
         }
         
@@ -47,30 +52,54 @@ class RoutePlannerViewModel: ObservableObject {
         defer { isCalculating = false }
         
         do {
-            let route = try await DirectionsClient.shared.getDirections(
-                from: start.coordinate,
-                to: end.coordinate,
-                travelMode: travelMode.rawValue
-            )
-            
-            // Enforce 4-hour limit
-            guard route.durationSeconds <= 14400 else {
-                throw RouteError.routeTooLong
+            let routeDetails: RouteDetails
+
+            if let end = endPlace {
+                let route = try await DirectionsClient.shared.getDirections(
+                    from: start.coordinate,
+                    to: end.coordinate,
+                    travelMode: travelMode.rawValue
+                )
+                
+                if journeyMode == .planned && route.durationSeconds > 14400 {
+                    throw RouteError.routeTooLong
+                }
+
+                routeDetails = RouteDetails(
+                    id: UUID().uuidString,
+                    startAddress: route.startAddress,
+                    endAddress: route.endAddress,
+                    distance: route.distance,
+                    duration: route.duration,
+                    durationSeconds: route.durationSeconds,
+                    travelMode: travelMode.rawValue,
+                    voiceName: "Kore",
+                    storyStyle: selectedStyle,
+                    polyline: route.polyline,
+                    startCoordinate: start.coordinate,
+                    endCoordinate: end.coordinate,
+                    journeyMode: journeyMode,
+                    routeVersion: 1
+                )
+            } else {
+                routeDetails = RouteDetails(
+                    id: UUID().uuidString,
+                    startAddress: start.address,
+                    endAddress: "Wherever the road leads",
+                    distance: "Live",
+                    duration: "Adaptive",
+                    durationSeconds: 0,
+                    travelMode: travelMode.rawValue,
+                    voiceName: "Kore",
+                    storyStyle: selectedStyle,
+                    polyline: [],
+                    startCoordinate: start.coordinate,
+                    endCoordinate: nil,
+                    journeyMode: .freeRoam,
+                    routeVersion: 1
+                )
             }
-            
-            // Create full route details with style
-            let routeDetails = RouteDetails(
-                startAddress: start.address,
-                endAddress: end.address,
-                distance: route.distance,
-                duration: route.duration,
-                durationSeconds: route.durationSeconds,
-                travelMode: travelMode.rawValue,
-                voiceName: "Kore",
-                storyStyle: selectedStyle,
-                polyline: route.polyline
-            )
-            
+
             currentRoute = routeDetails
             return routeDetails
             
@@ -89,6 +118,7 @@ class RoutePlannerViewModel: ObservableObject {
         endPlace = nil
         travelMode = .walking
         selectedStyle = .walkingTourAdventure
+        journeyMode = .planned
         isCalculating = false
         errorMessage = nil
         currentRoute = nil
@@ -103,7 +133,7 @@ enum RouteError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingLocations:
-            return "Please select both start and end locations"
+            return "Please select a starting point and, for planned routes, a destination"
         case .routeTooLong:
             return "Sorry, this journey is too long. Please select a route under 4 hours."
         case .calculationFailed:
@@ -111,4 +141,3 @@ enum RouteError: LocalizedError {
         }
     }
 }
-

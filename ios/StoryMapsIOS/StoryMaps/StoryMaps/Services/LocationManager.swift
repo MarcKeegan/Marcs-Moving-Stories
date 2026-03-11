@@ -14,6 +14,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var userLocation: CLLocation?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var authorizationStatus: CLAuthorizationStatus?
     
     private let locationManager = CLLocationManager()
     private let geocoder = GMSGeocoder()
@@ -22,8 +23,10 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.distanceFilter = 15
+        authorizationStatus = locationManager.authorizationStatus
     }
-    
+
     func requestLocation() {
         isLoading = true
         errorMessage = nil
@@ -43,12 +46,38 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             errorMessage = "Unknown location authorization status."
         }
     }
+
+    func startUpdatingLocation() {
+        errorMessage = nil
+        let status = locationManager.authorizationStatus
+
+        switch status {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            isLoading = true
+            locationManager.startUpdatingLocation()
+            locationManager.requestLocation()
+        case .denied, .restricted:
+            isLoading = false
+            errorMessage = "Location access denied. Please enable it in Settings."
+        @unknown default:
+            isLoading = false
+            errorMessage = "Unknown location authorization status."
+        }
+    }
+
+    func stopUpdatingLocation() {
+        isLoading = false
+        locationManager.stopUpdatingLocation()
+    }
     
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
         Task { @MainActor in
             self.userLocation = location
+            self.authorizationStatus = manager.authorizationStatus
             
             // Reverse geocode to get address for "Current Location" button usage
             geocoder.reverseGeocodeCoordinate(location.coordinate) { response, error in
@@ -92,6 +121,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor in
             let status = manager.authorizationStatus
+            self.authorizationStatus = status
             if status == .authorizedWhenInUse || status == .authorizedAlways {
                 manager.requestLocation()
             }

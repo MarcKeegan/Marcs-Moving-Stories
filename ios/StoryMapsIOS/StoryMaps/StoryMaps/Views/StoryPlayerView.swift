@@ -37,6 +37,7 @@ struct StoryPlayerView: View {
                 // Full-screen Map
                 GoogleMapView(
                     route: route,
+                    userCoordinate: viewModel.userCoordinate,
                     currentSegmentIndex: audioPlayer.currentSegmentIndex,
                     totalSegments: story.totalSegmentsEstimate,
                     centerOnLocationTrigger: $centerOnLocation
@@ -102,7 +103,7 @@ struct StoryPlayerView: View {
                     // Destination Info Row
                     HStack(alignment: .center) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("DESTINATION")
+                            Text(route.isFreeRoam ? "FREE ROAMING" : "DESTINATION")
                                 .font(.googleSansCaption2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.gray)
@@ -140,6 +141,13 @@ struct StoryPlayerView: View {
                                 .padding(.vertical, 6)
                                 .background(Color.white.opacity(0.15))
                                 .cornerRadius(16)
+                            }
+
+                            if route.isFreeRoam {
+                                Text(viewModel.liveJourneyContext.routeSummary)
+                                    .font(.googleSansCaption)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .lineLimit(3)
                             }
                         }
                         
@@ -324,6 +332,7 @@ struct StoryPlayerView: View {
         .onAppear {
             audioPlayer.loadStory(segments: story.segments, totalSegments: story.totalSegmentsEstimate)
             audioPlayer.onSegmentChange = { index in
+                viewModel.handlePlaybackIndexChanged(index)
                 if audioPlayer.isPlaying {
                     checkBuffering(currentIndex: index)
                 }
@@ -334,6 +343,7 @@ struct StoryPlayerView: View {
         }
         .onChange(of: audioPlayer.isPlaying) { _, isPlaying in
             if isPlaying {
+                viewModel.handlePlaybackIndexChanged(audioPlayer.currentSegmentIndex)
                 checkBuffering(currentIndex: audioPlayer.currentSegmentIndex)
             }
         }
@@ -347,7 +357,7 @@ struct StoryPlayerView: View {
     
     private func checkBuffering(currentIndex: Int) {
         let neededBufferIndex = currentIndex + 2
-        if story.segments.count < neededBufferIndex && story.segments.count < story.totalSegmentsEstimate {
+        if story.segments.count < neededBufferIndex && (story.isContinuous || story.segments.count < story.totalSegmentsEstimate) {
             viewModel.bufferNextSegments()
         }
     }

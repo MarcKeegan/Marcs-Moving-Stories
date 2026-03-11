@@ -33,13 +33,45 @@ struct RoutePlannerView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .onAppear {
-                locationManager.requestLocation()
+                locationManager.startUpdatingLocation()
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                Text("JOURNEY MODE")
+                    .font(.googleSansCaption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white.opacity(0.7))
+
+                HStack(spacing: 8) {
+                    ForEach(JourneyMode.allCases, id: \.self) { mode in
+                        Button(action: {
+                            viewModel.journeyMode = mode
+                            if mode == .freeRoam {
+                                AnalyticsService.shared.logEvent("journey_mode_changed", parameters: ["mode": "free_roam"])
+                            } else {
+                                AnalyticsService.shared.logEvent("journey_mode_changed", parameters: ["mode": "planned"])
+                            }
+                        }) {
+                            Text(mode.displayName)
+                                .font(.googleSansSubheadline)
+                                .fontWeight(.medium)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(viewModel.journeyMode == mode ? Color(red: 0.23, green: 0.16, blue: 0.25) : Color.clear)
+                                .foregroundColor(viewModel.journeyMode == mode ? .white : .white.opacity(0.7))
+                                .cornerRadius(6)
+                        }
+                    }
+                }
+                .padding(3)
+                .background(Color(red: 0.13, green: 0.12, blue: 0.14))
+                .cornerRadius(10)
             }
             
             // Location Inputs
             VStack(spacing: 12) {
                 PlaceAutocompletePicker(
-                    placeholder: "Starting Point",
+                    placeholder: viewModel.journeyMode == .freeRoam ? "Starting Point or Current Location" : "Starting Point",
                     iconName: "mappin.circle.fill",
                     place: $viewModel.startPlace,
                     userLocation: locationManager.userLocation,
@@ -47,7 +79,7 @@ struct RoutePlannerView: View {
                 )
                 
                 PlaceAutocompletePicker(
-                    placeholder: "Destination",
+                    placeholder: viewModel.journeyMode == .freeRoam ? "Destination (Optional)" : "Destination",
                     iconName: "location.fill",
                     place: $viewModel.endPlace,
                     userLocation: viewModel.startPlace != nil ? 
@@ -55,6 +87,13 @@ struct RoutePlannerView: View {
                         locationManager.userLocation,
                     currentPlace: locationManager.currentPlace
                 )
+            }
+
+            if viewModel.journeyMode == .freeRoam {
+                Text("Free Roaming adapts the narration to your live position. Add a destination if you want rerouting when you choose a different path.")
+                    .font(.googleSansCaption)
+                    .foregroundColor(.white.opacity(0.75))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             // Travel Mode
@@ -160,7 +199,7 @@ struct RoutePlannerView: View {
                         Text("Planning Journey...")
                     } else {
                         Image(systemName: "sparkles")
-                        Text("Create your story")
+                        Text(viewModel.journeyMode == .freeRoam ? "Start Free Roaming" : "Create your story")
                     }
                 }
                 .font(.googleSansHeadline)
@@ -170,8 +209,8 @@ struct RoutePlannerView: View {
                 .foregroundColor(.white)
                 .cornerRadius(30)
             }
-            .disabled(viewModel.startPlace == nil || viewModel.endPlace == nil || viewModel.isCalculating)
-            .opacity((viewModel.startPlace == nil || viewModel.endPlace == nil || viewModel.isCalculating) ? 0.5 : 1.0)
+            .disabled(viewModel.startPlace == nil || viewModel.isCalculating)
+            .opacity((viewModel.startPlace == nil || viewModel.isCalculating) ? 0.5 : 1.0)
         }
         .padding(24)
         .background(Color(red: 0.23, green: 0.16, blue: 0.25))
@@ -191,7 +230,8 @@ struct RoutePlannerView: View {
     private func handleCreateStory() {
         AnalyticsService.shared.logEvent("create_story_tapped", parameters: [
             "style": viewModel.selectedStyle.displayName,
-            "travel_mode": viewModel.travelMode.displayName
+            "travel_mode": viewModel.travelMode.displayName,
+            "journey_mode": viewModel.journeyMode.rawValue
         ])
         Task {
             do {

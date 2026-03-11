@@ -12,6 +12,7 @@ import GoogleMaps
 
 struct GoogleMapView: UIViewRepresentable {
     let route: RouteDetails
+    let userCoordinate: Coordinate?
     let currentSegmentIndex: Int
     let totalSegments: Int
     @Binding var centerOnLocationTrigger: Bool
@@ -35,6 +36,16 @@ struct GoogleMapView: UIViewRepresentable {
             guard let mapView = mapView else { return }
             
             isUserCentered = true
+
+            if let userCoordinate = parent.userCoordinate {
+                let camera = GMSCameraPosition.camera(
+                    withLatitude: userCoordinate.latitude,
+                    longitude: userCoordinate.longitude,
+                    zoom: 17
+                )
+                mapView.animate(to: camera)
+                return
+            }
             
             // Use user's location if available
             if let userLocation = mapView.myLocation {
@@ -117,15 +128,17 @@ struct GoogleMapView: UIViewRepresentable {
         mapView.clear()
         
         // Draw route polyline
-        let path = GMSMutablePath()
-        for coord in route.polyline {
-            path.add(CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude))
+        if !route.polyline.isEmpty {
+            let path = GMSMutablePath()
+            for coord in route.polyline {
+                path.add(CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude))
+            }
+            
+            let polyline = GMSPolyline(path: path)
+            polyline.strokeColor = UIColor(red: 0.016, green: 0.702, blue: 0.11, alpha: 1.0)
+            polyline.strokeWidth = 5.0
+            polyline.map = mapView
         }
-        
-        let polyline = GMSPolyline(path: path)
-        polyline.strokeColor = UIColor(red: 0.016, green: 0.702, blue: 0.11, alpha: 1.0)
-        polyline.strokeWidth = 5.0
-        polyline.map = mapView
         
         // Add start marker
         if let first = route.polyline.first {
@@ -144,7 +157,15 @@ struct GoogleMapView: UIViewRepresentable {
         }
         
         // Add progress marker
-        if !route.polyline.isEmpty {
+        if let userCoordinate = userCoordinate {
+            let userMarker = GMSMarker(position: CLLocationCoordinate2D(
+                latitude: userCoordinate.latitude,
+                longitude: userCoordinate.longitude
+            ))
+            userMarker.icon = GMSMarker.markerImage(with: UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0))
+            userMarker.zIndex = 999
+            userMarker.map = mapView
+        } else if !route.polyline.isEmpty {
             let progressRatio = Double(currentSegmentIndex) / Double(max(1, totalSegments))
             let pathIndex = min(Int(progressRatio * Double(route.polyline.count - 1)), route.polyline.count - 1)
             let progressCoord = route.polyline[pathIndex]

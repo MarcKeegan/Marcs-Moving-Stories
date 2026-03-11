@@ -5,7 +5,22 @@
 
 import Foundation
 
+enum JourneyMode: String, Codable, CaseIterable {
+    case planned = "PLANNED"
+    case freeRoam = "FREE_ROAM"
+
+    var displayName: String {
+        switch self {
+        case .planned:
+            return "Planned Route"
+        case .freeRoam:
+            return "Free Roaming"
+        }
+    }
+}
+
 struct RouteDetails: Codable {
+    let id: String
     let startAddress: String
     let endAddress: String
     let distance: String
@@ -15,4 +30,12 @@ struct RouteDetails: Codable {
     let voiceName: String
     let storyStyle: StoryStyle
     let polyline: [Coordinate]
+    let startCoordinate: Coordinate
+    let endCoordinate: Coordinate?
+    let journeyMode: JourneyMode
+    let routeVersion: Int
+
+    var isFreeRoam: Bool {
+        journeyMode == .freeRoam
+    }
 }

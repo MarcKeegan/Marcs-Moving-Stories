@@ -58,7 +58,7 @@ struct StoryMapsMainView: View {
                                    
                                 }
                                 
-                                Text("Navigation apps tell you where to turn. StoryPath tells you what it feels like. Simply select your start and finish locations, pick a genre, and let us create a unique audio companion for the road ahead.")
+                                Text("Navigation apps tell you where to turn. StoryPath tells you what it feels like. Choose a planned route or switch to Free Roaming for narration that follows your live position and adapts when you change course.")
                                     .font(.googleSans(size: 15))
                                     .fontWeight(.light)
                                     .lineSpacing(4)
@@ -121,7 +121,7 @@ struct StoryMapsMainView: View {
             // Full-screen Story Player (overlays everything when ready to play)
             if appState.rawValue >= AppState.readyToPlay.rawValue,
                let story = storyViewModel.story,
-               let route = routePlannerVM.currentRoute {
+               let route = storyViewModel.activeRoute ?? routePlannerVM.currentRoute {
                 StoryPlayerView(
                     story: story,
                     route: route,
