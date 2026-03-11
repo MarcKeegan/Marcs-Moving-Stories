@@ -18,25 +18,26 @@ class StoryViewModel: ObservableObject {
     private var failedSegments: Set<Int> = []
     private var retryAttempts: [Int: Int] = [:] // Track retry attempts per segment
     private var lastGenerationTime: Date?
+    private var generationSessionID = UUID()
     
     // Configuration
     private let maxRetryAttempts = 3
     private let segmentsToBufferAhead = 2
-    private let rateLimitDelay: TimeInterval = 2.0 // 2 seconds between API calls
+    private let rateLimitDelay: TimeInterval = 0.0
     
     func generateInitialStory(for route: RouteDetails) async throws {
+        let sessionID = UUID()
+        generationSessionID = sessionID
         currentRoute = route
         
         let totalSegments = StoryService.shared.calculateTotalSegments(durationSeconds: route.durationSeconds)
+        let fallbackOutline = StoryService.shared.makeFallbackOutline(for: route, totalSegments: totalSegments)
+        let outlineTask = Task(priority: .utility) {
+            try await StoryService.shared.generateOutline(for: route)
+        }
         
-        // Step 1: Generate outline
-        loadingMessage = "Crafting story arc...1 - 2 minutes"
-        let outline = try await StoryService.shared.generateOutline(for: route)
-        
-        
-        // Step 2: Generate first segment text
         loadingMessage = "Writing first chapter... 1 minute"
-        let firstOutlineBeat = outline.first ?? "Begin the journey."
+        let firstOutlineBeat = fallbackOutline.first ?? "Begin the journey."
         var firstSegment = try await StoryService.shared.generateSegment(
             for: route,
             segmentIndex: 1,
@@ -47,10 +48,7 @@ class StoryViewModel: ObservableObject {
         
         lastGenerationTime = Date()
         
-        // Step 3: Generate first segment audio
         loadingMessage = "Preparing audio stream...30 seconds"
-        
-        // Rate limit: wait before next API call
         await applyRateLimit()
         
         let audioData = try await StoryService.shared.generateAudio(for: firstSegment.text, voiceName: route.voiceName)
@@ -58,12 +56,23 @@ class StoryViewModel: ObservableObject {
         
         lastGenerationTime = Date()
         
-        // Initialize story
         story = AudioStory(
             totalSegmentsEstimate: totalSegments,
-            outline: outline,
+            outline: fallbackOutline,
             segments: [firstSegment]
         )
+
+        bufferNextSegments()
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard let outline = try? await outlineTask.value else { return }
+            guard self.generationSessionID == sessionID else { return }
+            guard var currentStory = self.story else { return }
+
+            currentStory.outline = outline
+            self.story = currentStory
+        }
     }
     
     func bufferNextSegments() {
@@ -184,6 +193,10 @@ class StoryViewModel: ObservableObject {
     }
     
     private func applyRateLimit() async {
+        guard rateLimitDelay > 0 else {
+            return
+        }
+
         guard let lastTime = lastGenerationTime else {
             return
         }
@@ -205,6 +218,7 @@ class StoryViewModel: ObservableObject {
     }
     
     func reset() {
+        generationSessionID = UUID()
         story = nil
         currentRoute = nil
         isGenerating = false
@@ -216,4 +230,3 @@ class StoryViewModel: ObservableObject {
         lastGenerationTime = nil
     }
 }
-

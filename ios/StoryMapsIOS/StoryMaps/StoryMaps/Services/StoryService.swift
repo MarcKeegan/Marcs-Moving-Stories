@@ -20,6 +20,34 @@ class StoryService {
     func calculateTotalSegments(durationSeconds: Int) -> Int {
         max(1, durationSeconds / targetSegmentDurationSec)
     }
+
+    func makeFallbackOutline(for route: RouteDetails, totalSegments: Int) -> [String] {
+        let openingBeat: String
+
+        switch route.storyStyle {
+        case .mystery:
+            openingBeat = "Open with an intriguing observation on the road that suggests something is slightly off and worth investigating."
+        case .historicalFiction:
+            openingBeat = "Open by layering the present-day route with echoes of the past so the journey feels like stepping through living history."
+        case .scienceFiction:
+            openingBeat = "Open by reframing the route as a near-future system scan, with the traveller moving through a city of signals, glitches, and hidden patterns."
+        case .NoirEpic:
+            openingBeat = "Open with a hard-boiled inner monologue that introduces the road, the weather, and the sense that the city is hiding something."
+        case .walkingTourAdventure:
+            openingBeat = "Open with a grounded historical introduction to the route and why the places ahead matter."
+        case .horror:
+            openingBeat = "Open with a subtle but unsettling detail that makes the route feel wrong before the tension builds."
+        }
+
+        guard totalSegments > 1 else {
+            return [openingBeat]
+        }
+
+        return [openingBeat] + Array(
+            repeating: "Continue the journey forward, deepen the atmosphere, and move the traveler toward a satisfying conclusion.",
+            count: totalSegments - 1
+        )
+    }
     
     // Generate story outline
     func generateOutline(for route: RouteDetails) async throws -> [String] {
@@ -100,7 +128,7 @@ class StoryService {
         
         let text = try await GeminiProxyClient.shared.generateText(
             prompt: prompt,
-            model: "gemini-3-flash-preview",
+            model: "gemini-2.5-flash",
             responseJSON: false
         )
         
