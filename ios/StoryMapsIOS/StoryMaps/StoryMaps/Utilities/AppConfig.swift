@@ -31,11 +31,7 @@ struct AppConfig {
     var googlePlacesIOSAPIKey: String {
         secrets?["GOOGLE_PLACES_IOS_API_KEY"] as? String ?? ""
     }
-    
-    var googleDirectionsAPIKey: String {
-        secrets?["GOOGLE_DIRECTIONS_API_KEY"] as? String ?? ""
-    }
-    
+
     // Static convenience properties for SDK initialization
     static var googleMapsAPIKey: String? {
         let key = shared.googleMapsIOSAPIKey

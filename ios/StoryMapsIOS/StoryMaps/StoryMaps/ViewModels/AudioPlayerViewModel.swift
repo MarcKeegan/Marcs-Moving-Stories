@@ -25,18 +25,25 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
     
     private var remoteCommandTargets: [MPRemoteCommand: Any?] = [:]
     private var loadedSegmentIndex: Int?
+    private var notificationObservers: [NSObjectProtocol] = []
+    private var wasPlayingBeforeInterruption = false
 
     override init() {
         super.init()
         setupAudioSession()
         setupRemoteCommands()
+        setupNotificationObservers()
     }
-    
+
     deinit {
-        // Since stop() and removeRemoteCommands() might touch MainActor properties,
-        // we use a detached task to handle cleanup if needed, or rely on normal cleanup.
-        // However, in Swift UI, @StateObject/ObservedObject usually outlive the view.
-        // For deinit, we should be careful.
+        // Notification tokens and remote-command targets may be removed from
+        // any thread, so this cleanup is safe outside the main actor.
+        for token in notificationObservers {
+            NotificationCenter.default.removeObserver(token)
+        }
+        for (command, target) in remoteCommandTargets {
+            command.removeTarget(target)
+        }
     }
     
     func loadStory(segments: [StorySegment], totalSegments: Int) {
@@ -66,6 +73,7 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
         if let player = audioPlayer, loadedSegmentIndex == currentSegmentIndex {
             player.play()
             isPlaying = true
+            refreshNowPlayingPlaybackState()
             return
         }
         
@@ -89,7 +97,7 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
             
             updateNowPlayingInfo(segment: segment)
         } catch {
-            print("Audio playback error: \(error)")
+            Log.audio.error("Audio playback error: \(error.localizedDescription)")
             errorMessage = "Playback failed: \(error.localizedDescription)"
             isPlaying = false
         }
@@ -98,6 +106,13 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
     func pause() {
         audioPlayer?.pause()
         isPlaying = false
+        refreshNowPlayingPlaybackState()
+    }
+
+    func seek(to time: TimeInterval) {
+        guard let player = audioPlayer else { return }
+        player.currentTime = min(max(0, time), player.duration)
+        refreshNowPlayingPlaybackState()
     }
     
     func stop() {
@@ -154,7 +169,7 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
             try session.setCategory(.playback, mode: .spokenAudio)
             try session.setActive(true)
         } catch {
-            print("Failed to setup audio session: \(error)")
+            Log.audio.error("Failed to setup audio session: \(error.localizedDescription)")
         }
     }
     
@@ -184,6 +199,72 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
             Task { @MainActor in self.previousSegment() }
             return .success
         }
+
+        remoteCommandTargets[commandCenter.changePlaybackPositionCommand] = commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let self = self,
+                  let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+            let position = event.positionTime
+            Task { @MainActor in self.seek(to: position) }
+            return .success
+        }
+    }
+
+    // MARK: - Audio session interruptions & route changes
+
+    private func setupNotificationObservers() {
+        let center = NotificationCenter.default
+        let session = AVAudioSession.sharedInstance()
+
+        let interruption = center.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: session,
+            queue: .main
+        ) { [weak self] notification in
+            guard let typeValue = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+            let optionsValue = notification.userInfo?[AVAudioSessionInterruptionOptionsKey] as? UInt ?? 0
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            Task { @MainActor [weak self] in
+                self?.handleInterruption(type: type, options: options)
+            }
+        }
+        notificationObservers.append(interruption)
+
+        let routeChange = center.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: session,
+            queue: .main
+        ) { [weak self] notification in
+            guard let reasonValue = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                  let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else { return }
+            Task { @MainActor [weak self] in
+                self?.handleRouteChange(reason: reason)
+            }
+        }
+        notificationObservers.append(routeChange)
+    }
+
+    private func handleInterruption(type: AVAudioSession.InterruptionType, options: AVAudioSession.InterruptionOptions) {
+        switch type {
+        case .began:
+            // Phone call, Siri, another app's audio: remember state so we can resume.
+            wasPlayingBeforeInterruption = isPlaying
+            if isPlaying { pause() }
+        case .ended:
+            if wasPlayingBeforeInterruption && options.contains(.shouldResume) {
+                play()
+            }
+            wasPlayingBeforeInterruption = false
+        @unknown default:
+            break
+        }
+    }
+
+    private func handleRouteChange(reason: AVAudioSession.RouteChangeReason) {
+        // Headphones unplugged / Bluetooth dropped: pause rather than blast the speaker.
+        if reason == .oldDeviceUnavailable && isPlaying {
+            pause()
+        }
     }
     
     func removeRemoteCommands() {
@@ -202,13 +283,23 @@ class AudioPlayerViewModel: NSObject, ObservableObject {
         
         var nowPlayingInfo = [String: Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = "StoryMaps - Segment \(segment.id)"
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
-        
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer?.currentTime ?? 0
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+
         if let duration = audioPlayer?.duration {
             nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         }
-        
+
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+
+    /// Keeps the lock-screen elapsed time and play/pause state accurate
+    /// without rebuilding the whole Now Playing dictionary.
+    private func refreshNowPlayingPlaybackState() {
+        guard var info = MPNowPlayingInfoCenter.default().nowPlayingInfo else { return }
+        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = audioPlayer?.currentTime ?? 0
+        info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 }
 

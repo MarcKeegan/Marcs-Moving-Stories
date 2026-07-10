@@ -83,24 +83,24 @@ class DirectionsClient {
         guard let url = components?.url else {
             throw DirectionsError.invalidURL
         }
-        
-        print("🗺️  Requesting directions via proxy: \(url.absoluteString)")
-        
+
+        Log.network.info("Requesting directions via proxy")
+
         // HTTPClient automatically adds Firebase auth token
         let response: DirectionsResponse = try await HTTPClient.shared.request(url: url)
-        
+
         guard response.status == "OK" else {
             throw DirectionsError.apiError(status: response.status)
         }
-        
+
         guard let route = response.routes.first,
               let leg = route.legs.first else {
             throw DirectionsError.noRouteFound
         }
-        
+
         let polyline = decodePolyline(route.overviewPolyline.points)
-        
-        print("✅ Directions received: \(leg.distance.text), \(leg.duration.text)")
+
+        Log.network.info("Directions received: \(leg.distance.text), \(leg.duration.text)")
         
         return DirectionsResult(
             distance: leg.distance.text,
@@ -112,47 +112,44 @@ class DirectionsClient {
         )
     }
     
-    // Decode Google's encoded polyline format
+    // Decode Google's encoded polyline format. Tolerates malformed/truncated
+    // input by returning the successfully decoded prefix instead of crashing.
     private func decodePolyline(_ encoded: String) -> [Coordinate] {
         var coordinates: [Coordinate] = []
-        var index = encoded.startIndex
+        let bytes = Array(encoded.utf8)
+        var index = 0
         var lat = 0
         var lng = 0
-        
-        while index < encoded.endIndex {
+
+        func nextDelta() -> Int? {
             var result = 0
             var shift = 0
             var byte: Int
-            
             repeat {
-                byte = Int(encoded[index].asciiValue! - 63)
-                index = encoded.index(after: index)
+                guard index < bytes.count else { return nil }
+                byte = Int(bytes[index]) - 63
+                guard byte >= 0 else { return nil }
+                index += 1
                 result |= (byte & 0x1f) << shift
                 shift += 5
             } while byte >= 0x20
-            
-            let deltaLat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1))
+            return (result & 1) != 0 ? ~(result >> 1) : (result >> 1)
+        }
+
+        while index < bytes.count {
+            guard let deltaLat = nextDelta(), let deltaLng = nextDelta() else {
+                Log.network.error("Malformed polyline data; using decoded prefix")
+                break
+            }
             lat += deltaLat
-            
-            result = 0
-            shift = 0
-            
-            repeat {
-                byte = Int(encoded[index].asciiValue! - 63)
-                index = encoded.index(after: index)
-                result |= (byte & 0x1f) << shift
-                shift += 5
-            } while byte >= 0x20
-            
-            let deltaLng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1))
             lng += deltaLng
-            
+
             coordinates.append(Coordinate(
                 latitude: Double(lat) / 1e5,
                 longitude: Double(lng) / 1e5
             ))
         }
-        
+
         return coordinates
     }
 }
@@ -194,7 +191,7 @@ class NearbyPlacesClient {
             switch error {
             case .httpError(let statusCode, _):
                 if statusCode == 404 {
-                    print("⚠️ Nearby POI endpoint unavailable on current server deployment. Continuing without POIs.")
+                    Log.network.warning("Nearby POI endpoint unavailable on current server deployment. Continuing without POIs.")
                     return []
                 }
             default:

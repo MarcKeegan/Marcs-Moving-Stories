@@ -131,3 +131,44 @@ Ordered roughly by value-to-effort:
 - **Infra**: ESLint, Vitest suite, GitHub Actions CI, typecheck in the build.
 - **Feature — POI-aware stories (web)**: the route polyline is sampled at up to 8 points (capped Places usage), real nearby landmarks are fetched through the existing `/api/nearby-pois` proxy, scored (landmark-ish types and popularity first, generic businesses excluded), deduplicated, and assigned ~2 per story segment. The outline prompt anchors chapters to them and each segment prompt receives the places the traveler is actually passing; the Historian Guide style is instructed to treat them factually. Fully best-effort: any lookup failure or timeout (6 s cap) falls back to the previous behavior.
 - **Hygiene**: the 11 one-off iOS debugging docs (including those with key fragments), `test_api_key.sh`, the empty `Untitled.swift`, and all `.DS_Store` files removed from tracking; durable docs (README, SETUP, ARCHITECTURE, DEPENDENCIES, release checklists) kept.
+
+---
+
+# Part 2 — iOS App Assessment (StoryMaps, SwiftUI)
+
+_Assessed after the web pass. The iOS app (`ios/StoryMapsIOS/StoryMaps/`) is a fully separate native codebase sharing only the server proxy contract with the web client. Changes in this pass were made without Xcode available, so **verify with a local build** — see the checklist at the end._
+
+## Strengths
+
+Solid MVVM layering (Views → ObservableObject view models → services), modern async/await throughout, correct `@MainActor` usage, typed error enums per layer, working background-audio configuration, FCM push wired end-to-end, secrets correctly externalized to a gitignored `Secrets.plist`, and a genuinely novel free-roam mode (live GPS + POI-aware contextual narration with off-route detection and rerouting) that the web app doesn't have.
+
+## What this pass fixed
+
+- **Audio robustness** (`AudioPlayerViewModel.swift`): there was no `AVAudioSession` interruption handling — a phone call paused playback permanently — and no route-change handling, so unplugging headphones switched output to the loudspeaker mid-story. Both are now handled (pause on interruption, resume on `.shouldResume`, pause on device-unavailable). Lock-screen Now Playing previously hard-coded elapsed time to 0; it now tracks real position and play/pause state, and lock-screen scrubbing works (`changePlaybackPositionCommand`). Remote-command targets and observers are cleaned up in `deinit`.
+- **Retry logic that never retried** (`GeminiProxyClient.swift`): the "5 attempts" loops rethrew unconditionally on the first error, and overload detection string-matched `localizedDescription` for "503". Rewritten: one shared generation path with an empty-STOP retry, plus typed transient-error detection (`HTTPError.statusCode` 500/503/429, timeout/connection-lost URLErrors) with exponential backoff. The duplicated text/audio retry loops are collapsed into one helper.
+- **Client fails closed** (`HTTPClient.swift`): requests without a signed-in user (or with a failed token fetch) previously went out unauthenticated and bounced off the server; they now short-circuit with a "Please sign in" error, and 401/429/503 map to friendly messages instead of "HTTP error: 401".
+- **Crash risk**: the Google polyline decoder force-unwrapped `asciiValue!` — malformed route data crashed the app. Rewritten to decode bytes safely and degrade to the valid prefix.
+- **Sensitive logging**: the full FCM token (`AppDelegate`), API-key prefixes (`StoryMapsIOSApp`), and full auth/error response bodies (`HTTPClient`) were `print()`ed. Replaced with an `os.Logger`-based `Log` utility (redacts non-literal values in release builds); noisy notification-payload logging removed.
+- **Feature parity — POI-grounded planned stories**: iOS only used `/api/nearby-pois` in free-roam mode; planned-route stories were not landmark-grounded. New `RoutePoiService.swift` (a direct Swift port of the web's `services/poiService.ts`: ≤8 polyline sample points, walking 400 m / driving 1200 m radius, notable-type scoring, dedupe, ~2 landmarks per segment, 6 s overall timeout, best-effort) now feeds `generateOutline`/`generateSegment` via the same prompt blocks the web uses. Segment-count math also aligned with the web (ceiling instead of floor division — iOS was generating fewer segments for identical routes).
+- **Dead code/config**: the no-op rate limiter (`rateLimitDelay = 0.0`) removed from `StoryViewModel`; unused `GOOGLE_DIRECTIONS_API_KEY` removed from `AppConfig`/`Secrets.plist.example`/docs; stale doc index entries for the deleted troubleshooting files cleaned up.
+- **Store readiness**: privacy manifest now declares the AdMob-related Device ID / Advertising Data collection (ads are live in the app; the manifest previously only covered location/email); ATS added to `Info.plist` (`NSAllowsArbitraryLoads=NO`); the app icon converted from a single JPEG to a flattened 1024×1024 PNG with the asset catalog updated; the typo'd duplicate location-usage string in `project.pbxproj` reconciled with `Info.plist`.
+
+## Known issues left as recommendations (not coded blind)
+
+1. **Free-roam background gap**: `Info.plist` promises background audio narration with location, but only When-In-Use authorization is ever requested and background location updates aren't enabled — free-roam narration stalls when the screen locks. Fixing this needs a product decision (Always-authorization prompts App Store scrutiny).
+2. **`StoryViewModel` god object** (~470 lines): generation, buffering, live location, POI refresh, and rerouting in one class. Split a `LiveJourneyEngine` out of it.
+3. **No tests**: `StoryMapsTests`/`StoryMapsUITests` targets exist but are empty, and singleton coupling (`*.shared` everywhere) blocks unit testing. Introduce protocol-based injection for `StoryService`/`GeminiProxyClient`/clients, then test the retry logic, polyline decoder, and `RoutePoiService` assignment (the web twin of that logic is tested in `tests/poiService.test.ts`).
+4. **Prompt drift between platforms**: iOS uses `gemini-2.5-flash`, web uses `gemini-2.0-flash`; the style taxonomies differ entirely (6 iOS styles vs 5 web styles, different names and voice direction). Consider moving prompt construction server-side (e.g. `/api/story/outline`) so both clients share one implementation.
+5. **Modernization**: Swift 5 language mode with `ObservableObject`/`@Published` despite the iOS 26 deployment target — `@Observable` migration and Swift 6 strict concurrency are natural upgrades. `UIScreen.main.bounds` in `StoryPlayerView` should become `GeometryReader`.
+6. **Missing platform features**: no CarPlay (high value for a driving-story app), no story history (Firestore only stores profiles), dark/tinted app-icon variants still empty, very large SwiftUI `body` properties (~320 lines in `StoryPlayerView`).
+7. **View-model/UIKit coupling**: `AuthViewModel` reaches into `UIApplication.shared.connectedScenes` for the Google Sign-In presenter; pass the presenting controller in from the view layer instead.
+
+## Build-and-test checklist (run locally in Xcode)
+
+1. Clean build (⇧⌘K, then ⌘B) — the new files (`Log.swift`, `RoutePoiService.swift`) are picked up automatically via the filesystem-synchronized group.
+2. Planned route: create a story and confirm the narration references real places along the route ("Scouting landmarks on your route..." appears briefly during generation).
+3. During playback: receive a phone call → narration pauses and resumes after the call; unplug headphones → playback pauses.
+4. Lock screen: elapsed time advances, scrubbing works, play/pause state is correct.
+5. Signed out (guest mode): attempting to create a story shows "Please sign in to continue." immediately, with no network round-trip.
+6. Free-roam mode: unchanged behavior (live context, POI refresh, rerouting).
+7. Archive → validate: the privacy manifest and PNG app icon should pass App Store validation checks that the JPEG/missing-AdMob-declaration setup risked failing.

@@ -120,7 +120,7 @@ Create **three separate API keys** with appropriate restrictions:
 </plist>
 ```
 
-**Note:** `GOOGLE_DIRECTIONS_API_KEY` is **not needed** in iOS `Secrets.plist` because Directions API calls are proxied through your Node.js server (see `DIRECTIONS_API_PROXY_FIX.md`).
+**Note:** `GOOGLE_DIRECTIONS_API_KEY` is **not needed** in iOS `Secrets.plist` because Directions API calls are proxied through your Node.js server.
 
 3. Add `Secrets.plist` to Xcode target (drag into Xcode, ensure target is checked)
 
@@ -162,7 +162,6 @@ Get `YOUR_REVERSED_CLIENT_ID` from your `GoogleService-Info.plist`.
 - Key: `SERVER_BASE_URL`, Value: `$(SERVER_BASE_URL)`
 - Key: `GOOGLE_MAPS_IOS_API_KEY`, Value: `$(GOOGLE_MAPS_IOS_API_KEY)`
 - Key: `GOOGLE_PLACES_IOS_API_KEY`, Value: `$(GOOGLE_PLACES_IOS_API_KEY)`
-- Key: `GOOGLE_DIRECTIONS_API_KEY`, Value: `$(GOOGLE_DIRECTIONS_API_KEY)`
 
 **Note:** For detailed Info.plist configuration, see `Resources/Info.plist.reference.md`
 
@@ -200,7 +199,7 @@ Get `YOUR_REVERSED_CLIENT_ID` from your `GoogleService-Info.plist`.
 
 ### Required: Add Directions API Key to Server
 
-The Directions API is now called **server-side** for better security (see `DIRECTIONS_API_PROXY_FIX.md`).
+The Directions API is now called **server-side** for better security.
 
 **Render.com (Production):**
 1. Go to your service dashboard

@@ -15,11 +15,13 @@ class StoryService {
     private init() {}
     
     var wordsPerSegment: Int {
-        (targetSegmentDurationSec / 60) * wordsPerMinute
+        targetSegmentDurationSec * wordsPerMinute / 60
     }
-    
+
+    // Ceiling division so partial minutes still get a segment (matches the
+    // web client's Math.ceil - flooring produced shorter stories on iOS).
     func calculateTotalSegments(durationSeconds: Int) -> Int {
-        max(1, durationSeconds / targetSegmentDurationSec)
+        max(1, (durationSeconds + targetSegmentDurationSec - 1) / targetSegmentDurationSec)
     }
 
     func defaultTotalSegments(for route: RouteDetails) -> Int {
@@ -59,23 +61,30 @@ class StoryService {
     }
     
     // Generate story outline
-    func generateOutline(for route: RouteDetails) async throws -> [String] {
+    func generateOutline(for route: RouteDetails, landmarks: [String] = []) async throws -> [String] {
         guard !route.isFreeRoam else { return [] }
 
         let totalSegments = calculateTotalSegments(durationSeconds: route.durationSeconds)
         let styleInstruction = getStyleInstruction(for: route.storyStyle)
-        
+
+        let landmarkInstruction = landmarks.isEmpty ? "" : """
+
+        REAL LANDMARKS ALONG THE ROUTE (in journey order): \(landmarks.joined(separator: "; ")).
+        Anchor some chapters to these actual places where it feels natural - they are what the traveler will really be passing.
+        """
+
         let prompt = """
         You are an expert storyteller. Write an outline for a story that is exactly \(totalSegments) chapters long and has a complete cohesive story arc with a clear set up, inciting incident, rising action, climax, success, falling action, and resolution.
-        
+
         Your outline should be tailored to match this journey:
-        
+
         Journey: \(route.startAddress) to \(route.endAddress) by \(route.travelMode.lowercased()).
         Total Duration: Approx \(route.duration).
         Total Narrative Segments needed: \(totalSegments).
-        
+
         \(styleInstruction)
-        
+        \(landmarkInstruction)
+
         Output strictly valid JSON: An array of \(totalSegments) strings. Example: ["Chapter 1 summary...", "Chapter 2 summary...", ...]
         """
         
@@ -105,35 +114,43 @@ class StoryService {
         segmentIndex: Int,
         totalSegments: Int,
         outlineBeat: String,
-        previousContext: String
+        previousContext: String,
+        nearbyLandmarks: [String] = []
     ) async throws -> StorySegment {
         let isFirst = segmentIndex == 1
         let styleInstruction = getStyleInstruction(for: route.storyStyle)
-        
+
         var contextPrompt = ""
         if !isFirst {
             let trimmedContext = String(previousContext.suffix(1500))
             contextPrompt = """
-            
+
             PREVIOUS NARRATIVE CONTEXT (The story so far):
             ...\(trimmedContext)
             (CONTINUE SEAMLESSLY from the above. Do not repeat it. Do not start with "And so..." or similar connectors every time.)
             """
         }
-        
+
+        let landmarkPrompt = nearbyLandmarks.isEmpty ? "" : """
+
+        REAL PLACES NEAR THE TRAVELER DURING THIS SEGMENT: \(nearbyLandmarks.joined(separator: "; ")).
+        Ground the narration in one or two of them, reinterpreted through the story's style - scenery, a waypoint, a story element. For factual styles (like the Historian Guide), describe them accurately and conservatively. Never force one in where it breaks the flow, and do not mention places already covered earlier.
+        """
+
         let prompt = """
         You are an AI storytelling engine generating a continuous, immersive audio stream for a traveler.
         Journey: \(route.startAddress) to \(route.endAddress) by \(route.travelMode.lowercased()).
         Current Status: Segment \(segmentIndex) of approx \(totalSegments).
-        
+
         \(styleInstruction)
-        
+
         CURRENT CHAPTER GOAL: \(outlineBeat)
+        \(landmarkPrompt)
         \(contextPrompt)
-        
+
         Task: Write the next ~\(targetSegmentDurationSec) seconds of narration (approx \(wordsPerSegment) words) based on the Current Chapter Goal.
         Keep the narrative moving forward. This is a transient segment of a longer journey.
-        
+
         IMPORTANT: Output ONLY the raw narration text for this segment. Do not include titles, chapter headings, or JSON. Just the text to be spoken.
         """
         

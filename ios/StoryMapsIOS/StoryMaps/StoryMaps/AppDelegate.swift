@@ -27,14 +27,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #if canImport(FirebaseMessaging)
         // Set messaging delegate
         Messaging.messaging().delegate = self
-        print("✅ Firebase Messaging configured")
+        Log.app.info("Firebase Messaging configured")
         #endif
         
         #if canImport(FirebaseInAppMessaging)
         // In-App Messaging is automatically initialized when Firebase is configured
         // You can customize display behavior if needed:
         // InAppMessaging.inAppMessaging().messageDisplaySuppressed = false
-        print("✅ Firebase In-App Messaging configured")
+        Log.app.info("Firebase In-App Messaging configured")
         #endif
         
         // Register for remote notifications
@@ -52,7 +52,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #if canImport(FirebaseMessaging)
         // Pass device token to Firebase
         Messaging.messaging().apnsToken = deviceToken
-        print("📱 APNs token registered with Firebase")
+        Log.app.info("APNs token registered with Firebase")
         #endif
     }
     
@@ -60,7 +60,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
-        print("❌ Failed to register for remote notifications: \(error.localizedDescription)")
+        Log.app.error("Failed to register for remote notifications: \(error.localizedDescription)")
     }
     
     // MARK: - Remote Notification Handling
@@ -73,7 +73,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #if canImport(FirebaseMessaging)
         // Let Firebase handle the message
         Messaging.messaging().appDidReceiveMessage(userInfo)
-        print("📬 Firebase handled remote notification")
+        Log.app.debug("Firebase handled remote notification")
         #endif
         
         completionHandler(.newData)
@@ -87,11 +87,12 @@ extension AppDelegate: MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let token = fcmToken else {
-            print("⚠️ FCM token is nil")
+            Log.app.warning("FCM token is nil")
             return
         }
         
-        print("📱 FCM Token: \(token)")
+        // Never log the FCM token itself - it is a device credential.
+        Log.app.info("FCM token received")
         
         // Post notification so other parts of the app can access the token
         NotificationCenter.default.post(
@@ -114,11 +115,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         let userInfo = notification.request.content.userInfo
-        print("🔔 NOTIFICATION RECEIVED IN FOREGROUND")
-        print("🔔 Title: \(notification.request.content.title)")
-        print("🔔 Body: \(notification.request.content.body)")
-        print("🔔 UserInfo: \(userInfo)")
-        
+        Log.app.debug("Notification received in foreground")
+                                
         #if canImport(FirebaseMessaging)
         Messaging.messaging().appDidReceiveMessage(userInfo)
         #endif
@@ -140,7 +138,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         #endif
         
         // Handle notification action here (e.g., navigate to specific screen)
-        print("📱 Notification tapped: \(userInfo)")
+        Log.app.debug("Notification tapped")
         
         completionHandler()
     }

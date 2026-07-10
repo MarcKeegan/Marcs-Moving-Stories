@@ -23,7 +23,8 @@ class StoryViewModel: ObservableObject {
     private var isGenerating = false
     private var failedSegments: Set<Int> = []
     private var retryAttempts: [Int: Int] = [:]
-    private var lastGenerationTime: Date?
+    // Real landmarks along the planned route, keyed by segment index (best-effort).
+    private var plannedSegmentLandmarks: [Int: [String]] = [:]
     private var generationSessionID = UUID()
     private var cancellables = Set<AnyCancellable>()
     private var lastPlaybackIndex = 0
@@ -35,7 +36,6 @@ class StoryViewModel: ObservableObject {
 
     private let maxRetryAttempts = 3
     private let segmentsToBufferAhead = 2
-    private let rateLimitDelay: TimeInterval = 0.0
     private let poiRefreshDistanceMeters: CLLocationDistance = 120
     private let poiRefreshCooldown: TimeInterval = 15
     private let offRouteThresholdMeters: CLLocationDistance = 45
@@ -121,7 +121,7 @@ class StoryViewModel: ObservableObject {
         bufferingError = nil
         failedSegments.removeAll()
         retryAttempts.removeAll()
-        lastGenerationTime = nil
+        plannedSegmentLandmarks = [:]
         lastPlaybackIndex = 0
         liveJourneyContext = .empty
         userCoordinate = nil
@@ -136,8 +136,22 @@ class StoryViewModel: ObservableObject {
     private func generateInitialPlannedStory(for route: RouteDetails, sessionID: UUID) async throws {
         let totalSegments = StoryService.shared.defaultTotalSegments(for: route)
         let fallbackOutline = StoryService.shared.makeFallbackOutline(for: route, totalSegments: totalSegments)
+
+        // Look up real landmarks along the route so the story can reference
+        // actual places. Best-effort with an internal timeout; an empty result
+        // simply means ungrounded generation, exactly as before.
+        loadingMessage = "Scouting landmarks on your route..."
+        let landmarks = await RoutePoiService.fetchSegmentLandmarks(
+            polyline: route.polyline,
+            travelMode: route.travelMode,
+            totalSegments: totalSegments
+        )
+        guard generationSessionID == sessionID else { return }
+        plannedSegmentLandmarks = landmarks
+        let allLandmarks = landmarks.sorted { $0.key < $1.key }.flatMap { $0.value }
+
         let outlineTask = Task(priority: .utility) {
-            try await StoryService.shared.generateOutline(for: route)
+            try await StoryService.shared.generateOutline(for: route, landmarks: Array(allLandmarks.prefix(12)))
         }
 
         loadingMessage = "Writing first chapter..."
@@ -147,13 +161,11 @@ class StoryViewModel: ObservableObject {
             segmentIndex: 1,
             totalSegments: totalSegments,
             outlineBeat: firstOutlineBeat,
-            previousContext: ""
+            previousContext: "",
+            nearbyLandmarks: plannedSegmentLandmarks[1] ?? []
         )
 
-        lastGenerationTime = Date()
-
         loadingMessage = "Preparing audio stream..."
-        await applyRateLimit()
 
         let audioData = try await StoryService.shared.generateAudio(for: firstSegment.text, voiceName: route.voiceName)
         firstSegment.audioData = audioData
@@ -195,10 +207,8 @@ class StoryViewModel: ObservableObject {
         )
 
         var firstSegment = generated.segment
-        lastGenerationTime = Date()
 
         loadingMessage = "Preparing live audio..."
-        await applyRateLimit()
 
         let audioData = try await StoryService.shared.generateAudio(for: firstSegment.text, voiceName: route.voiceName)
         firstSegment.audioData = audioData
@@ -232,7 +242,6 @@ class StoryViewModel: ObservableObject {
             for attempt in 1...maxRetryAttempts {
                 do {
                     guard generationSessionID == sessionID else { return }
-                    await applyRateLimit()
                     guard var currentStory = story,
                           let currentRoute = currentRoute else { return }
 
@@ -262,17 +271,14 @@ class StoryViewModel: ObservableObject {
                             segmentIndex: index,
                             totalSegments: currentStory.totalSegmentsEstimate,
                             outlineBeat: outlineBeat,
-                            previousContext: trimmedContext
+                            previousContext: trimmedContext,
+                            nearbyLandmarks: plannedSegmentLandmarks[index] ?? []
                         )
                     }
-
-                    lastGenerationTime = Date()
-                    await applyRateLimit()
 
                     let audioData = try await StoryService.shared.generateAudio(for: newSegment.text, voiceName: currentRoute.voiceName)
                     var hydratedSegment = newSegment
                     hydratedSegment.audioData = audioData
-                    lastGenerationTime = Date()
 
                     await MainActor.run {
                         guard generationSessionID == sessionID else { return }
@@ -299,7 +305,7 @@ class StoryViewModel: ObservableObject {
             await MainActor.run {
                 self.failedSegments.insert(index)
                 self.bufferingError = "Failed to generate segment \(index) after \(maxRetryAttempts) attempts"
-                print("❌ [Buffering] Segment \(index) failed permanently: \(lastError?.localizedDescription ?? "Unknown error")")
+                Log.story.error("Segment \(index) failed permanently: \(lastError?.localizedDescription ?? "Unknown error")")
             }
         }
     }
@@ -350,7 +356,7 @@ class StoryViewModel: ObservableObject {
                 try await reroute(from: location, route: route)
             }
         } catch {
-            print("⚠️ Live context update failed: \(error.localizedDescription)")
+            Log.story.warning("Live context update failed: \(error.localizedDescription)")
         }
     }
 
@@ -386,7 +392,7 @@ class StoryViewModel: ObservableObject {
                 nearbyPOIs = try await NearbyPlacesClient.shared.fetchNearbyPOIs(around: coordinate)
                 lastPOIRefreshLocation = coordinate
             } catch {
-                print("⚠️ Nearby POI refresh failed: \(error.localizedDescription)")
+                Log.story.warning("Nearby POI refresh failed: \(error.localizedDescription)")
                 nearbyPOIs = liveJourneyContext.nearbyPOIs
             }
         }
@@ -460,21 +466,5 @@ class StoryViewModel: ObservableObject {
 
         let refreshedContext = try await buildLiveContext(from: location, route: updatedRoute, forcePOIRefresh: false)
         liveJourneyContext = refreshedContext
-    }
-
-    private func applyRateLimit() async {
-        guard rateLimitDelay > 0 else {
-            return
-        }
-
-        guard let lastTime = lastGenerationTime else {
-            return
-        }
-
-        let timeSinceLastCall = Date().timeIntervalSince(lastTime)
-        if timeSinceLastCall < rateLimitDelay {
-            let waitTime = rateLimitDelay - timeSinceLastCall
-            try? await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
-        }
     }
 }

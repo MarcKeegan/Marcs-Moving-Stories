@@ -459,7 +459,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = StoryPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "StoryPath needs your location to show your progress on the map during your journey.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -504,7 +504,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = StoryPath;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "our location is used to find your starting point for journey stories.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "StoryPath needs your location to show your progress on the map during your journey.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -53,14 +53,6 @@ StoryMapsIOS/StoryMaps/StoryMaps/
 - **[TESTFLIGHT_CHECKLIST.md](TESTFLIGHT_CHECKLIST.md)** - Beta deployment
 - **[APP_STORE_CHECKLIST.md](APP_STORE_CHECKLIST.md)** - Submission requirements
 
-**Troubleshooting Guides:**
-- **[XCODE_BUILD_FIX.md](XCODE_BUILD_FIX.md)** - Xcode build errors
-- **[UI_COLOR_FIX.md](UI_COLOR_FIX.md)** - Dark mode UI issues
-- **[GOOGLE_PLACES_CRASH_FIX.md](GOOGLE_PLACES_CRASH_FIX.md)** - Places SDK initialization
-- **[PLACES_SELECTION_FIX.md](PLACES_SELECTION_FIX.md)** - Autocomplete selection issues
-- **[HTTP_403_AUTH_FIX.md](HTTP_403_AUTH_FIX.md)** - Firebase authentication
-- **[DIRECTIONS_API_PROXY_FIX.md](DIRECTIONS_API_PROXY_FIX.md)** - Directions API proxy setup
-
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
@@ -115,7 +107,8 @@ cp Secrets.plist.example Secrets.plist
 - `SERVER_BASE_URL` - Your Cloud Run URL
 - `GOOGLE_MAPS_IOS_API_KEY` - Restricted to iOS bundle ID
 - `GOOGLE_PLACES_IOS_API_KEY` - Restricted to iOS bundle ID
-- `GOOGLE_DIRECTIONS_API_KEY` - For route calculation
+
+(Directions and Places lookups are proxied through the server, which holds its own keys.)
 
 ### Firebase Console
 - Enable Email/Password authentication

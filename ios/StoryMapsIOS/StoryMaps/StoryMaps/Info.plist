@@ -22,6 +22,11 @@
 	</array>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5422665078059042~2131515255</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>GoogleSans-VariableFont_GRAD,opsz,wght.ttf</string>

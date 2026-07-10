@@ -38,16 +38,16 @@ struct StoryMapsIOSApp: App {
         // Initialize Firebase
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
-        print("✅ Firebase configured")
+        Log.app.info("Firebase configured")
         #endif
         
         // Initialize Google Maps SDK
         #if canImport(GoogleMaps)
         if let mapsKey = AppConfig.googleMapsAPIKey {
             GMSServices.provideAPIKey(mapsKey)
-            print("✅ Google Maps SDK initialized with key: \(String(mapsKey.prefix(10)))...")
+            Log.app.info("Google Maps SDK initialized")
         } else {
-            print("❌ Google Maps API key is missing!")
+            Log.app.error("Google Maps API key is missing")
         }
         #endif
         
@@ -55,20 +55,16 @@ struct StoryMapsIOSApp: App {
         #if canImport(GooglePlaces)
         if let placesKey = AppConfig.googlePlacesAPIKey {
             GMSPlacesClient.provideAPIKey(placesKey)
-            print("✅ Google Places SDK initialized with key: \(String(placesKey.prefix(10)))...")
-            print("📍 If autocomplete fails, check:")
-            print("   1. Places API is enabled in Google Cloud Console")
-            print("   2. API key is restricted to your iOS bundle ID")
-            print("   3. API key has 'Places API' permission")
+            Log.app.info("Google Places SDK initialized")
         } else {
-            print("❌ Google Places API key is missing!")
+            Log.app.error("Google Places API key is missing")
         }
         #endif
         
         // Initialize Google Mobile Ads SDK
         #if canImport(GoogleMobileAds)
         MobileAds.shared.start(completionHandler: nil)
-        print("✅ Google Mobile Ads SDK initialized")
+        Log.app.info("Google Mobile Ads SDK initialized")
         #endif
     }
     
