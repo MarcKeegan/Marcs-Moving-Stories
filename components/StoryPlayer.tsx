@@ -13,11 +13,14 @@ import InlineMap from './InlineMap';
 interface Props {
     story: AudioStory;
     route: RouteDetails;
+    directions: google.maps.DirectionsResult | null;
     onSegmentChange: (index: number) => void;
     isBackgroundGenerating: boolean;
+    streamError: string | null;
+    onRetryStream: () => void;
 }
 
-const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgroundGenerating }) => {
+const StoryPlayer: React.FC<Props> = ({ story, route, directions, onSegmentChange, isBackgroundGenerating, streamError, onRetryStream }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
     const [isBuffering, setIsBuffering] = useState(false);
@@ -187,7 +190,7 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
             {/* Hero Map (16:9) */}
             <div className="w-full aspect-video bg-stone-100 rounded-[2rem] shadow-2xl overflow-hidden relative mb-8 border-4 border-white">
                 <InlineMap
-                    route={route}
+                    directions={directions}
                     currentSegmentIndex={currentSegmentIndex}
                     totalSegments={story.totalSegmentsEstimate}
                 />
@@ -206,7 +209,17 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
             {/* Sticky Player Header */}
             <div className="sticky top-6 z-30 bg-editorial-900 text-white rounded-full p-4 md:p-5 shadow-2xl mb-16 flex items-center justify-between transition-transform ring-4 ring-editorial-100">
                 <div className="flex items-center gap-4 pl-4">
-                    {isBuffering ? (
+                    {streamError ? (
+                        <div className="flex items-center gap-2 text-red-300 text-sm font-medium">
+                            <span className="hidden md:inline">Stream interrupted</span>
+                            <button
+                                onClick={onRetryStream}
+                                className="underline font-semibold text-white hover:text-red-200"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    ) : isBuffering ? (
                         <div className="flex items-center gap-2 text-amber-300 text-sm font-medium animate-pulse">
                             <Loader2 size={18} className="animate-spin" />
                             <span>Buffering stream...</span>
@@ -228,13 +241,20 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
                 </div>
 
                 <div className="flex items-center gap-4 pr-1">
-                    <button onClick={() => setAutoScroll(!autoScroll)} className={`p-2 rounded-full transition-colors ${autoScroll ? 'text-white bg-white/10' : 'text-stone-500 hover:text-white'}`} title="Toggle Auto-scroll">
+                    <button
+                        onClick={() => setAutoScroll(!autoScroll)}
+                        className={`p-2 rounded-full transition-colors ${autoScroll ? 'text-white bg-white/10' : 'text-stone-500 hover:text-white'}`}
+                        title="Toggle Auto-scroll"
+                        aria-label="Toggle auto-scroll"
+                        aria-pressed={autoScroll}
+                    >
                         <ArrowDownCircle size={20} />
                     </button>
                     <button
                         onClick={togglePlayback}
                         // Don't disable if buffering, allow them to "pause" the buffering state if they want to stop altogether
                         className="bg-white text-editorial-900 p-3 md:p-4 rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                        aria-label={isPlaying && !isBuffering ? 'Pause story' : 'Play story'}
                     >
                         {isPlaying && !isBuffering ? <Pause size={24} className="fill-current" /> : <Play size={24} className="fill-current ml-1" />}
                     </button>
@@ -248,7 +268,7 @@ const StoryPlayer: React.FC<Props> = ({ story, route, onSegmentChange, isBackgro
                         key={segment.index}
                         className={`transition-all duration-1000 ${segment.index === currentSegmentIndex + 1 ? 'opacity-100 scale-100' : segment.index <= currentSegmentIndex ? 'opacity-60' : 'opacity-0 translate-y-10'}`}
                     >
-                        <p className="prose prose-xl md:prose-2xl max-w-none font-display leading-relaxed text-editorial-900">
+                        <p className="text-xl md:text-2xl max-w-none font-display leading-relaxed text-editorial-900">
                             {segment.text}
                         </p>
                         {idx < story.segments.length - 1 && (

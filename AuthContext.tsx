@@ -8,7 +8,35 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { auth, googleProvider } from './firebase';
+
+// Map Firebase error codes to messages fit for end users; raw SDK messages
+// leak internal detail. Returns null for user-cancelled flows (not an error).
+const friendlyAuthError = (e: unknown, fallback: string): string | null => {
+  if (e instanceof FirebaseError) {
+    switch (e.code) {
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+        return null;
+      case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
+        return 'Incorrect email or password.';
+      case 'auth/email-already-in-use':
+        return 'An account already exists for that email.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/weak-password':
+        return 'Password should be at least 6 characters.';
+      case 'auth/too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your connection and try again.';
+    }
+  }
+  return fallback;
+};
 
 interface AuthContextValue {
   user: User | null;
@@ -40,8 +68,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (e: any) {
-      setError(e.message || 'Google sign-in failed');
+    } catch (e: unknown) {
+      setError(friendlyAuthError(e, 'Google sign-in failed. Please try again.'));
     }
   };
 
@@ -49,8 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (e: any) {
-      setError(e.message || 'Email sign-in failed');
+    } catch (e: unknown) {
+      setError(friendlyAuthError(e, 'Sign-in failed. Please try again.'));
     }
   };
 
@@ -58,8 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-    } catch (e: any) {
-      setError(e.message || 'Sign-up failed');
+    } catch (e: unknown) {
+      setError(friendlyAuthError(e, 'Sign-up failed. Please try again.'));
     }
   };
 
@@ -67,8 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await sendPasswordResetEmail(auth, email);
-    } catch (e: any) {
-      setError(e.message || 'Password reset failed');
+    } catch (e: unknown) {
+      setError(friendlyAuthError(e, 'Password reset failed. Please try again.'));
     }
   };
 
@@ -76,8 +104,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await signOut(auth);
-    } catch (e: any) {
-      setError(e.message || 'Sign-out failed');
+    } catch (e: unknown) {
+      setError(friendlyAuthError(e, 'Sign-out failed. Please try again.'));
     }
   };
 

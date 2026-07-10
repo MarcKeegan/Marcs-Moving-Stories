@@ -19,4 +19,8 @@ interface Window {
   __FIREBASE_ID_TOKEN__?: string;
   /** Google Maps JS API failure callback (see useGoogleMaps). */
   gm_authFailure?: () => void;
+  /** Google Maps JS API bootstrap callback (see useGoogleMaps). */
+  __onGoogleMapsLoaded?: () => void;
+  /** Present once the Maps JS script has loaded. */
+  google?: typeof google;
 }

@@ -11,11 +11,11 @@ import { base64ToArrayBuffer, pcmToWav } from "./audioUtils";
 import { auth } from "../firebase";
 
 // Sanitize the key to ensure no extra quotes or whitespace
-const getApiKey = () => {
-  const runtimeEnv = (window as any).__ENV__;
+const getApiKey = (): string => {
+  const runtimeEnv = window.__ENV__;
   const runtimeKey = runtimeEnv?.API_KEY;
   if (runtimeKey && runtimeKey !== "undefined") {
-    return String(runtimeKey).replace(/["']/g, "").trim();
+    return runtimeKey.replace(/["']/g, "").trim();
   }
 
   // When deployed behind our server, we proxy all Gemini calls via /api-proxy.
@@ -26,8 +26,7 @@ const getApiKey = () => {
 
   // Local dev (vite preview/dev without the proxy server): fall back to Vite env.
   // Prefer VITE_GEMINI_API_KEY, but keep legacy VITE_API_KEY support.
-  const viteEnv = (import.meta as any)?.env;
-  const key = viteEnv?.VITE_GEMINI_API_KEY || viteEnv?.VITE_API_KEY || "";
+  const key = import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.VITE_API_KEY || "";
   if (!key || key === "undefined") return "";
   return String(key).replace(/["']/g, "").trim();
 }
@@ -213,8 +212,7 @@ export const generateSegment = async (
     return {
       index: segmentIndex,
       text: text,
-      audioUrl: null, // Audio generated separately
-      audioBuffer: null // Deprecated
+      audioUrl: null // Audio generated separately
     };
 
   } catch (error) {
@@ -223,7 +221,8 @@ export const generateSegment = async (
   }
 };
 
-// MODIFIED: Returns Blob URL instead of AudioBuffer
+// Returns a blob URL for an <audio> element. Callers own the URL and must
+// revoke it (useStoryEngine does this on reset/unmount).
 export const generateSegmentAudio = async (text: string, voiceName: string = 'Kore'): Promise<string> => {
   try {
     const response = await ai.models.generateContent({

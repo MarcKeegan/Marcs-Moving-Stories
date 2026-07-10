@@ -3,25 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MapPin, Navigation, Loader2, Footprints, Car, CloudRain, Sparkles, ScrollText, Sword, Locate, Library } from 'lucide-react';
-import { RouteDetails, AppState, StoryStyle } from '../types';
-
-declare global {
-  interface Window {
-    google: any;
-  }
-}
+import { RouteDetails, AppState, StoryStyle, TravelMode } from '../types';
+import { useGoogleMaps } from '../hooks/useGoogleMaps';
 
 interface Props {
-  onRouteFound: (details: RouteDetails) => void;
+  onRouteFound: (details: RouteDetails, directions: google.maps.DirectionsResult) => void;
   appState: AppState;
   externalError?: string | null;
 }
-
-type TravelMode = 'WALKING' | 'DRIVING';
 
 const STYLES: { id: StoryStyle; label: string; icon: React.ElementType; desc: string }[] = [
   { id: 'NOIR', label: 'Noir Thriller', icon: CloudRain, desc: 'Gritty, mysterious, rain-slicked streets.' },
@@ -30,6 +21,9 @@ const STYLES: { id: StoryStyle; label: string; icon: React.ElementType; desc: st
   { id: 'FANTASY', label: 'Fantasy Adventure', icon: Sword, desc: 'An epic quest through a magical realm.' },
   { id: 'HISTORIAN_GUIDE', label: 'Historian Guide', icon: Library, desc: 'Factual, authoritative, and deeply researched.' },
 ];
+
+// 4 hours limit to prevent generation timeouts
+const MAX_JOURNEY_SECONDS = 14400;
 
 const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }) => {
   const [startAddress, setStartAddress] = useState('');
@@ -43,117 +37,101 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
   const startInputRef = useRef<HTMLInputElement>(null);
   const endInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync external errors (like timeouts from App.tsx) into local UI
+  const { ready: mapsReady } = useGoogleMaps();
+
+  // Sync external errors (like timeouts from the story engine) into local UI
   useEffect(() => {
     if (externalError) {
       setError(externalError);
     }
   }, [externalError]);
 
-  // Initialize Classic Autocomplete
+  // Initialize Classic Autocomplete once Maps is ready
   useEffect(() => {
+    if (!mapsReady || !window.google?.maps?.places) return;
+
     let isMounted = true;
 
-    const initAutocomplete = async () => {
-      if (!window.google?.maps?.places) return;
+    try {
+      const setupAutocomplete = (
+        inputElement: HTMLInputElement | null,
+        setAddress: (addr: string) => void
+      ) => {
+        if (!inputElement) return;
 
-      try {
-        const setupAutocomplete = (
-          inputElement: HTMLInputElement | null,
-          setAddress: (addr: string) => void
-        ) => {
-          if (!inputElement) return;
+        const autocomplete = new google.maps.places.Autocomplete(inputElement, {
+          fields: ['formatted_address', 'geometry', 'name'],
+          types: ['geocode', 'establishment']
+        });
 
-          const autocomplete = new window.google.maps.places.Autocomplete(inputElement, {
-            fields: ['formatted_address', 'geometry', 'name'],
-            types: ['geocode', 'establishment']
-          });
+        autocomplete.addListener('place_changed', () => {
+          if (!isMounted) return;
+          const place = autocomplete.getPlace();
 
-          autocomplete.addListener('place_changed', () => {
-            if (!isMounted) return;
-            const place = autocomplete.getPlace();
-
-            if (!place.geometry || !place.geometry.location) {
-              if (inputElement.value && window.google.maps.Geocoder) {
-                const geocoder = new window.google.maps.Geocoder();
-                geocoder.geocode({ address: inputElement.value }, (results: any, status: any) => {
-                  if (status === 'OK' && results[0]) {
-                    setAddress(results[0].formatted_address);
-                    inputElement.value = results[0].formatted_address;
-                  }
-                });
-              }
-              return;
+          if (!place.geometry || !place.geometry.location) {
+            if (inputElement.value) {
+              const geocoder = new google.maps.Geocoder();
+              geocoder.geocode({ address: inputElement.value }, (results, status) => {
+                if (isMounted && status === 'OK' && results && results[0]) {
+                  setAddress(results[0].formatted_address);
+                }
+              });
             }
+            return;
+          }
 
-            const address = place.formatted_address || place.name;
-            setAddress(address);
-            inputElement.value = address;
-          });
-        };
-
-        setupAutocomplete(startInputRef.current, setStartAddress);
-        setupAutocomplete(endInputRef.current, setEndAddress);
-
-      } catch (e) {
-        console.error("Failed to initialize Places Autocomplete:", e);
-        if (isMounted) setError("Location search failed to initialize. Please refresh.");
-      }
-    };
-
-    if (window.google?.maps?.places) {
-      initAutocomplete();
-    } else {
-      const interval = setInterval(() => {
-        if (window.google?.maps?.places) {
-          clearInterval(interval);
-          initAutocomplete();
-        }
-      }, 300);
-      return () => {
-        isMounted = false;
-        clearInterval(interval);
+          const address = place.formatted_address || place.name || '';
+          setAddress(address);
+        });
       };
+
+      setupAutocomplete(startInputRef.current, setStartAddress);
+      setupAutocomplete(endInputRef.current, setEndAddress);
+    } catch (e) {
+      console.error('Failed to initialize Places Autocomplete:', e);
+      if (isMounted) setError('Location search failed to initialize. Please refresh.');
     }
 
     return () => { isMounted = false; };
-  }, []);
+  }, [mapsReady]);
 
   const handleCalculate = () => {
-    const finalStart = startInputRef.current?.value || startAddress;
-    const finalEnd = endInputRef.current?.value || endAddress;
-
-    if (!finalStart || !finalEnd) {
-      setError("Please search for and select both a start and end location.");
+    if (!startAddress || !endAddress) {
+      setError('Please search for and select both a start and end location.');
       return;
     }
 
-    if (!window.google?.maps) {
-      setError("Google Maps API is not loaded yet. Please refresh.");
+    if (!mapsReady || !window.google?.maps) {
+      setError('Google Maps API is not loaded yet. Please refresh.');
       return;
     }
 
     setError(null);
     setIsLoading(true);
 
-    const directionsService = new window.google.maps.DirectionsService();
+    const directionsService = new google.maps.DirectionsService();
     directionsService.route(
       {
-        origin: finalStart,
-        destination: finalEnd,
-        travelMode: window.google.maps.TravelMode[travelMode],
+        origin: startAddress,
+        destination: endAddress,
+        travelMode: google.maps.TravelMode[travelMode],
       },
-      (result: any, status: any) => {
+      (result, status) => {
         setIsLoading(false);
-        if (status === window.google.maps.DirectionsStatus.OK) {
-          const leg = result.routes[0].legs[0];
-
-          // 4 hours limit (14400 seconds) to prevent generation timeouts
-          if (leg.duration.value > 14400) {
-            setError("Sorry, this journey is too long. Please select a route under 4 hours.");
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          const leg = result.routes[0]?.legs[0];
+          if (!leg?.duration || !leg.distance) {
+            setError('Could not calculate route. Please check the locations and try again.');
             return;
           }
 
+          if (leg.duration.value > MAX_JOURNEY_SECONDS) {
+            setError('Sorry, this journey is too long. Please select a route under 4 hours.');
+            return;
+          }
+
+          // The full DirectionsResult is passed up so the maps can render it
+          // without issuing duplicate (billed) Directions requests.
           onRouteFound({
             startAddress: leg.start_address,
             endAddress: leg.end_address,
@@ -161,16 +139,16 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
             duration: leg.duration.text,
             durationSeconds: leg.duration.value,
             travelMode: travelMode,
-            voiceName: 'Kore', // Updated to a valid Gemini TTS voice
+            voiceName: 'Kore',
             storyStyle: selectedStyle
-          });
+          }, result);
         } else {
-          console.error("Directions error:", status, result);
+          console.error('Directions error:', status);
           if (status === 'ZERO_RESULTS') {
             const mode = travelMode.toLowerCase();
-            setError(`Sorry, we could not calculate ${mode} directions from "${finalStart}" to "${finalEnd}"`);
+            setError(`Sorry, we could not calculate ${mode} directions from "${startAddress}" to "${endAddress}"`);
           } else {
-            setError("Could not calculate route. Please check the locations and try again.");
+            setError('Could not calculate route. Please check the locations and try again.');
           }
         }
       }
@@ -179,7 +157,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
+      setError('Geolocation is not supported by your browser');
       return;
     }
 
@@ -189,34 +167,30 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        if (window.google?.maps?.Geocoder) {
-          const geocoder = new window.google.maps.Geocoder();
+        if (window.google?.maps) {
+          const geocoder = new google.maps.Geocoder();
           geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
             if (status === 'OK' && results && results[0]) {
-              const address = results[0].formatted_address;
-              setStartAddress(address);
-              if (startInputRef.current) {
-                startInputRef.current.value = address;
-              }
+              setStartAddress(results[0].formatted_address);
             } else {
-              setError("Could not find address for your location");
+              setError('Could not find address for your location');
             }
             setIsLocating(false);
           });
         } else {
-          setError("Google Maps API not loaded");
+          setError('Google Maps API not loaded');
           setIsLocating(false);
         }
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-        setError("Unable to retrieve your location. Please check permissions.");
+      (geoError) => {
+        console.error('Geolocation error:', geoError);
+        setError('Unable to retrieve your location. Please check permissions.');
         setIsLocating(false);
       }
     );
   };
 
-  const isLocked = appState > AppState.ROUTE_CONFIRMED;
+  const isLocked = appState !== AppState.PLANNING;
 
   return (
     <div className={`transition-all duration-700 ${isLocked ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
@@ -229,11 +203,14 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
         <div className="space-y-4">
           <div className="relative group z-20 h-14 bg-stone-50/50 border-2 border-stone-100 focus-within:border-editorial-900 focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:shadow-md overflow-hidden">
             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-editorial-900 transition-colors pointer-events-none z-10" size={20} />
+            <label htmlFor="route-start" className="sr-only">Starting point</label>
             <input
+              id="route-start"
               ref={startInputRef}
               type="text"
               placeholder="Starting Point"
               className="w-full h-full bg-transparent p-0 pl-12 pr-12 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
+              value={startAddress}
               onChange={(e) => setStartAddress(e.target.value)}
               disabled={isLocked}
             />
@@ -242,6 +219,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
               disabled={isLocked || isLocating}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-stone-400 hover:text-editorial-900 hover:bg-stone-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed z-20"
               title="Use current location"
+              aria-label="Use current location"
             >
               {isLocating ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -253,11 +231,14 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
 
           <div className="relative group z-10 h-14 bg-stone-50/50 border-2 border-stone-100 focus-within:border-editorial-900 focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:shadow-md overflow-hidden">
             <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-editorial-900 transition-colors pointer-events-none z-10" size={20} />
+            <label htmlFor="route-end" className="sr-only">Destination</label>
             <input
+              id="route-end"
               ref={endInputRef}
               type="text"
               placeholder="Destination"
               className="w-full h-full bg-transparent p-0 pl-12 pr-4 text-editorial-900 placeholder-stone-400 outline-none font-medium text-base"
+              value={endAddress}
               onChange={(e) => setEndAddress(e.target.value)}
               disabled={isLocked}
             />
@@ -268,13 +249,14 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
         <div className="grid grid-cols-1 gap-6">
           {/* Travel Mode */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Travel Mode</label>
+            <span className="block text-sm font-medium text-stone-500 uppercase tracking-wider">Travel Mode</span>
             <div className="flex gap-2 bg-stone-100/50 p-1.5 rounded-xl border border-stone-100">
               {(['WALKING', 'DRIVING'] as TravelMode[]).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setTravelMode(mode)}
                   disabled={isLocked}
+                  aria-pressed={travelMode === mode}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-medium text-sm transition-all ${travelMode === mode
                     ? 'bg-white text-editorial-900 shadow-md'
                     : 'text-stone-500 hover:bg-stone-200/50 hover:text-stone-700'
@@ -293,7 +275,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
 
         {/* Story Style Selector */}
         <div className="space-y-3">
-          <label className="text-sm font-medium text-stone-500 uppercase tracking-wider">Story Style</label>
+          <span className="block text-sm font-medium text-stone-500 uppercase tracking-wider">Story Style</span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {STYLES.map((style) => {
               const Icon = style.icon;
@@ -303,6 +285,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
                   key={style.id}
                   onClick={() => setSelectedStyle(style.id)}
                   disabled={isLocked}
+                  aria-pressed={isSelected}
                   className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${isSelected
                     ? 'border-editorial-900 bg-editorial-900 text-white shadow-md'
                     : 'border-stone-100 bg-stone-50/50 text-stone-600 hover:border-stone-300 hover:bg-stone-100'
@@ -324,7 +307,7 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
         </div>
 
         {error && (
-          <p className="text-red-600 text-sm bg-red-50 p-3 rounded-lg font-medium animate-fade-in">{error}</p>
+          <p role="alert" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg font-medium animate-fade-in">{error}</p>
         )}
 
         <button
