@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+node_modules
+server/node_modules
+dist
+ios
+*.md
+.DS_Store
+**/.DS_Store
+.dockerignore
+Dockerfile
+.github
+.claude
