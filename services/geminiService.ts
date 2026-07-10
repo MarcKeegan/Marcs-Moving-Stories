@@ -114,19 +114,26 @@ const getStyleInstruction = (style: StoryStyle): string => {
 
 export const generateStoryOutline = async (
   route: RouteDetails,
-  totalSegments: number
+  totalSegments: number,
+  landmarks: string[] = []
 ): Promise<string[]> => {
   const styleInstruction = getStyleInstruction(route.storyStyle);
+  const landmarkInstruction = landmarks.length > 0
+    ? `
+    REAL LANDMARKS ALONG THE ROUTE (in journey order): ${landmarks.join('; ')}.
+    Anchor some chapters to these actual places where it feels natural — they are what the traveler will really be passing.`
+    : '';
   const prompt = `
-    You are an expert storyteller. Write an outline for a story that is exactly ${totalSegments} chapters long and has a complete cohesive story arc with a clear set up, inciting incident, rising action, climax, success, falling action, and resolution. 
+    You are an expert storyteller. Write an outline for a story that is exactly ${totalSegments} chapters long and has a complete cohesive story arc with a clear set up, inciting incident, rising action, climax, success, falling action, and resolution.
 
     Your outline should be tailored to match this journey:
 
     Journey: ${route.startAddress} to ${route.endAddress} by ${route.travelMode.toLowerCase()}.
     Total Duration: Approx ${route.duration}.
     Total Narrative Segments needed: ${totalSegments}.
-    
+
     ${styleInstruction}
+    ${landmarkInstruction}
 
     Output strictly valid JSON: An array of ${totalSegments} strings. Example: ["Chapter 1 summary...", "Chapter 2 summary...", ...]
     `;
@@ -167,7 +174,8 @@ export const generateSegment = async (
   segmentIndex: number,
   totalSegmentsEstimate: number,
   segmentOutline: string,
-  previousContext: string = ""
+  previousContext: string = "",
+  nearbyLandmarks: string[] = []
 ): Promise<StorySegment> => {
 
   const isFirst = segmentIndex === 1;
@@ -176,21 +184,28 @@ export const generateSegment = async (
   if (!isFirst) {
     contextPrompt = `
       PREVIOUS NARRATIVE CONTEXT (The story so far):
-      ...${previousContext.slice(-1500)} 
+      ...${previousContext.slice(-1500)}
       (CONTINUE SEAMLESSLY from the above. Do not repeat it. Do not start with "And so..." or similar connectors every time.)
       `;
   }
 
   const styleInstruction = getStyleInstruction(route.storyStyle);
 
+  const landmarkPrompt = nearbyLandmarks.length > 0
+    ? `
+    REAL PLACES NEAR THE TRAVELER DURING THIS SEGMENT: ${nearbyLandmarks.join('; ')}.
+    Ground the narration in one or two of them, reinterpreted through the story's style — scenery, a waypoint, a story element. For factual styles (like the Historian Guide), describe them accurately and conservatively. Never force one in where it breaks the flow, and do not mention places already covered earlier.`
+    : '';
+
   const prompt = `
     You are an AI storytelling engine generating a continuous, immersive audio stream for a traveler.
     Journey: ${route.startAddress} to ${route.endAddress} by ${route.travelMode.toLowerCase()}.
     Current Status: Segment ${segmentIndex} of approx ${totalSegmentsEstimate}.
-    
+
     ${styleInstruction}
 
     CURRENT CHAPTER GOAL: ${segmentOutline}
+    ${landmarkPrompt}
 
     ${contextPrompt}
 

@@ -11,6 +11,7 @@ import {
     generateSegmentAudio,
     generateStoryOutline,
 } from '../services/geminiService';
+import { fetchRoutePois, SegmentPois } from '../services/poiService';
 
 // Helper to prevent infinite hangs on network requests
 const withTimeout = <T,>(promise: Promise<T>, ms: number, errorMsg: string): Promise<T> => {
@@ -47,6 +48,8 @@ export function useStoryEngine() {
     const [streamError, setStreamError] = useState<string | null>(null);
 
     const isGeneratingRef = useRef<boolean>(false);
+    // Real landmarks along the route, keyed by segment index (best-effort).
+    const segmentPoisRef = useRef<SegmentPois>(new Map());
     const [isBackgroundGenerating, setIsBackgroundGenerating] = useState(false);
     // Which segment the user is currently listening to (fed back from StoryPlayer)
     const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number>(0);
@@ -71,7 +74,7 @@ export function useStoryEngine() {
 
             // 1. Generate text
             const segmentData = await withTimeout(
-                generateSegment(route, index, story.totalSegmentsEstimate, segmentOutline, allPreviousText),
+                generateSegment(route, index, story.totalSegmentsEstimate, segmentOutline, allPreviousText, segmentPoisRef.current.get(index) ?? []),
                 60000,
                 `Text generation timed out for segment ${index}`
             );
@@ -87,7 +90,7 @@ export function useStoryEngine() {
                 ),
                 (!hasNextAlready && index < story.totalSegmentsEstimate)
                     ? withTimeout(
-                        generateSegment(route, index + 1, story.totalSegmentsEstimate, nextOutlineBeat, allPreviousText + ' ' + segmentData.text),
+                        generateSegment(route, index + 1, story.totalSegmentsEstimate, nextOutlineBeat, allPreviousText + ' ' + segmentData.text, segmentPoisRef.current.get(index + 1) ?? []),
                         60000,
                         `Text pre-fetch timed out for segment ${index + 1}`
                     )
@@ -152,31 +155,42 @@ export function useStoryEngine() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             const totalSegmentsEstimate = calculateTotalSegments(details.durationSeconds);
+            setLoadingMessage('Scouting landmarks on your route...');
+
+            // 1. Look up real POIs along the route (best-effort; empty on any
+            // failure, and capped so a slow lookup can't stall the story)
+            const routePath = routeDirections.routes[0]?.overview_path ?? [];
+            segmentPoisRef.current = await Promise.race([
+                fetchRoutePois(routePath, details.travelMode, totalSegmentsEstimate),
+                new Promise<SegmentPois>((resolve) => setTimeout(() => resolve(new Map()), 6000)),
+            ]);
+            const allLandmarks = [...segmentPoisRef.current.values()].flat();
+
             setLoadingMessage('Crafting story arc...');
 
-            // 1. Generate the Story Outline first
+            // 2. Generate the Story Outline, anchored to real landmarks when available
             const outline = await withTimeout(
-                generateStoryOutline(details, totalSegmentsEstimate),
+                generateStoryOutline(details, totalSegmentsEstimate, allLandmarks.slice(0, 12)),
                 60000, 'Story outline generation timed out'
             );
 
             setLoadingMessage('Writing first chapter...');
 
-            // 2. Generate first segment text using the first outline beat
+            // 3. Generate first segment text using the first outline beat
             const firstOutlineBeat = outline[0] || 'Begin the journey.';
             const seg1Data = await withTimeout(
-                generateSegment(details, 1, totalSegmentsEstimate, firstOutlineBeat, ''),
+                generateSegment(details, 1, totalSegmentsEstimate, firstOutlineBeat, '', segmentPoisRef.current.get(1) ?? []),
                 60000, 'Initial text generation timed out'
             );
 
             setLoadingMessage('Preparing audio...');
 
-            // 3. Generate audio for segment 1 AND pre-generate segment 2 text in parallel
+            // 4. Generate audio for segment 1 AND pre-generate segment 2 text in parallel
             const secondOutlineBeat = outline[1] || 'Continue the journey.';
             const [seg1AudioUrl, seg2DataResult] = await Promise.allSettled([
                 withTimeout(generateSegmentAudio(seg1Data.text, details.voiceName), 100000, 'Initial audio generation timed out'),
                 withTimeout(
-                    generateSegment(details, 2, totalSegmentsEstimate, secondOutlineBeat, seg1Data.text),
+                    generateSegment(details, 2, totalSegmentsEstimate, secondOutlineBeat, seg1Data.text, segmentPoisRef.current.get(2) ?? []),
                     60000, 'Segment 2 text generation timed out'
                 )
             ]);
@@ -242,6 +256,7 @@ export function useStoryEngine() {
         setGenerationError(null);
         setStreamError(null);
         isGeneratingRef.current = false;
+        segmentPoisRef.current = new Map();
         setIsBackgroundGenerating(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
