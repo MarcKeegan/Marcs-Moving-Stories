@@ -79,12 +79,33 @@ if (!apiKey) {
     console.error("Warning: GEMINI_API_KEY or API_KEY environment variable is not set! Proxy functionality will be disabled.");
 }
 else {
-    console.log(`API KEY FOUND: ${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 4)} (Length: ${apiKey.length})`);
+    console.log('Gemini API key configured.');
 }
 
-// Limit body size to 50mb
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+// Explicit opt-out of authentication for local development only.
+const allowUnauthenticated = process.env.ALLOW_UNAUTHENTICATED === 'true';
+if (allowUnauthenticated) {
+    console.warn('⚠️ ALLOW_UNAUTHENTICATED=true — proxy requests will NOT require a verified token. Never use in production.');
+}
+
+// Comma-separated list of origins allowed to call the proxy cross-origin.
+// The web app is served same-origin by this server, so this is normally empty.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const applyCorsHeaders = (req, res) => {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
+};
+
+// Gemini payloads are prompts/config JSON; 1mb is generous.
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.set('trust proxy', 1 /* number of proxies between user and server */)
 
 // Rate limiter for the proxy
@@ -134,11 +155,16 @@ const authenticateProxyRequest = async (req, res, next) => {
                 code: error.code
             });
         }
-    } else {
-        // Firebase Admin not initialized - log warning but allow request
-        // This maintains backwards compatibility during migration
-        console.warn('⚠️ Firebase Admin not initialized - token not verified. Request allowed but NOT SECURE.');
+    } else if (allowUnauthenticated) {
+        console.warn('⚠️ Firebase Admin not initialized and ALLOW_UNAUTHENTICATED=true - request allowed WITHOUT verification (dev only).');
         return next();
+    } else {
+        // Fail closed: a misconfigured server must not become an open relay.
+        console.error(`❌ Firebase Admin not initialized - rejecting ${req.path} from IP: ${req.ip}. Set ALLOW_UNAUTHENTICATED=true only for local dev.`);
+        return res.status(503).json({
+            error: 'Service Unavailable',
+            message: 'Authentication service is not configured on the server.'
+        });
     }
 };
 
@@ -264,7 +290,6 @@ app.get('/api/nearby-pois', authenticateProxyRequest, async (req, res) => {
 
 // Proxy route for Gemini API calls (HTTP)
 app.use('/api-proxy', authenticateProxyRequest, async (req, res, next) => {
-    console.log(req.ip);
     // If the request is an upgrade request, it's for WebSockets, so pass to next middleware/handler
     if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
         return next(); // Pass to the WebSocket upgrade handler
@@ -272,12 +297,13 @@ app.use('/api-proxy', authenticateProxyRequest, async (req, res, next) => {
 
     // Handle OPTIONS request for CORS preflight
     if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Origin', '*'); // Adjust as needed for security
+        applyCorsHeaders(req, res);
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Goog-Api-Key');
         res.setHeader('Access-Control-Max-Age', '86400'); // Cache preflight response for 1 day
         return res.sendStatus(200);
     }
+    applyCorsHeaders(req, res);
 
     // SECURITY: Don't log request bodies in production (may contain sensitive data)
     if (process.env.NODE_ENV === 'development' && req.body) {
@@ -442,15 +468,17 @@ app.get('/', (req, res) => {
         const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "";
         const firebaseAppId = process.env.FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || "";
 
-        const envScript = `<script>window.__ENV__ = {
-  GOOGLE_MAPS_API_KEY: "${mapsApiKey}",
-  API_KEY: "${geminiApiKey}",
-  GEMINI_USE_PROXY: true,
-  FIREBASE_API_KEY: "${firebaseApiKey}",
-  FIREBASE_AUTH_DOMAIN: "${firebaseAuthDomain}",
-  FIREBASE_PROJECT_ID: "${firebaseProjectId}",
-  FIREBASE_APP_ID: "${firebaseAppId}"
-};</script>`;
+        const clientEnv = {
+            GOOGLE_MAPS_API_KEY: mapsApiKey,
+            API_KEY: geminiApiKey,
+            GEMINI_USE_PROXY: true,
+            FIREBASE_API_KEY: firebaseApiKey,
+            FIREBASE_AUTH_DOMAIN: firebaseAuthDomain,
+            FIREBASE_PROJECT_ID: firebaseProjectId,
+            FIREBASE_APP_ID: firebaseAppId
+        };
+        // JSON-encode and escape '<' so no env value can break out of the inline <script>.
+        const envScript = `<script>window.__ENV__ = ${JSON.stringify(clientEnv).replace(/</g, '\\u003c')};</script>`;
 
         if (injectedHtml.includes('<head>')) {
             // Inject WebSocket interceptor first, then service worker script
@@ -484,7 +512,44 @@ const server = app.listen(port, () => {
 // Create WebSocket server and attach it to the HTTP server
 const wss = new WebSocket.Server({ noServer: true });
 
-server.on('upgrade', (request, socket, head) => {
+// Browsers cannot set an Authorization header on the WebSocket constructor, so the
+// client passes its Firebase ID token as an `access_token` query parameter (appended
+// by public/websocket-interceptor.js). It is verified here and stripped before the
+// request is forwarded upstream.
+const authenticateWsRequest = async (requestUrl) => {
+    if (!firebaseInitialized) {
+        if (allowUnauthenticated) {
+            console.warn('⚠️ WebSocket proxy: Firebase Admin not initialized and ALLOW_UNAUTHENTICATED=true - connection allowed WITHOUT verification (dev only).');
+            return { ok: true };
+        }
+        return { ok: false, status: 503, reason: 'authentication service not configured' };
+    }
+    const token = requestUrl.searchParams.get('access_token');
+    if (!token) {
+        return { ok: false, status: 401, reason: 'missing access_token' };
+    }
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        return { ok: true, uid: decodedToken.uid };
+    } catch (error) {
+        return { ok: false, status: 401, reason: `invalid token (${error.code || error.message})` };
+    }
+};
+
+// Simple per-IP cap on concurrent WebSocket connections (the HTTP rate limiter
+// does not cover upgrade requests).
+const MAX_WS_CONNECTIONS_PER_IP = 10;
+const wsConnectionsPerIp = new Map();
+
+const rejectUpgrade = (socket, status, reason) => {
+    const statusText = status === 401 ? 'Unauthorized' : status === 429 ? 'Too Many Requests' : 'Service Unavailable';
+    socket.write(`HTTP/1.1 ${status} ${statusText}\r\nConnection: close\r\n\r\n`);
+    socket.destroy();
+    console.warn(`WebSocket proxy: rejected upgrade (${status} - ${reason}).`);
+};
+
+server.on('upgrade', async (request, socket, head) => {
+    socket.on('error', () => socket.destroy());
     const requestUrl = new URL(request.url, `http://${request.headers.host}`);
     const pathname = requestUrl.pathname;
 
@@ -495,14 +560,37 @@ server.on('upgrade', (request, socket, head) => {
             return;
         }
 
+        // Behind Cloud Run / a load balancer the real client IP is in X-Forwarded-For.
+        const forwardedFor = String(request.headers['x-forwarded-for'] || '').split(',')[0].trim();
+        const clientIp = forwardedFor || request.socket.remoteAddress || 'unknown';
+        if ((wsConnectionsPerIp.get(clientIp) || 0) >= MAX_WS_CONNECTIONS_PER_IP) {
+            return rejectUpgrade(socket, 429, `connection limit reached for ${clientIp}`);
+        }
+
+        const authResult = await authenticateWsRequest(requestUrl);
+        if (!authResult.ok) {
+            return rejectUpgrade(socket, authResult.status, authResult.reason);
+        }
+
         wss.handleUpgrade(request, socket, head, (clientWs) => {
             console.log('Client WebSocket connected to proxy for path:', pathname);
+            wsConnectionsPerIp.set(clientIp, (wsConnectionsPerIp.get(clientIp) || 0) + 1);
+            clientWs.on('close', () => {
+                const remaining = (wsConnectionsPerIp.get(clientIp) || 1) - 1;
+                if (remaining <= 0) {
+                    wsConnectionsPerIp.delete(clientIp);
+                } else {
+                    wsConnectionsPerIp.set(clientIp, remaining);
+                }
+            });
 
             const targetPathSegment = pathname.substring('/api-proxy'.length);
             const clientQuery = new URLSearchParams(requestUrl.search);
+            clientQuery.delete('access_token'); // Never forward the Firebase token upstream.
             clientQuery.set('key', apiKey);
             const targetGeminiWsUrl = `${externalWsBaseUrl}${targetPathSegment}?${clientQuery.toString()}`;
-            console.log(`Attempting to connect to target WebSocket: ${targetGeminiWsUrl}`);
+            // Log the path only - the full URL contains the API key.
+            console.log(`Attempting to connect to target WebSocket path: ${targetPathSegment}`);
 
             const geminiWs = new WebSocket(targetGeminiWsUrl, {
                 protocol: request.headers['sec-websocket-protocol'],

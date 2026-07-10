@@ -26,7 +26,14 @@
               //use wss if https, else ws
               const proxyScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
               const proxyHost = window.location.host;
-              newUrlString = `${proxyScheme}://${proxyHost}/api-proxy${parsedUrl.pathname}${parsedUrl.search}`;
+              const proxyUrl = new URL(`${proxyScheme}://${proxyHost}/api-proxy${parsedUrl.pathname}${parsedUrl.search}`);
+              // The WebSocket constructor cannot send an Authorization header, so pass
+              // the Firebase ID token (kept fresh by the app on window.__FIREBASE_ID_TOKEN__)
+              // as a query parameter. The proxy verifies and strips it before forwarding.
+              if (window.__FIREBASE_ID_TOKEN__) {
+                proxyUrl.searchParams.set('access_token', window.__FIREBASE_ID_TOKEN__);
+              }
+              newUrlString = proxyUrl.toString();
             }
           }
         } catch (e) {
@@ -37,8 +44,8 @@
       }
 
       if (isTarget) {
-        console.log('[WebSocketInterceptor-Proxy] Original WebSocket URL:', url);
-        console.log('[WebSocketInterceptor-Proxy] Redirecting to proxy URL:', newUrlString);
+        // Do not log the rewritten URL - it carries the user's auth token.
+        console.log('[WebSocketInterceptor-Proxy] Redirecting Gemini WebSocket through /api-proxy');
       }
 
       // Call the original constructor with potentially modified arguments

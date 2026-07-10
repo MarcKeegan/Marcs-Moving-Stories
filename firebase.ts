@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getAnalytics, logEvent as firebaseLogEvent, Analytics } from 'firebase/analytics';
+import { getAuth, GoogleAuthProvider, onIdTokenChanged } from 'firebase/auth';
+import { getAnalytics, isSupported as analyticsIsSupported, logEvent as firebaseLogEvent, Analytics } from 'firebase/analytics';
 
 const runtimeEnv =
   typeof window !== 'undefined' ? (window as any).__ENV__ : undefined;
@@ -25,10 +25,27 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firebase Analytics (only in browser environment)
+// The WebSocket constructor cannot send headers, so the proxy's WebSocket
+// interceptor reads the current ID token from this global instead. Firebase
+// refreshes the token automatically and fires this listener each time.
+if (typeof window !== 'undefined') {
+  onIdTokenChanged(auth, async (user) => {
+    window.__FIREBASE_ID_TOKEN__ = user ? await user.getIdToken() : undefined;
+  });
+}
+
+// Initialize Firebase Analytics (only in browser environments that support it)
 let analytics: Analytics | null = null;
 if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+  analyticsIsSupported()
+    .then((supported) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+      }
+    })
+    .catch(() => {
+      // Analytics is best-effort; never let it break the app.
+    });
 }
 
 export { analytics };
