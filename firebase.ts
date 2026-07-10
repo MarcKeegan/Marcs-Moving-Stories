@@ -3,7 +3,7 @@ import { getAuth, GoogleAuthProvider, onIdTokenChanged } from 'firebase/auth';
 import { getAnalytics, isSupported as analyticsIsSupported, logEvent as firebaseLogEvent, Analytics } from 'firebase/analytics';
 
 const runtimeEnv =
-  typeof window !== 'undefined' ? (window as any).__ENV__ : undefined;
+  typeof window !== 'undefined' ? window.__ENV__ : undefined;
 
 const firebaseConfig = {
   apiKey:

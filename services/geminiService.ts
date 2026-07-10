@@ -41,7 +41,7 @@ if (!API_KEY) {
 // Global Fetch Interceptor to ensure Authorization header is always present
 const originalFetch = window.fetch;
 window.fetch = async (input, init) => {
-  let url = input instanceof Request ? input.url : input.toString();
+  const url = input instanceof Request ? input.url : input.toString();
 
   // Intercept Gemini API or Proxy requests
   if (url.includes('generativelanguage.googleapis.com') || url.includes('/api-proxy/')) {

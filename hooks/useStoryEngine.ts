@@ -53,7 +53,9 @@ export function useStoryEngine() {
 
     // Revoke any outstanding audio blob URLs when the app unmounts.
     const storyRef = useRef<AudioStory | null>(null);
-    storyRef.current = story;
+    useEffect(() => {
+        storyRef.current = story;
+    }, [story]);
     useEffect(() => () => revokeStoryAudio(storyRef.current), []);
 
     const generateNextSegment = useCallback(async (index: number) => {

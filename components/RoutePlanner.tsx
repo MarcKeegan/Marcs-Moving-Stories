@@ -39,12 +39,8 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
 
   const { ready: mapsReady } = useGoogleMaps();
 
-  // Sync external errors (like timeouts from the story engine) into local UI
-  useEffect(() => {
-    if (externalError) {
-      setError(externalError);
-    }
-  }, [externalError]);
+  // Show external errors (like timeouts from the story engine) alongside local ones
+  const displayedError = error || externalError;
 
   // Initialize Classic Autocomplete once Maps is ready
   useEffect(() => {
@@ -306,8 +302,8 @@ const RoutePlanner: React.FC<Props> = ({ onRouteFound, appState, externalError }
           </div>
         </div>
 
-        {error && (
-          <p role="alert" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg font-medium animate-fade-in">{error}</p>
+        {displayedError && (
+          <p role="alert" className="text-red-600 text-sm bg-red-50 p-3 rounded-lg font-medium animate-fade-in">{displayedError}</p>
         )}
 
         <button

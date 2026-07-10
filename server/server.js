@@ -8,10 +8,9 @@ require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const axios = require('axios');
-const https = require('https');
 const path = require('path');
-const WebSocket = require('ws');
-const { URLSearchParams, URL } = require('url');
+// Named to avoid shadowing Node's built-in global WebSocket
+const { WebSocket: WsClient, WebSocketServer } = require('ws');
 const rateLimit = require('express-rate-limit');
 
 // Firebase Admin SDK for token verification
@@ -356,9 +355,7 @@ app.use('/api-proxy', authenticateProxyRequest, async (req, res, next) => {
             url: apiUrl,
             headers: outgoingHeaders,
             responseType: 'stream',
-            validateStatus: function (status) {
-                return true; // Accept any status code, we'll pipe it through
-            },
+            validateStatus: () => true, // Accept any status code, we'll pipe it through
         };
 
         if (['POST', 'PUT', 'PATCH'].includes(req.method.toUpperCase())) {
@@ -510,7 +507,7 @@ const server = app.listen(port, () => {
 });
 
 // Create WebSocket server and attach it to the HTTP server
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocketServer({ noServer: true });
 
 // Browsers cannot set an Authorization header on the WebSocket constructor, so the
 // client passes its Firebase ID token as an `access_token` query parameter (appended
@@ -592,7 +589,7 @@ server.on('upgrade', async (request, socket, head) => {
             // Log the path only - the full URL contains the API key.
             console.log(`Attempting to connect to target WebSocket path: ${targetPathSegment}`);
 
-            const geminiWs = new WebSocket(targetGeminiWsUrl, {
+            const geminiWs = new WsClient(targetGeminiWsUrl, {
                 protocol: request.headers['sec-websocket-protocol'],
             });
 
@@ -603,7 +600,7 @@ server.on('upgrade', async (request, socket, head) => {
                 // Send any queued messages
                 while (messageQueue.length > 0) {
                     const message = messageQueue.shift();
-                    if (geminiWs.readyState === WebSocket.OPEN) {
+                    if (geminiWs.readyState === WsClient.OPEN) {
                         // console.log('Sending queued message from client -> Gemini');
                         geminiWs.send(message);
                     } else {
@@ -617,30 +614,30 @@ server.on('upgrade', async (request, socket, head) => {
 
             geminiWs.on('message', (message) => {
                 // console.log('Message from Gemini -> client');
-                if (clientWs.readyState === WebSocket.OPEN) {
+                if (clientWs.readyState === WsClient.OPEN) {
                     clientWs.send(message);
                 }
             });
 
             geminiWs.on('close', (code, reason) => {
                 console.log(`Gemini WebSocket closed: ${code} ${reason.toString()}`);
-                if (clientWs.readyState === WebSocket.OPEN || clientWs.readyState === WebSocket.CONNECTING) {
+                if (clientWs.readyState === WsClient.OPEN || clientWs.readyState === WsClient.CONNECTING) {
                     clientWs.close(code, reason.toString());
                 }
             });
 
             geminiWs.on('error', (error) => {
                 console.error('Error on Gemini WebSocket connection:', error);
-                if (clientWs.readyState === WebSocket.OPEN || clientWs.readyState === WebSocket.CONNECTING) {
+                if (clientWs.readyState === WsClient.OPEN || clientWs.readyState === WsClient.CONNECTING) {
                     clientWs.close(1011, 'Upstream WebSocket error');
                 }
             });
 
             clientWs.on('message', (message) => {
-                if (geminiWs.readyState === WebSocket.OPEN) {
+                if (geminiWs.readyState === WsClient.OPEN) {
                     // console.log('Message from client -> Gemini');
                     geminiWs.send(message);
-                } else if (geminiWs.readyState === WebSocket.CONNECTING) {
+                } else if (geminiWs.readyState === WsClient.CONNECTING) {
                     // console.log('Queueing message from client -> Gemini (Gemini still connecting)');
                     messageQueue.push(message);
                 } else {
@@ -650,14 +647,14 @@ server.on('upgrade', async (request, socket, head) => {
 
             clientWs.on('close', (code, reason) => {
                 console.log(`Client WebSocket closed: ${code} ${reason.toString()}`);
-                if (geminiWs.readyState === WebSocket.OPEN || geminiWs.readyState === WebSocket.CONNECTING) {
+                if (geminiWs.readyState === WsClient.OPEN || geminiWs.readyState === WsClient.CONNECTING) {
                     geminiWs.close(code, reason.toString());
                 }
             });
 
             clientWs.on('error', (error) => {
                 console.error('Error on client WebSocket connection:', error);
-                if (geminiWs.readyState === WebSocket.OPEN || geminiWs.readyState === WebSocket.CONNECTING) {
+                if (geminiWs.readyState === WsClient.OPEN || geminiWs.readyState === WsClient.CONNECTING) {
                     geminiWs.close(1011, 'Client WebSocket error');
                 }
             });

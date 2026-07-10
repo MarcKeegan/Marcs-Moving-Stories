@@ -5,8 +5,8 @@
 
 
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Volume2, MapPin, Clock, Footprints, Car, Loader2, ArrowDownCircle } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Play, Pause, Footprints, Car, Loader2, ArrowDownCircle } from 'lucide-react';
 import { AudioStory, RouteDetails, StorySegment } from '../types';
 import InlineMap from './InlineMap';
 
@@ -46,60 +46,9 @@ const StoryPlayer: React.FC<Props> = ({ story, route, directions, onSegmentChang
         onSegmentChange(currentSegmentIndex);
     }, [currentSegmentIndex, onSegmentChange]);
 
-    // Auto-play NEXT segment if we were buffering and it just arrived
-    useEffect(() => {
-        // Check if the *current* segment (which might have just arrived) is now ready
-        const segmentNowReady = story.segments[currentSegmentIndex];
-
-        if (isBuffering && isPlaying && segmentNowReady?.audioUrl) {
-            console.log(`[StoryPlayer] Segment ${currentSegmentIndex} arrived while buffering. Resuming...`);
-            setIsBuffering(false);
-            playSegment(segmentNowReady);
-        }
-    }, [story.segments, currentSegmentIndex, isBuffering, isPlaying]);
-
-    // Auto-scroll handling
-    useEffect(() => {
-        if (autoScroll && textContainerRef.current) {
-            const lastParagraph = textContainerRef.current.lastElementChild;
-            lastParagraph?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-    }, [story.segments.length, currentSegmentIndex, autoScroll]);
-
-
     // --- Audio Engine ---
 
-    // Setup audio element listeners on mount
-    useEffect(() => {
-        if (!audioRef.current) {
-            audioRef.current = new Audio();
-            audioRef.current.preload = "auto";
-        }
-
-        const audio = audioRef.current;
-
-        const onEnded = () => {
-            handleSegmentEnd();
-        };
-
-        const onError = (e: Event) => {
-            console.error("[StoryPlayer] Audio playback error:", e);
-            // Try to skip to next if error
-            handleSegmentEnd();
-        };
-
-        audio.addEventListener('ended', onEnded);
-        audio.addEventListener('error', onError);
-
-        return () => {
-            audio.pause();
-            audio.src = "";
-            audio.removeEventListener('ended', onEnded);
-            audio.removeEventListener('error', onError);
-        };
-    }, []);
-
-    const playSegment = async (segment: StorySegment) => {
+    const playSegment = useCallback(async (segment: StorySegment) => {
         if (!segment?.audioUrl) {
             console.warn("Attempted to play segment without audio URL");
             setIsBuffering(true);
@@ -118,8 +67,6 @@ const StoryPlayer: React.FC<Props> = ({ story, route, directions, onSegmentChang
             return;
         }
 
-        console.log(`[StoryPlayer] Playing segment ${segment.index}`);
-
         try {
             audioRef.current.src = segment.audioUrl;
             await audioRef.current.play();
@@ -129,14 +76,12 @@ const StoryPlayer: React.FC<Props> = ({ story, route, directions, onSegmentChang
             // Since we are already in a "Playback" flow started by a click, this should be fine.
             setIsPlaying(false);
         }
-    };
+    }, []);
 
-    const handleSegmentEnd = () => {
-        // USE REF TO GET LATEST INDEX, NOT STALE CLOSURE
+    const handleSegmentEnd = useCallback(() => {
+        // The index ref avoids stale closures inside async audio callbacks
         const currentIndex = indexRef.current;
         const nextIndex = currentIndex + 1;
-
-        console.log(`[StoryPlayer] Segment ${currentIndex} ended. Advancing to ${nextIndex}.`);
 
         setCurrentSegmentIndex(nextIndex);
 
@@ -146,14 +91,69 @@ const StoryPlayer: React.FC<Props> = ({ story, route, directions, onSegmentChang
         } else {
             // Check if we reached the absolute end of the estimated journey
             if (nextIndex >= story.totalSegmentsEstimate && !isBackgroundGenerating) {
-                console.log("[StoryPlayer] Reached end of journey.");
                 setIsPlaying(false);
             } else {
-                console.log(`[StoryPlayer] Segment index ${nextIndex} not ready. Buffering...`);
                 setIsBuffering(true);
             }
         }
-    };
+    }, [story, isBackgroundGenerating, playSegment]);
+
+    // The <audio> listeners are registered once on mount, so route them
+    // through a ref that always points at the latest handler (the inline
+    // handler would otherwise close over the first render's story).
+    const handleSegmentEndRef = useRef(handleSegmentEnd);
+    useEffect(() => {
+        handleSegmentEndRef.current = handleSegmentEnd;
+    }, [handleSegmentEnd]);
+
+    // Setup audio element listeners on mount
+    useEffect(() => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio();
+            audioRef.current.preload = "auto";
+        }
+
+        const audio = audioRef.current;
+
+        const onEnded = () => {
+            handleSegmentEndRef.current();
+        };
+
+        const onError = (e: Event) => {
+            console.error("[StoryPlayer] Audio playback error:", e);
+            // Try to skip to next if error
+            handleSegmentEndRef.current();
+        };
+
+        audio.addEventListener('ended', onEnded);
+        audio.addEventListener('error', onError);
+
+        return () => {
+            audio.pause();
+            audio.src = "";
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
+        };
+    }, []);
+
+    // Auto-play NEXT segment if we were buffering and it just arrived
+    useEffect(() => {
+        // Check if the *current* segment (which might have just arrived) is now ready
+        const segmentNowReady = story.segments[currentSegmentIndex];
+
+        if (isBuffering && isPlaying && segmentNowReady?.audioUrl) {
+            setIsBuffering(false);
+            playSegment(segmentNowReady);
+        }
+    }, [story.segments, currentSegmentIndex, isBuffering, isPlaying, playSegment]);
+
+    // Auto-scroll handling
+    useEffect(() => {
+        if (autoScroll && textContainerRef.current) {
+            const lastParagraph = textContainerRef.current.lastElementChild;
+            lastParagraph?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+    }, [story.segments.length, currentSegmentIndex, autoScroll]);
 
     const togglePlayback = async () => {
         if (!audioRef.current) return;
