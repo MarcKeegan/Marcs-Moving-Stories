@@ -98,8 +98,8 @@ Added in this pass: strict TypeScript + `typecheck` script, ESLint (flat config 
 ## 6. Repository hygiene
 
 - `.DS_Store` tracked in 5 locations (gitignored but force-added at some point).
-- 17 internal troubleshooting markdown docs under `ios/` (several containing fragments of the leaked key), a stray `Untitled.swift`, and `ios/test_api_key.sh`.
-- ~10 MB of Google Sans `.ttf` fonts and large icons tracked in `ios/`.
+- 17 internal troubleshooting markdown docs under `ios/` (several containing fragments of the leaked key), a stray empty `Untitled.swift`, and `ios/test_api_key.sh`.
+- ~10 MB of Google Sans `.ttf` fonts tracked in `ios/` — verified as genuinely used by the iOS app (registered in `Info.plist` and `FontExtensions.swift`), so they were kept; consider Git LFS if the repo grows.
 - A built frontend bundle was committed historically (since removed).
 - No `server/package-lock.json`, so server deps were unpinned at deploy time.
 
@@ -129,4 +129,4 @@ Ordered roughly by value-to-effort:
 - **Build/perf**: CDN import map removed (Vite now bundles everything); Tailwind moved to a build-time dependency with the theme in CSS (missing `fade-in` animation now actually defined); blob URLs revoked on reset/replacement; one Directions call per journey shared across all three map consumers; first-segment text+audio pipeline tightened; callbacks memoized; Docker runtime on `node:22-slim` as non-root with `.dockerignore` and `npm ci` against a committed server lockfile.
 - **Code quality**: `App.tsx` split (AuthScreen component, `useGoogleMaps` and `useStoryEngine` hooks); shared `mapStyles.ts`; `strict` TypeScript with `@types/google.maps` and `any`s eliminated; dead states/fields removed; generation and playback errors surfaced to the user; top-level error boundary; a11y labels on inputs and icon buttons.
 - **Infra**: ESLint, Vitest suite, GitHub Actions CI, typecheck in the build.
-- **Hygiene**: iOS troubleshooting docs with key fragments, `test_api_key.sh`, `Untitled.swift`, and `.DS_Store` files removed from tracking.
+- **Hygiene**: the 11 one-off iOS debugging docs (including those with key fragments), `test_api_key.sh`, the empty `Untitled.swift`, and all `.DS_Store` files removed from tracking; durable docs (README, SETUP, ARCHITECTURE, DEPENDENCIES, release checklists) kept.
